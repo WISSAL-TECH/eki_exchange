@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="table_eki_click">
+            <!--table-->
+            <div class="container">
+                <table class="table table-sm table-striped" name="invoice_line_table"
+                       style="margin-left: -1.7% !important;
+                                      width: 102% !important;  ">
+                    <thead style="height:38px; align-item: centre !important;">
+                        <tr style="  height:35px; !important;
+                                             padding: 5px 100px 5px 5px;
+                                            ">
+                            <th name="th_description" class="text-center"
+                                style="background: #191D34; border-right: 1px solid #FAFAFB;">
+                                <span style="color:white; padding: 5px 10px;">Désignation
+                                </span>
+                            </th>
+                            <div style="background:white !important;
+                                                height: 50px !important;
+                                                width:  10px !important;
+"/>
+                            <th name="th_quantity" class="text-center"
+                                style="border-right: 1px solid #FAFAFB; background: #191D34;">
+                                <span style="color:white;">Quantité
+                                </span>
+                            </th>
+                            <th name="th_subtotal" class="text-center"
+                                style="background: #191D34; border-right: 1px solid #FAFAFB;"
+                            >
+                                <span
+                                        style="color:white;">Prix Unitaire HT
+                                </span>
+                            </th>
+                            <th name="th_subtotal" class="text-center"
+                                style="background: #191D34;"
+                            >
+                                <span
+                                        style="color:white;">Prix Total HT
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <!--tbody-->
+                    <tbody class="sale_tbody">
+
+                        <t t-set="current_subtotal" t-value="0"/>
+
+                        <t t-foreach="doc.order_line" t-as="line">
+
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                               groups="account.group_show_line_subtotals_tax_excluded"/>
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                               groups="account.group_show_line_subtotals_tax_included"/>
+
+                            <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                <t t-if="not line.display_type">
+                                    <td name="td_name">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td name="td_quantity" class="text-right">
+                                        <span t-field="line.product_uom_qty"/>
+                                        <span t-field="line.product_uom"/>
+                                    </td>
+                                    <td name="td_priceunit" class="text-right">
+                                        <span t-field="line.price_unit"/>
+                                    </td>
+                                    <td name="td_subtotal" class="text-right o_price_total">
+                                        <span t-field="line.price_subtotal"
+                                              groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-field="line.price_total"
+                                              groups="account.group_show_line_subtotals_tax_included"/>
+                                    </td>
+                                </t>
+                            </tr>
+
+                            <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section')">
+                                <tr class="is-subtotal text-right">
+                                    <td name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Subtotal</strong>
+                                        <span
+                                                t-esc="current_subtotal"
+                                                t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                        />
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-6"></div>
+                    <div class="col-6 text-right">
+                        <table class="table table-borderless">
+                            <t t-set="tax_totals" t-value="json.loads(doc.tax_totals_json)"/>
+                            <t t-call="odoo-rest-ek.document_totals"/>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!--doc tva-->
+        <template id="tax_totals">
+            <t t-foreach="tax_totals['groups_by_subtotal'][subtotal_to_show]" t-as="amount_by_group">
+                <tr>
+                    <td>
+                        TVA
+                    </td>
+                    <td class="text-right o_price_total">
+                        <span class="text-nowrap" t-esc="amount_by_group['formatted_tax_group_amount']"/>
+                    </td>
+                </tr>
+            </t>
+        </template>
+        <!--sub_total-->
+        <template id="document_totals">
+            <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
+                <tr class="o_subtotal">
+                    <td>
+                        Total H.T
+                    </td>
+                    <td class="text-right">
+                        <span
+                                t-att-class="oe_subtotal_footer_separator"
+                                t-esc="subtotal['formatted_amount']"
+                        />
+                    </td>
+                </tr>
+
+                <t t-set="subtotal_to_show" t-value="subtotal['name']"/>
+                <t t-call="odoo-rest-ek.tax_totals"/>
+            </t>
+
+            <!--Total amount with all taxes-->
+            <tr style="margin-top : -50px !important;">
+                <td>
+                    <strong>Total TTC</strong>
+                </td>
+                <td class="text-right">
+                    <strong>
+                        <span t-esc="tax_totals['formatted_amount_total']"/>
+                    </strong>
+                </td>
+            </tr>
+        </template>
+        <!--header-->
+        <template id="report_header_eki_click">
+            <div class="header">
+                <div class="row">
+                    <div class="col-6 text-left">
+                        <br/>
+                        <br/>
+                        <b>
+                            <span t-field="doc.company_id.name"/>
+                        </b>
+                    </div>
+                    <div class="col-6 text-right">
+                        <div class="logo">
+                            <br/>
+                            <br/>
+                            <img t-if="doc.company_id.logo"
+                                 style="width: 140px !important;
+
+                                                  height: 30px !important;"
+                                 t-att-src="image_data_uri(doc.company_id.logo)"
+                                 alt="Logo"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!--footer-->
+        <template id="report_footer_eki_click">
+            <div class="footer">
+                <div class="row text-center" style="margin: auto !important;">
+                    <p>
+                        <img t-if="doc.company_id.logo"
+                             style="width: 140px !important;
+                                                  height: 30px !important;
+                                                  margin-right: 40px !important;
+"
+                             t-att-src="image_data_uri(doc.company_id.logo)"
+                             alt="Logo"/>
+                        <span style="font-size: 12px !important;">
+                            Arrêter la présente proforma a la somme de :
+                            <b>
+                                <span t-esc="doc.currency_id.with_context(lang='es_AR').amount_to_text(doc.amount_total)"/>
+                            </b>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </template>
+        <!--page-->
+        <template id="report_page_eki_click">
+            <t t-call="web.basic_layout">
+                <div class="page">
+                    <style>
+                        *{
+                        font-family: 'Times New Roman', Times, serif;
+                        }
+                        .cls-bold{
+                        font-weight: bold !important;
+                        }
+                    </style>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col-3 text-left">
+                                    <div>
+                                        <span class="cls-bold">Adresse :</span>
+                                    </div>
+                                </div>
+                                <div class="col-9 text-left">
+                                    <div>
+                                        <span t-field="doc.company_id.street"/>
+                                        <br/>
+                                        <span t-field="doc.company_id.city"/>
+                                        <span t-if="doc.company_id.state_id">,</span>
+                                        <span t-field="doc.company_id.state_id"/>
+                                        <span t-if="doc.company_id.country_id">,</span>
+                                        <span t-field="doc.company_id.country_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div>
+                                        <span class="cls-bold">Tél :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">Email :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">Site web :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">Date d'émission :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">Numéro registre :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">NIS :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">NIF :</span>
+                                    </div>
+                                    <div>
+                                        <span class="cls-bold">RIB :</span>
+                                    </div>
+                                </div>
+                                <div class="col-8" style="margin-left: -50px !important;">
+                                    <div>
+                                        <span t-if="doc.company_id.phone" t-field="doc.company_id.phone"/>
+                                        <br t-if="not doc.company_id.phone"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.company_id.email" t-field="doc.company_id.email"/>
+                                        <br t-if="not doc.company_id.email"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.company_id.website" t-field="doc.company_id.website"/>
+                                        <br t-if="not doc.company_id.website"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.date_order" t-field="doc.date_order"
+                                              t-options="{'widget': 'date', 'date_format': 'DD/MM/YYYY'}"/>
+                                        <br t-if="not doc.date_order"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.company_id.company_registry"
+                                              t-field="doc.company_id.company_registry"/>
+                                        <br t-if="not doc.company_id.company_registry"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.company_id.ek_nis" t-field="doc.company_id.ek_nis"/>
+                                        <br t-if="not doc.company_id.ek_nis"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.company_id.ek_nif" t-field="doc.company_id.ek_nif"/>
+                                        <br t-if="not doc.company_id.ek_nif"/>
+                                    </div>
+                                    <div>
+                                        <span t-if="doc.company_id.ek_rib" t-field="doc.company_id.ek_rib"/>
+                                        <br t-if="not doc.company_id.ek_rib"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-right">
+                            <h5>
+                                <span style="color: #191D34 !important; margin-right: 10px !important;"
+                                      class="font-weight-bold">Facture Proforma N° :
+                                    <p t-field="doc.ek_name_id" style="color: #98BD20 !important;"
+                                          class="font-weight-bold"/>
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+                    <br/>
+                    <!--separator-->
+                    <div style="background-color: #FAFAFB !important;
+                                width: 100% !important; height: 2px !important;
+                                margin: auto !important;
+"
+                    />
+                    <br/>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col-3">
+                                    <div>
+                                        <span class="cls-bold">Client :</span>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div>
+                                        <span t-field="doc.partner_id.name"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!--adresse client-->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-3">
+                                    <div>
+                                        <span class="cls-bold">Adresse Client :</span>
+                                    </div>
+                                </div>
+                                <div class="col-9 text-left" style="margin-left: -72px !important;">
+                                    <div>
+                                        <span t-field="doc.partner_id.street"/>
+                                        <br/>
+                                        <span t-field="doc.partner_id.city"/>
+                                        <span t-if="doc.partner_id.state_id">,</span>
+                                        <span t-field="doc.partner_id.state_id"/>
+                                        <span t-if="doc.partner_id.country_id">,</span>
+                                        <span t-field="doc.partner_id.country_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!--tel client-->
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col-3">
+                                    <div>
+                                        <span class="cls-bold">Telephone :</span>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div>
+                                        <span t-field="doc.partner_id.phone"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <t t-call="odoo-rest-ek.table_eki_click"/>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_factures_preforma_eki_click">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="odoo-rest-ek.report_header_eki_click"/>
+                    <t t-call="odoo-rest-ek.report_footer_eki_click"/>
+                    <t t-call="odoo-rest-ek.report_page_eki_click"/>
+                </t>
+            </t>
+        </template>
+        <!--page-->
+        <!--action-->
+        <record id="action_report_pro_forma_invoice" model="ir.actions.report">
+            <field name="name">Facture Proforma</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">odoo-rest-ek.report_factures_preforma_eki_click</field>
+            <field name="report_file">odoo-rest-ek.report_factures_preforma_eki_click</field>
+            <field name="print_report_name">'Facture Proforma - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_sale_order"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('sale.group_proforma_sales'))]"/>
+        </record>
+
+        <!--masquer les btn d'imprision par defaut-->
+        <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+        <record id="sale.action_report_saleorder" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+        <record id="account.account_invoices" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+        <record id="account.account_invoices_without_payment" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+        <record id="stock.action_report_delivery" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+        <record id="stock.action_report_picking" model="ir.actions.report">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

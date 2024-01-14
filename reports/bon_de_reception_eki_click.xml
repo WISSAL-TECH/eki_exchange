@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--table-->
+        <template id="table_eki_click_bon_livraison">
+            <!--table-->
+            <div class="container">
+                <table class="table table-sm table-striped" name="invoice_line_table"
+                       style="margin-left: -1.7% !important;
+                                      width: 102% !important;  ">
+                    <thead style="height:38px; align-item: centre !important;">
+                        <tr style="  height:35px; !important;
+                                             padding: 5px 100px 5px 5px;
+                                            ">
+                            <th name="th_description" class="text-center"
+                                style="background: #191D34; border-right: 1px solid #FAFAFB;">
+                                <span style="color:white; padding: 5px 10px;">Désignation
+                                </span>
+                            </th>
+                            <div style="background:white !important;
+                                                height: 50px !important;
+                                                width:  10px !important;
+"/>
+                            <th name="th_quantity" class="text-center"
+                                style="border-right: 1px solid #FAFAFB; background: #191D34;">
+                                <span style="color:white;">Quantité
+                                </span>
+                            </th>
+                            <th name="th_subtotal" class="text-center"
+                                style="background: #191D34; border-right: 1px solid #FAFAFB;"
+                            >
+                                <span
+                                        style="color:white;">Prix Unitaire HT
+                                </span>
+                            </th>
+                            <th name="th_subtotal" class="text-center"
+                                style="background: #191D34;"
+                            >
+                                <span
+                                        style="color:white;">Prix Total HT
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <!--tbody-->
+                    <tbody class="sale_tbody">
+
+                        <t t-set="current_subtotal" t-value="0"/>
+
+                        <t t-foreach="doc.sale_id.order_line" t-as="line">
+
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                               groups="account.group_show_line_subtotals_tax_excluded"/>
+                            <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                               groups="account.group_show_line_subtotals_tax_included"/>
+
+                            <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                <t t-if="not line.display_type">
+                                    <td name="td_name">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td name="td_quantity" class="text-right">
+                                        <span t-field="line.product_uom_qty"/>
+                                        <span t-field="line.product_uom"/>
+                                    </td>
+                                    <td name="td_priceunit" class="text-right">
+                                        <span t-field="line.price_unit"/>
+                                    </td>
+                                    <td name="td_subtotal" class="text-right o_price_total">
+                                        <span t-field="line.price_subtotal"
+                                              groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-field="line.price_total"
+                                              groups="account.group_show_line_subtotals_tax_included"/>
+                                    </td>
+                                </t>
+                            </tr>
+
+                            <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section')">
+                                <tr class="is-subtotal text-right">
+                                    <td name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Subtotal</strong>
+                                        <span
+                                                t-esc="current_subtotal"
+                                                t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                        />
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+                <!--                <div class="row">-->
+                <!--                    <div class="col-6"></div>-->
+                <!--                    <div class="col-6 text-right">-->
+                <!--                        <table class="table table-borderless">-->
+                <!--                            <t t-set="tax_totals" t-value="json.loads(doc.tax_totals_json)"/>-->
+                <!--                            <t t-call="odoo-rest-ek.document_totals"/>-->
+                <!--                        </table>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+            </div>
+        </template>
+        <!--page-->
+        <template id="report_page_eki_click_recepitslip">
+            <t t-call="web.basic_layout">
+                <style>
+                    *{
+                    font-family: 'Times New Roman', Times, serif;
+                    }
+                    .cls-bold{
+                        font-weight: bold !important;
+                    }
+                </style>
+                <div class="page">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col-3 text-left">
+                                    <div>
+                                        <span class="cls-bold" style="color: #191D34 !important:">Date :</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <!--separator-->
+                    <div style="background-color: #FAFAFB !important;
+                                width: 100% !important; height: 2px !important;
+                                margin: auto !important;
+"
+                    />
+                    <br/>
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <h2 style="font-weight: bold !important; color: #191D34 !important; "
+                            >‫ﺳﻨﺪ‬ ﺇﺳﺘﻼﻡ‬ ‫ﺍﻟﺴﻠﻊ‬
+                            </h2>
+                            <p style="font-weight: bold !important; color: #191D34 !important; "
+                            >
+                                <span style="font-weight: normal !important;" t-field="doc.partner_id.name"/>
+                                <span></span>‫‬ ‫ﺃﻧﺎ‬ ﺍﻟﺴﻴﺪ
+                            </p>
+                            <br/>
+                            <span style="font-weight: bold !important; color: #191D34 !important;">
+                                الممضي أسفله أقر أنني إستلمت السلع المبينة أسفله
+                            </span>
+                        </div>
+                    </div>
+                    <!--table-->
+                    <div class="container">
+                        <table class="table table-sm table-striped" name="invoice_line_table"
+                               style="margin-left: -1.7% !important;
+                                      width: 102% !important;  ">
+                            <thead style="height:38px; align-item: centre !important;">
+                                <tr style="  height:35px; !important;
+                                             padding: 5px 100px 5px 5px;
+                                            ">
+                                    <th name="th_description" class="text-left"
+                                        style="background: #191D34; border-right: 1px solid #FAFAFB;">
+                                        <span style="color:white; padding: 5px 10px;">Désignation
+                                        </span>
+                                    </th>
+                                    <div style="background:white !important;
+                                                height: 50px !important;
+                                                width:  10px !important;
+"/>
+                                    <th name="th_quantity" class="text-center"
+                                        style="border-right: 1px solid #FAFAFB; background: #191D34;">
+                                        <span style="color:white;">Quantité
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <!--tbody-->
+                            <tbody>
+                                <t t-set="lines" t-value="doc.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                                <tr t-foreach="lines" t-as="move">
+                                    <td>
+                                        <span t-field="move.product_id"/>
+                                        <p t-if="move.description_picking != move.product_id.name and move.description_picking != move.product_id.display_name">
+                                            <span t-field="move.description_picking"/>
+                                        </p>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="move.product_uom_qty"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!--footer bon de livraison-->
+        <template id="report_footer_eki_click_recepitslip">
+            <div class="footer" style="margin-left: 230px !important;">
+                <div class="row">
+                    <p style="font-weight: bold !important; color: #191D34 !important;">
+                       ﺍﻹﻣﻀﺎﺀ
+                    </p>
+                </div>
+                <div class="row">
+                    <p style="font-weight: bold !important; color: #191D34 !important;">
+                    ﺗﺎﺭﻳﺦ ﺍﻹﺳﺘﻼﻡ
+                    </p>
+                </div>
+            </div>
+        </template>
+
+        <template id="report_receiptslip_eki_click">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="odoo-rest-ek.report_header_eki_click"/>
+                    <t t-call="odoo-rest-ek.report_page_eki_click_recepitslip"/>
+                    <t t-call="odoo-rest-ek.report_footer_eki_click_recepitslip"/>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_receipt_eki_click" model="ir.actions.report">
+            <field name="name">Bon de reception</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">odoo-rest-ek.report_receiptslip_eki_click</field>
+            <field name="report_file">odoo-rest-ek.report_receiptslip_eki_click</field>
+            <field name="print_report_name">'Bon de reception - %s - %s' % (object.partner_id.name or '',
+                object.name)
+            </field>
+            <field name="binding_model_id" ref="model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,67 @@
+<odoo>
+    <data>
+        <template id="custom_report_picking_operations" inherit_id="stock.report_picking">
+            <xpath expr="//h1[@t-field='o.name']" position="replace">
+                <div class="row">
+                    <div class="col-auto">
+                        <h1 t-field="o.name"/>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//div[@class='row mt48 mb32']" position="replace">
+                <div class="row mt48 mb32">
+                    <div t-if="o.origin" class="col-4" name="div_origin">
+                        <strong>Order:</strong>
+                        <p t-field="o.origin"/>
+                    </div>
+                    <div class="col-4" name="div_state">
+                        <strong>Status:</strong>
+                        <p t-field="o.state"/>
+                    </div>
+                    <div class="col-4" name="div_sched_date">
+                        <strong>Scheduled Date:</strong>
+                        <p t-field="o.scheduled_date"/>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//table[@class='table table-sm'][1]" position="before">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-12 border-bottom mb-2">
+                                <strong>Origin:</strong>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 t-field="o.location_id"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-12 border-bottom mb-2">
+                                <strong>Destination:</strong>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 t-field="o.location_dest_id"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </xpath>
+        </template>
+        <record id="action_report_picking_custom" model="ir.actions.report">
+            <field name="name">Custom Picking Operations</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">odoo-rest-ek.custom_report_picking_operations</field>
+            <field name="report_file">odoo-rest-ek.custom_report_picking_operations</field>
+            <field name="binding_model_id" ref="model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

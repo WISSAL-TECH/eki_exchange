@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!--page-->
+        <template id="report_transfer_page_eki_click">
+            <t t-call="web.basic_layout">
+                <style>
+                    *{
+                    font-family: 'Times New Roman', Times, serif;
+                    }
+                    .cls-bold{
+                        font-weight: bold !important;
+                    }
+                </style>
+                <div class="page">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col-4 text-left">
+                                    <div>
+                                        <span class="cls-bold" style="margin-right: 10px !important;">Date :</span>
+                                        <span t-field="doc.scheduled_date"
+                                              t-options="{'widget': 'date', 'date_format': 'DD/MM/YYYY'}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-right">
+                            <h5>
+                                <span style="color: #191D34 !important; margin-right: 10px !important;"
+                                      class="font-weight-bold">Bon de transfert N°:
+                                    <span t-field="doc.name" style="color: #98BD20 !important;"
+                                          class="font-weight-bold"/>
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+                    <br/>
+                    <!--separator-->
+                    <div style="background-color: #FAFAFB !important;
+                                width: 100% !important; height: 2px !important;
+                                margin: auto !important;
+"
+                    />
+                    <br/>
+                    <div class="container">
+                        <table class="table table-sm table-striped" name="invoice_line_table"
+                               style="margin-left: -1.7% !important;
+                                      width: 102% !important;  ">
+                            <thead style="height:38px; align-item: centre !important;">
+                                <tr style="  height:35px; !important;
+                                             padding: 5px 100px 5px 5px;
+                                            ">
+                                    <th name="th_description" class="text-center"
+                                        style="border: 1px solid #191D34; padding: 15px;">
+                                        <span style="color:#191D34;">Origine
+                                        </span>
+                                    </th>
+                                    <th name="th_description" class="text-center"
+                                        style="border: 1px solid #191D34; padding: 15px;">
+                                        <span style="color:#191D34;">Destination
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <!--tbody-->
+                            <tbody>
+                                <td class="text-center"
+                                    style="border: 1px solid #191D34; padding: 10px; background-color: white !important;">
+                                    <span t-field="doc.location_id"/>
+                                </td>
+                                <td class="text-center"
+                                    style="border: 1px solid #191D34; padding: 10px; background-color: white !important;">
+                                    <span t-field="doc.location_dest_id"/>
+                                </td>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!--separator-->
+                    <br/>
+                    <div style="background-color: #FAFAFB !important;
+                                width: 100% !important; height: 2px !important;
+                                margin: auto !important;
+"
+                    /><!--Table-->
+                    <div class="container">
+                        <table class="table table-sm table-striped" name="invoice_line_table"
+                               style="margin-left: -1.7% !important;
+                                      width: 102% !important;  ">
+                            <thead style="height:38px; align-item: centre !important;">
+                                <tr style="  height:35px; !important;
+                                             padding: 5px 100px 5px 5px;
+                                            ">
+                                    <th name="th_description" class="text-left"
+                                        style="padding: 10px; background: #191D34; border-right: 1px solid #FAFAFB;">
+                                        <span style="color:white; padding: 5px 10px;">Désignation
+                                        </span>
+                                    </th>
+                                    <div style="background:white !important;
+                                                height: 50px !important;
+                                                width:  10px !important;
+"/>
+                                    <th name="th_quantity" class="text-center"
+                                        style="padding: 10px; border-right: 1px solid #FAFAFB; background: #191D34;">
+                                        <span style="color:white;">unité de mesure
+                                        </span>
+                                    </th>
+                                    <th name="th_quantity" class="text-center"
+                                        style="padding: 10px; border-right: 1px solid #FAFAFB; background: #191D34;">
+                                        <span style="color:white;">Quantité
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <!--tbody-->
+                            <tbody>
+                                <t t-set="lines"
+                                   t-value="doc.move_ids_without_package.filtered(lambda x: x.product_uom_qty)"/>
+                                <tr t-foreach="lines" t-as="move">
+                                    <td class="text-left">
+                                        <span t-field="move.description_picking"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="move.product_uom"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="move.quantity_done"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-6"></div>
+                        <div class="col-6 text-right">
+                            <span style="font-weight : bold !important; margin-right: 16px !important;
+                                            text-decoration: underline; !important;
+                                        ">VISA DES STOCK
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_transfer_eki_click">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="odoo-rest-ek.report_header_eki_click"/>
+                    <t t-call="odoo-rest-ek.report_footer_eki_click_deliveryslip"/>
+                    <t t-call="odoo-rest-ek.report_transfer_page_eki_click"/>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_delivery_eki_click" model="ir.actions.report">
+            <field name="name">Bon de transfert</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">odoo-rest-ek.report_transfer_eki_click</field>
+            <field name="report_file">odoo-rest-ek.report_transfer_eki_click</field>
+            <field name="print_report_name">'Bon de transfert - %s - %s' % (object.partner_id.name or '',
+                object.name)
+            </field>
+            <field name="binding_model_id" ref="model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>
