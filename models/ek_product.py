@@ -81,7 +81,6 @@ class Product(models.Model):
 
             return rec
 
-    @api.multi
     def write(self, vals):
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
