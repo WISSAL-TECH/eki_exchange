@@ -29,7 +29,9 @@ class ResPartner(models.Model):
         '\n\n\nvals\n\n\n\n--->>  %s\n\n\n\n', vals)
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
-        domain = "https://apiadmin-odoo.ekiclik.com"
+        domain = self.env['res.config.settings'].search().domain
+        _logger.info(
+            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
 
         # CHECK IF THE CREATION MADE BY ekiclik---------------------------------------------------------------
         if 'create_by' in vals.keys() and vals['create_by'] != 'odoo':
