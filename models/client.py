@@ -29,7 +29,8 @@ class ResPartner(models.Model):
         '\n\n\nvals\n\n\n\n--->>  %s\n\n\n\n', vals)
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
-        domain = self.env['res.config.settings'].search().domain
+        domain = self.env['res.config.settings'].search([]).domain
+
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
 
