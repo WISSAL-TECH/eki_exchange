@@ -119,7 +119,7 @@ class Product(models.Model):
                     product_json["configurations"] = configurations
                 _logger.info(
                     '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
-            response = requests.put(domain + url_product, data=json.dumps(product_json),
+            response = requests.post(domain + url_product, data=json.dumps(product_json),
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
