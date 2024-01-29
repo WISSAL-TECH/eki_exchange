@@ -20,6 +20,17 @@ class Product(models.Model):
     brand = fields.Many2one("product.brand", 'Marque')
     image_url = fields.Char(string='Image URL')
 
+    def generate_code(self):
+        """Generating default code for ek products"""
+
+        # Generate a random 6-digit number
+        random_number = random.randint(100000, 999999)
+
+        # Concatenate the "eki_" and random number
+        product_code = f"eki_{random_number}"
+
+        return product_code
+
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -73,6 +84,7 @@ class Product(models.Model):
 
         # 2- CREATE A PRODUCT FROM ODOO (Send a product to Imtech)
         else:
+            self.default_code = self.generate_code()
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
