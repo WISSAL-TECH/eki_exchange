@@ -30,7 +30,7 @@ class Product(models.Model):
         logging.warning(vals)
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = "https://apiadmin-odoo.ekiclik.com"
-        url_product=""
+        url_product="/api/odoo/products"
 
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
             if 'barcode' in vals and not vals['barcode']:
@@ -77,6 +77,52 @@ class Product(models.Model):
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
                 vals.pop("image_url")
+
+            product_json = {
+                "name": self.name,
+                "description": self.description,
+                "categoryName": self.categ_id.name,
+                "brand": {
+                    "name": self.brand_id.name,
+                    "reference": ""
+                },
+                "refConstructor": self.default_code,
+                "manufactureName": "",
+                "activate": True,
+                "configurations": []
+            }
+
+            for record in self:
+                if record.product_template_variant_value_ids:
+                    configurations = []
+                    configuration = {
+                        'name': record.name,
+                        "reference": record.default_code,
+                        "price": record.list_price,
+                        "buyingPrice": 0,
+                        "state": "Active",
+                        "productCharacteristics": [],
+                        "images": record.image_url,
+                        # "certificateUrl": record.certificate_url,
+                        "active": True,
+                        "description": record.description,
+                    }
+
+                    for value in record.product_template_variant_value_ids:
+                        product_characteristic = {
+                            "value": value.value_ids,
+                            "name": value.attribute_id  
+                        }
+                        configuration["productCharacteristics"].append(product_characteristic)
+
+                    configurations.append(configuration)
+                    product_json["configurations"] = configurations
+                _logger.info(
+                    '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
+            response = requests.put(domain + url_product, data=json.dumps(product_json),
+                                     headers=self.headers)
+            _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                         response.content)
             rec = super(Product, self).create(vals)
 
             return rec
