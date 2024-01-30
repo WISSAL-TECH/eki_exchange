@@ -103,10 +103,10 @@ class Product(models.Model):
                 "activate": True,
                 "configurations": []
             }
+            configurations = []
 
             for record in self:
                 #if record.product_template_variant_value_ids:
-                configurations = []
                 configuration = {
                     'name': record.name,
                     "reference": record.default_code,
