@@ -83,9 +83,9 @@ class Product(models.Model):
             product_json ={
                 "name": rec.name,
                 "description": rec.description,
-                "categoryName": rec.categ_id,
+                "categoryName": rec.categ_id.name,
                 "brand": {
-                    "name": rec.brand_id,
+                    "name": rec.brand_id.name,
                     "reference": ""
                 },
                 "refConstructor": rec.id,
