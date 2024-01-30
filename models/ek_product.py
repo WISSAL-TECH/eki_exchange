@@ -40,8 +40,8 @@ class Product(models.Model):
         logging.warning("create product ======")
         logging.warning(vals)
         # 1- CREATE A PRODUCT FROM ekiclik
-        domain = "https://apiadmin-odoo.ekiclik.com"
-        url_product="/api/odoo/products"
+        domain = "https://ekiclik.admin.wissal-group.com"
+        url_product = "/api/odoo/products"
 
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
             if 'barcode' in vals and not vals['barcode']:
