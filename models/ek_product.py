@@ -88,7 +88,7 @@ class Product(models.Model):
                     "name": rec.brand_id.name,
                     "reference": ""
                 },
-                "refConstructor": "rc_" + rec.id,
+                "refConstructor": "rc_" + str(rec.id),
                 "manufactureName": rec.manufacture_name,
                 "activate": True,
                 "configurations": []
