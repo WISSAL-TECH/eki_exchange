@@ -107,29 +107,6 @@ class Product(models.Model):
             }
             configurations = []
 
-            for record in rec:
-                if record.product_template_variant_value_ids:
-                    configuration = {
-                        'name': rec.name,
-                        "reference": rec.default_code,
-                        "price": rec.list_price,
-                        "buyingPrice": 0,
-                        "state": "Active",
-                        "productCharacteristics": [],
-                        "images": rec.image_url,
-                        # "certificateUrl": record.certificate_url,
-                        "active": True,
-                        "description": rec.description,
-                    }
-
-                    for value in rec.product_template_variant_value_ids:
-                        product_characteristic = {
-                            "value": value.value_ids,
-                            "name": value.attribute_id
-                        }
-                        configuration["productCharacteristics"].append(product_characteristic)
-
-                    configurations.append(configuration)
             product_json["configurations"] = configurations
             _logger.info(
                     '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
