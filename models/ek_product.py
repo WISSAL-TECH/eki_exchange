@@ -90,44 +90,46 @@ class Product(models.Model):
                 vals["image_1920"] = image
                 vals.pop("image_url")
 
+            rec = super(Product, self).create(vals)
+
             product_json = {
-                "name": self.name,
-                "description": self.description,
-                "categoryName": self.categ_id.name,
+                "name": rec.name,
+                "description": rec.description,
+                "categoryName": rec.categ_id.name,
                 "brand": {
-                    "name": self.brand_id.name,
+                    "name": rec.brand_id.name,
                     "reference": ""
                 },
-                "refConstructor": self.default_code,
+                "refConstructor": rec.default_code,
                 "manufactureName": "",
                 "activate": True,
                 "configurations": []
             }
             configurations = []
 
-            for record in self:
-                #if record.product_template_variant_value_ids:
-                configuration = {
-                    'name': record.name,
-                    "reference": record.default_code,
-                    "price": record.list_price,
-                    "buyingPrice": 0,
-                    "state": "Active",
-                    "productCharacteristics": [],
-                    "images": record.image_url,
-                    # "certificateUrl": record.certificate_url,
-                    "active": True,
-                    "description": record.description,
-                }
-
-                for value in record.product_template_variant_value_ids:
-                    product_characteristic = {
-                        "value": value.value_ids,
-                        "name": value.attribute_id
+            for record in rec:
+                if record.product_template_variant_value_ids:
+                    configuration = {
+                        'name': rec.name,
+                        "reference": rec.default_code,
+                        "price": rec.list_price,
+                        "buyingPrice": 0,
+                        "state": "Active",
+                        "productCharacteristics": [],
+                        "images": rec.image_url,
+                        # "certificateUrl": record.certificate_url,
+                        "active": True,
+                        "description": rec.description,
                     }
-                    configuration["productCharacteristics"].append(product_characteristic)
 
-                configurations.append(configuration)
+                    for value in rec.product_template_variant_value_ids:
+                        product_characteristic = {
+                            "value": value.value_ids,
+                            "name": value.attribute_id
+                        }
+                        configuration["productCharacteristics"].append(product_characteristic)
+
+                    configurations.append(configuration)
             product_json["configurations"] = configurations
             _logger.info(
                     '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
@@ -135,7 +137,6 @@ class Product(models.Model):
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
-            rec = super(Product, self).create(vals)
 
             return rec
 
