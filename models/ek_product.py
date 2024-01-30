@@ -129,7 +129,7 @@ class Product(models.Model):
 
                     configurations.append(configuration)
                     product_json["configurations"] = configurations
-                _logger.info(
+            _logger.info(
                     '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(domain + url_product, data=json.dumps(product_json),
                                      headers=self.headers)
