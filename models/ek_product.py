@@ -105,30 +105,30 @@ class Product(models.Model):
             }
 
             for record in self:
-                if record.product_template_variant_value_ids:
-                    configurations = []
-                    configuration = {
-                        'name': record.name,
-                        "reference": record.default_code,
-                        "price": record.list_price,
-                        "buyingPrice": 0,
-                        "state": "Active",
-                        "productCharacteristics": [],
-                        "images": record.image_url,
-                        # "certificateUrl": record.certificate_url,
-                        "active": True,
-                        "description": record.description,
+                #if record.product_template_variant_value_ids:
+                configurations = []
+                configuration = {
+                    'name': record.name,
+                    "reference": record.default_code,
+                    "price": record.list_price,
+                    "buyingPrice": 0,
+                    "state": "Active",
+                    "productCharacteristics": [],
+                    "images": record.image_url,
+                    # "certificateUrl": record.certificate_url,
+                    "active": True,
+                    "description": record.description,
+                }
+
+                for value in record.product_template_variant_value_ids:
+                    product_characteristic = {
+                        "value": value.value_ids,
+                        "name": value.attribute_id
                     }
+                    configuration["productCharacteristics"].append(product_characteristic)
 
-                    for value in record.product_template_variant_value_ids:
-                        product_characteristic = {
-                            "value": value.value_ids,
-                            "name": value.attribute_id  
-                        }
-                        configuration["productCharacteristics"].append(product_characteristic)
-
-                    configurations.append(configuration)
-                    product_json["configurations"] = configurations
+                configurations.append(configuration)
+                product_json["configurations"] = configurations
             _logger.info(
                     '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(domain + url_product, data=json.dumps(product_json),
