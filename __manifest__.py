@@ -29,6 +29,9 @@
     'data': [
         'security/ir.model.access.csv',
 
+        #views
+        'views/ek_product_inherit.xml'
+
 
 
         #reports

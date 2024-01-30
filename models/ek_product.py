@@ -88,10 +88,10 @@ class Product(models.Model):
                     "name": rec.brand_id.name,
                     "reference": ""
                 },
-                "refConstructor": rec.id,
-                "manufactureName": "",
+                "refConstructor": "rc_" + rec.id,
+                "manufactureName": rec.manufacture_name,
                 "activate": True,
-                "configuration": []
+                "configurations": []
 
             }
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
@@ -107,7 +107,7 @@ class Product(models.Model):
                         "buyingPrice": 0,
                         "state": "Active",
                         "productCharacteristics": [],
-                        "image": '',
+                        "image": rec.image_url if rec.image_url else '',
                         #"certificateUrl":record.certificate_url,
 
                     }
@@ -117,9 +117,9 @@ class Product(models.Model):
                             "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
                         }
                         configurations.append(configuration)
-                        configuration["productCharacteristics"]= product_characteristic
+                        configuration["productCharacteristics"].append(product_characteristic)
 
-                product_json["configurations"] = configurations
+                product_json["configurations"].append(configurations)
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(domain + url_product, data=json.dumps(product_json),
