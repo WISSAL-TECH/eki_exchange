@@ -91,7 +91,6 @@ class Product(models.Model):
                 "refConstructor": "rc_" + str(rec.id),
                 "manufactureName": rec.manufacture_name,
                 "activate": True,
-                "configurations": []
 
             }
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
@@ -119,7 +118,7 @@ class Product(models.Model):
                         configurations.append(configuration)
                         configuration["productCharacteristics"].append(product_characteristic)
 
-                product_json["configurations"].append(configurations)
+                product_json["configurations"] = configurations
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(domain + url_product, data=json.dumps(product_json),
