@@ -128,7 +128,6 @@ class Product(models.Model):
 
             return rec
 
-            return rec
 
     def write(self, vals):
         _logger.info(
