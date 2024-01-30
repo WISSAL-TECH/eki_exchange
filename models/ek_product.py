@@ -84,7 +84,7 @@ class Product(models.Model):
 
         # 2- CREATE A PRODUCT FROM ODOO (Send a product to Imtech)
         else:
-            self.default_code = self.generate_code()
+            vals["default_code"] = self.generate_code()
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
