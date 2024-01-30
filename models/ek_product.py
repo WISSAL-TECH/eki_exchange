@@ -21,18 +21,6 @@ class Product(models.Model):
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
 
-    def generate_code(self):
-        """Generating default code for ek products"""
-
-        # Generate a random 6-digit number
-        random_number = random.randint(100000, 999999)
-
-        # Concatenate the "eki_" and random number
-        product_code = f"eki_{random_number}"
-
-        return product_code
-
-
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
@@ -79,19 +67,57 @@ class Product(models.Model):
                 vals["image_1920"] = image
                 vals.pop("image_url")
 
+
             rec = super(Product, self).create(vals)
 
             return rec
 
-        # 2- CREATE A PRODUCT FROM ODOO (Send a product to Imtech)
+        # 2- CREATE A PRODUCT FROM ODOO (Send a product to ekiclik)
         else:
-            vals["default_code"] = self.generate_code()
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
+            product_json ={
+                "name": rec.name,
+                "description": rec.description,
+                "categoryName": rec.categ_id,
+                "brand": {
+                    "name": rec.brand_id,
+                    "reference": ""
+                },
+                "refConstructor": rec.id,
+                "manufactureName": "",
+                "activate": True,
+
+            }
+            variantes = self.env['product.product'].search([('name', '=', rec.name)])
+            for record in variantes :
+                configurations = []
+
+                if record.product_template_attribute_value_ids:
+                    configuration = {
+                        'name': record.name,
+                        "description": '',
+                        "reference": record.default_code,
+                        "price": record.lst_price,
+                        "buyingPrice": 0,
+                        "state": "Active",
+                        "productCharacteristics": [],
+                        "image": '',
+                        #"certificateUrl":record.certificate_url,
+
+                    }
+                    for value in record.product_template_attribute_value_ids:
+                        product_characteristic={
+                            "value": value.attribute_id,
+                            "name": value.value_ids}
+                        configurations.append(configuration)
+                        configuration["productCharacteristics"].append(product_characteristic)
+
+                product_json["configuration"].append(configurations)
 
             return rec
 
@@ -151,8 +177,6 @@ class Product(models.Model):
 class EkiProduct(models.Model):
     _inherit = ['product.product']
 
-    create_by = fields.Char(string="Créé à partir de",readonly=True)
-    image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
 
     def generate_code(self):
@@ -166,3 +190,14 @@ class EkiProduct(models.Model):
 
         return product_code
 
+
+
+    @api.model
+    def create(self, vals):
+
+        vals["default_code"] = self.generate_code()
+
+        rec = super(EkiProduct, self).create(vals)
+
+
+        return rec
