@@ -112,9 +112,10 @@ class Product(models.Model):
 
                     }
                     for value in record.product_template_attribute_value_ids:
-                        product_characteristic={
-                            "name": value.attribute_id,
-                            "value": value.product_attribute_value_id}
+                        product_characteristic = {
+                            "name": value.attribute_id.name if value.attribute_id else '',
+                            "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                        }
                         configurations.append(configuration)
                         configuration["productCharacteristics"]= product_characteristic
 
