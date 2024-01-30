@@ -91,6 +91,7 @@ class Product(models.Model):
                 "refConstructor": rec.id,
                 "manufactureName": "",
                 "activate": True,
+                "configuration": []
 
             }
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
