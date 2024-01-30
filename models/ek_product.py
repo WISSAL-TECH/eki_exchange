@@ -128,7 +128,7 @@ class Product(models.Model):
                     configuration["productCharacteristics"].append(product_characteristic)
 
                 configurations.append(configuration)
-                product_json["configurations"] = configurations
+            product_json["configurations"] = configurations
             _logger.info(
                     '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(domain + url_product, data=json.dumps(product_json),
