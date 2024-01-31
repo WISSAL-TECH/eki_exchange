@@ -1,5 +1,4 @@
 import json
-from io import BytesIO
 
 import requests
 from odoo import models, fields, api, exceptions
@@ -8,7 +7,8 @@ import logging
 from _datetime import datetime
 from odoo.exceptions import ValidationError
 
-from odoo.odoo.tools import quote
+from urllib.parse import quote
+from io import BytesIO ,StringIO
 from .config import *
 import base64
 import random
