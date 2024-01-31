@@ -1,6 +1,8 @@
 import json
 
 import requests
+from minio.api import Minio
+
 from odoo import models, fields, api, exceptions
 from odoo.http import request
 import logging
@@ -13,7 +15,6 @@ from .config import *
 import base64
 import random
 import string
-from minio import Minio
 from minio.error import S3Error
 
 _logger = logging.getLogger(__name__)
