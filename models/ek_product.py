@@ -28,7 +28,7 @@ class Product(models.Model):
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
-    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
+    certificate_url = fields.Char("Certificate URL")
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
