@@ -43,7 +43,6 @@ class Product(models.Model):
         logging.warning(vals)
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = self.env['res.config.settings'].search([]).domain
-        domain = "https://ekiclik.admin.wissal-group.com"
         url_product = "/api/odoo/products"
 
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
