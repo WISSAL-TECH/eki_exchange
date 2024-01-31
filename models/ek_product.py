@@ -28,16 +28,12 @@ class Product(models.Model):
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
-    certificate_url = fields.Char("Certificate URL")
+    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
-            if record.certificate:
-                certificate_data = base64.b64encode(record.certificate).decode('utf-8')
-                record.certificate_url = 'data:application/octet-stream;base64,{}'.format(certificate_data)
-            else:
-                record.certificate_url = False
+             record.certificate_url = ''
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
@@ -121,11 +117,11 @@ class Product(models.Model):
                         "reference": record.default_code,
                         "price": record.lst_price,
                         "buyingPrice": 0,
-                        "state": "Active",
+                        #"state": "Active",
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else '',
                         "active": True,
-                        "certificateUrl": rec.certificate_url,
+                        "certificateUrl": record.certificate_url,
                     }
 
                     for value in record.product_template_attribute_value_ids:
