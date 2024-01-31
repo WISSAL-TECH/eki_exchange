@@ -119,7 +119,7 @@ class Product(models.Model):
                         "buyingPrice": 0,
                         #"state": "Active",
                         "productCharacteristics": [],
-                        "images": rec.image_url if rec.image_url else '',
+                        "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
                         "certificateUrl": record.certificate_url,
                     }
