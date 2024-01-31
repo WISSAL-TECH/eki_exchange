@@ -2,7 +2,7 @@ import json
 import sys
 
 import requests
-import Minio
+#from minio import Minio
 
 from odoo import models, fields, api, exceptions
 from odoo.http import request
@@ -144,22 +144,21 @@ class Product(models.Model):
             return rec
 
     def create_doc_url(self, attach):
-        client = Minio("play.min.io",
-                       access_key="admin",
-                       secret_key="d%gHsjnZ*eD",
-                       )
+        #client = Minio("play.min.io",
+        #               access_key="admin",
+        #               secret_key="d%gHsjnZ*eD")
         bucket_name = "file-storage-document-salam"
         destination_file = "eki_file"+str(attach.id)
 
         if attach.datas:
             data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
 
-            client.fput_object(
-                bucket_name, destination_file, data_fileobj,
-            )
+           # client.fput_object(
+           #     bucket_name, destination_file, data_fileobj,
+           # )
 
             # Get the URL for the uploaded file
-            url = client.presigned_get_object(bucket_name, destination_file)
+            #url = client.presigned_get_object(bucket_name, destination_file)
 
             print(
                 data_fileobj, "successfully uploaded as object",
