@@ -28,6 +28,17 @@ class Product(models.Model):
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
+    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
+
+    @api.depends('certificate')
+    def _compute_certificate_url(self):
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+
+        for record in self:
+            if record.certificate:
+                record.certificate_url = '{}/web/content/{}/{}'.format(base_url, record._name, record.id)
+            else:
+                record.certificate_url = False
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
@@ -114,12 +125,8 @@ class Product(models.Model):
                         "state": "Active",
                         "productCharacteristics": [],
                         "image": rec.image_url if rec.image_url else '',
+                        "certificateUrl": record.certificate_url,
                     }
-                    if record.certificate:
-                        for attach in record.certificate:
-                            if not attach.url:
-                                self.create_doc_url(attach)
-                                configuration["certificateUrl"] = attach.url
 
                     for value in record.product_template_attribute_value_ids:
                         product_characteristic = {
@@ -132,7 +139,7 @@ class Product(models.Model):
             product_json["configurations"] = configurations
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
-            response = requests.post("https://ekiclik.admin.wissal-group.com/api/odoo/products", data=json.dumps(product_json),
+            response = requests.post(str(domain)+str(url_product), data=json.dumps(product_json),
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
