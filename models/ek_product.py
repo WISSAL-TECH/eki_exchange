@@ -42,6 +42,7 @@ class Product(models.Model):
         logging.warning("create product ======")
         logging.warning(vals)
         # 1- CREATE A PRODUCT FROM ekiclik
+        domain = self.env['res.config.settings'].search([]).domain
         domain = "https://ekiclik.admin.wissal-group.com"
         url_product = "/api/odoo/products"
 
@@ -135,7 +136,7 @@ class Product(models.Model):
             product_json["configurations"] = configurations
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
-            response = requests.post("https://ekiclik.admin.wissal-group.com/api/odoo/products", data=json.dumps(product_json),
+            response = requests.post(str(domain)+str(url_product), data=json.dumps(product_json),
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
