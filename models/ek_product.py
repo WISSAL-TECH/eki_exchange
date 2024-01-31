@@ -1,14 +1,20 @@
 import json
+from io import BytesIO
+
 import requests
 from odoo import models, fields, api, exceptions
 from odoo.http import request
 import logging
 from _datetime import datetime
 from odoo.exceptions import ValidationError
+
+from odoo.odoo.tools import quote
 from .config import *
 import base64
 import random
 import string
+from minio import Minio
+from minio.error import S3Error
 
 _logger = logging.getLogger(__name__)
 
@@ -86,7 +92,7 @@ class Product(models.Model):
                 "categoryName": rec.categ_id.name,
                 "brand": {
                     "name": rec.brand_id.name,
-                    "reference": ""
+                    "reference": "br_"+str(rec.brand_id.id)
                 },
                 "refConstructor": "rc_" + str(rec.id),
                 "manufactureName": rec.manufacture_name,
@@ -94,10 +100,14 @@ class Product(models.Model):
 
             }
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
-            for record in variantes :
-                configurations = []
+            configurations = []
 
+            for record in variantes :
                 if record.product_template_attribute_value_ids:
+                    if record.attachment_ids:
+                        for attach in record.attachment_ids:
+                            if not attach.url:
+                                self.create_doc_url(attach)
                     configuration = {
                         'name': record.name,
                         "description": '',
@@ -107,18 +117,22 @@ class Product(models.Model):
                         "state": "Active",
                         "productCharacteristics": [],
                         "image": rec.image_url if rec.image_url else '',
-                        #"certificateUrl":record.certificate_url,
-
                     }
+                    if record.attachment_ids:
+                        for attach in record.attachment_ids:
+                            if not attach.url:
+                                self.create_doc_url(attach)
+                                configuration["certificateUrl"] = attach.url
+
                     for value in record.product_template_attribute_value_ids:
                         product_characteristic = {
                             "name": value.attribute_id.name if value.attribute_id else '',
                             "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
                         }
-                        configurations.append(configuration)
                         configuration["productCharacteristics"].append(product_characteristic)
+                    configurations.append(configuration)
 
-                product_json["configurations"] = configurations
+            product_json["configurations"] = configurations
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(domain + url_product, data=json.dumps(product_json),
@@ -128,6 +142,30 @@ class Product(models.Model):
 
             return rec
 
+    def create_doc_url(self, attach):
+        client = Minio("play.min.io",
+                       access_key="admin",
+                       secret_key="d%gHsjnZ*eD",
+                       )
+        bucket_name = "file-storage-document-salam"
+        destination_file = "eki_file"+str(attach.id)
+
+        if attach.datas:
+            data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
+
+            client.fput_object(
+                bucket_name, destination_file, data_fileobj,
+            )
+
+            # Get the URL for the uploaded file
+            url = client.presigned_get_object(bucket_name, destination_file)
+
+            print(
+                data_fileobj, "successfully uploaded as object",
+                destination_file, "to bucket", bucket_name,
+            )
+
+            attach.write({'url': url})
 
     def write(self, vals):
         _logger.info(
