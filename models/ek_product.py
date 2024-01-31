@@ -32,11 +32,10 @@ class Product(models.Model):
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-
         for record in self:
             if record.certificate:
-                record.certificate_url = '{}/web/content/{}/{}'.format(base_url, record.name, record.id)
+                certificate_data = base64.b64encode(record.certificate).decode('utf-8')
+                record.certificate_url = 'data:application/octet-stream;base64,{}'.format(certificate_data)
             else:
                 record.certificate_url = False
     # set the url and headers
@@ -124,7 +123,8 @@ class Product(models.Model):
                         "buyingPrice": 0,
                         "state": "Active",
                         "productCharacteristics": [],
-                        "image": rec.image_url if rec.image_url else '',
+                        "images": rec.image_url if rec.image_url else '',
+                        "active": True,
                         "certificateUrl": record.certificate_url,
                     }
 
