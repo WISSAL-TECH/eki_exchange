@@ -13,6 +13,7 @@
                         <field name="image_url" class="oe_edit_only" invisible="1"/>
                         <field name="create_by" invisible="1"/>
                         <field name="manufacture_name"/>
+                        <field name="certificate"/>
                     </group>
                 </group>
             </div>

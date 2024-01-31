@@ -27,7 +27,7 @@ class Product(models.Model):
     brand = fields.Many2one("product.brand", 'Marque')
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
-
+    certificate = fields.Binary("Certificat")
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
@@ -105,10 +105,6 @@ class Product(models.Model):
 
             for record in variantes :
                 if record.product_template_attribute_value_ids:
-                    if record.attachment_ids:
-                        for attach in record.attachment_ids:
-                            if not attach.url:
-                                self.create_doc_url(attach)
                     configuration = {
                         'name': record.name,
                         "description": '',
@@ -119,8 +115,8 @@ class Product(models.Model):
                         "productCharacteristics": [],
                         "image": rec.image_url if rec.image_url else '',
                     }
-                    if record.attachment_ids:
-                        for attach in record.attachment_ids:
+                    if record.certificate:
+                        for attach in record.certificate:
                             if not attach.url:
                                 self.create_doc_url(attach)
                                 configuration["certificateUrl"] = attach.url
