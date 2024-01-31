@@ -125,7 +125,7 @@ class Product(models.Model):
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else '',
                         "active": True,
-                        "certificateUrl": record.certificate_url,
+                        "certificateUrl": rec.certificate_url,
                     }
 
                     for value in record.product_template_attribute_value_ids:
