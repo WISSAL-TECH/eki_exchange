@@ -1,4 +1,5 @@
 import json
+import sys
 
 import requests
 from minio.api import Minio
@@ -15,7 +16,6 @@ from .config import *
 import base64
 import random
 import string
-from minio.error import S3Error
 
 _logger = logging.getLogger(__name__)
 
