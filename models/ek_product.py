@@ -36,7 +36,7 @@ class Product(models.Model):
 
         for record in self:
             if record.certificate:
-                record.certificate_url = '{}/web/content/{}/{}'.format(base_url, record._name, record.id)
+                record.certificate_url = '{}/web/content/{}/{}'.format(base_url, record.name, record.id)
             else:
                 record.certificate_url = False
     # set the url and headers
