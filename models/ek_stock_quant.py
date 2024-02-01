@@ -69,7 +69,7 @@ class EkQuant(models.Model):
 
         _logger.info(
             '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
-        response1 = requests.put(domain + self.url_stock, data=json.dumps(json_obj),
+        response1 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj),
                                  headers=self.headers)
         _logger.info(
             '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
