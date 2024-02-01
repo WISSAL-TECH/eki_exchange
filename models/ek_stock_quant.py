@@ -17,10 +17,9 @@ class EkQuant(models.Model):
     headers = {"Content-Type": "application/json","Accept": "application/json", "Catch-Control": "no-cache"}
     url_stock = '/api/odoo/stocks'
 
-    domain = "https://apiadmin-odoo.ekiclik.com"
-
-
     def action_apply_inventory(self):
+        domain = self.env['res.config.settings'].search([]).domain
+
         products_tracked_without_lot = []
         for quant in self:
             rounding = quant.product_uom_id.rounding
@@ -70,7 +69,7 @@ class EkQuant(models.Model):
 
         _logger.info(
             '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
-        response1 = requests.put(self.domain + self.url_stock, data=json.dumps(json_obj),
+        response1 = requests.put(domain + self.url_stock, data=json.dumps(json_obj),
                                  headers=self.headers)
         _logger.info(
             '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
