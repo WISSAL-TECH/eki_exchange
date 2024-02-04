@@ -44,7 +44,7 @@ class Product(models.Model):
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = self.env['res.config.settings'].search([]).domain
         url_product = "/api/odoo/products"
-        url_archive_product = "api/odoo/products/archive/"
+        url_archive_product = "/api/odoo/products/archive/"
 
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
             if 'barcode' in vals and not vals['barcode']:
