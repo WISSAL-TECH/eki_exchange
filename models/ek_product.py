@@ -44,6 +44,7 @@ class Product(models.Model):
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = self.env['res.config.settings'].search([]).domain
         url_product = "/api/odoo/products"
+        url_archive_product = "api/odoo/products/archive/"
 
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
             if 'barcode' in vals and not vals['barcode']:
@@ -91,6 +92,14 @@ class Product(models.Model):
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
                 vals.pop("image_url")
+            if "active" in vals and vals["active"]== False:
+               # send archive product to ekiclik
+               _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+               response = requests.PATCH(str(domain) + str(url_archive_product) + "rc_" + str(vals["id"]),
+                                         headers=self.headers)
+
+               _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                            response.content)
 
             rec = super(Product, self).create(vals)
             product_json ={
