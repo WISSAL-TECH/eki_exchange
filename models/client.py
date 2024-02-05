@@ -106,7 +106,7 @@ class ResPartner(models.Model):
 
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
-        domain = "https://apiadmin-odoo.ekiclik.com"
+        domain = self.env['res.config.settings'].search([]).domain
 
 
         # THIS CONDITION IS MADE BECAUSE OF
