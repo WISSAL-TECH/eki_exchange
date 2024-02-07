@@ -169,6 +169,8 @@ class Product(models.Model):
     def write(self, vals):
         domain = self.env['res.config.settings'].search([]).domain
         url_archive_product = "/api/odoo/products/archive/"
+        url_activate_product = "/api/odoo/products/activate/"
+
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
@@ -224,6 +226,15 @@ class Product(models.Model):
 
                 _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
+            if "active" in vals and vals["active"] == True:
+                # send activate product to ekiclik
+                _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+
 
             rec = super(Product, self).write(vals)
 
@@ -254,5 +265,34 @@ class EkiProduct(models.Model):
 
         rec = super(EkiProduct, self).create(vals)
 
+
+        return rec
+
+    def write(self, vals):
+        domain = self.env['res.config.settings'].search([]).domain
+        url_archive_product = "/api/odoo/products/configuration/archive/"
+        url_activate_product = "/api/odoo/products/configuration/activate"
+
+        _logger.info(
+            '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+
+        if "active" in vals and vals["active"] == False:
+                # send archive product to ekiclik
+                _logger.info('\n\n\n Archive VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_archive_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(archive variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+        if "active" in vals and vals["active"] == True:
+                # send activate product to ekiclik
+                _logger.info('\n\n\n Activate VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+
+        rec = super(EkiProduct, self).write(vals)
 
         return rec
