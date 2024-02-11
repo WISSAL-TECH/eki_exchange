@@ -284,31 +284,28 @@ class EkiProduct(models.Model):
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
-        _logger.info(
-            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
+        _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/configuration/archive/"
         url_activate_product = "/api/odoo/products/configuration/activate/"
 
-        _logger.info(
-            '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+        _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
 
-        if "active" in vals and vals["active"] == False:
+        for rec in self:
+            if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
-                _logger.info('\n\n\n Archive VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + str(self.default_code),
+                _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.default_code),
                                           headers=self.headers)
 
-                _logger.info('\n\n\n(archive variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-        if "active" in vals and vals["active"] == True:
+            if "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
-                _logger.info('\n\n\n Activate VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_activate_product) + str(self.default_code),
+                _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.default_code),
                                           headers=self.headers)
 
-                _logger.info('\n\n\n(activate variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
 
-        rec = super(EkiProduct, self).write(vals)
-
-        return rec
+        return super(EkiProduct, self).write(vals)
