@@ -287,7 +287,7 @@ class EkiProduct(models.Model):
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/configuration/archive/"
-        url_activate_product = "/api/odoo/products/configuration/activate"
+        url_activate_product = "/api/odoo/products/configuration/activate/"
 
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
