@@ -2,7 +2,7 @@ import json
 import sys
 
 import requests
-from minio import Minio
+#from minio import Minio
 
 from odoo import models, fields, api, exceptions
 from odoo.http import request
