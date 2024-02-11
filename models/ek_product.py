@@ -295,7 +295,7 @@ class EkiProduct(models.Model):
         if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + "rc_" + str(self.id),
+                response = requests.patch(str(domain) + str(url_archive_product) + str(self.default_code),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
@@ -303,7 +303,7 @@ class EkiProduct(models.Model):
         if "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
                 _logger.info('\n\n\n Activate VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
+                response = requests.patch(str(domain) + str(url_activate_product) + str(self.default_code),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(activate variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
