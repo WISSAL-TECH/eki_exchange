@@ -253,6 +253,7 @@ class Product(models.Model):
 class EkiProduct(models.Model):
     _inherit = ['product.product']
 
+    headers = {"Content-Type": "application/json","Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
 
     def generate_code(self):
