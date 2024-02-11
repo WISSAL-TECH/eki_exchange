@@ -42,7 +42,12 @@ class Product(models.Model):
         logging.warning("create product ======")
         logging.warning(vals)
         # 1- CREATE A PRODUCT FROM ekiclik
-        domain = self.env['res.config.settings'].search([]).domain
+        domain = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+        _logger.info(
+            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_product = "/api/odoo/products"
 
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
@@ -167,7 +172,12 @@ class Product(models.Model):
             attach.write({'url': url})
 
     def write(self, vals):
-        domain = self.env['res.config.settings'].search([]).domain
+        domain = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+        _logger.info(
+            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/archive/"
         url_activate_product = "/api/odoo/products/activate/"
 
@@ -269,7 +279,12 @@ class EkiProduct(models.Model):
         return rec
 
     def write(self, vals):
-        domain = self.env['res.config.settings'].search([]).domain
+        domain = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+        _logger.info(
+            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/configuration/archive/"
         url_activate_product = "/api/odoo/products/configuration/activate"
 

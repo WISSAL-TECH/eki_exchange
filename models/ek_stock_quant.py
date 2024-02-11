@@ -18,8 +18,12 @@ class EkQuant(models.Model):
     url_stock = '/api/odoo/stocks'
 
     def action_apply_inventory(self):
-        domain = self.env['res.config.settings'].search([]).domain
-
+        domain = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+        _logger.info(
+            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         products_tracked_without_lot = []
         for quant in self:
             rounding = quant.product_uom_id.rounding
