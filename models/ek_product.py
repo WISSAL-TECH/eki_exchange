@@ -267,12 +267,25 @@ class EkiProduct(models.Model):
 
         return product_code
 
+    def generate_name(self):
+        """Generating name for ek products"""
+
+        name = ''
+        for var in self.product_template_variant_value_ids:
+            name += str(var)
+        name += str(self.brand_id) if self.brand else ''
+        name += str(self.categ_id) if self.categ else ''
+        name += str(self.default_code) if self.default_code else ''
+
+        return name
+
 
 
     @api.model
     def create(self, vals):
 
         vals["default_code"] = self.generate_code()
+        vals["name"] = self.generate_name()
 
         rec = super(EkiProduct, self).create(vals)
 
