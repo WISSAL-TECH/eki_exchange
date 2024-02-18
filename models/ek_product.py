@@ -273,8 +273,8 @@ class EkiProduct(models.Model):
         name = ''
         for var in self.product_template_variant_value_ids:
             name += str(var)
-        name += str(self.brand_id) if self.brand else ''
-        name += str(self.categ_id) if self.categ else ''
+        name += str(self.brand_id) if self.brand_id else ''
+        name += str(self.categ_id) if self.categ_id else ''
         name += str(self.default_code) if self.default_code else ''
 
         return name
