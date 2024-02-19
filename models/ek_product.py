@@ -104,7 +104,7 @@ class Product(models.Model):
                 "categoryName": rec.categ_id.name,
                 "brand": {
                     "name": rec.brand_id.name,
-                    "reference": "br_"+str(rec.brand_id.id)
+                    "reference": "br_" + str(rec.brand_id.id)
                 },
                 "refConstructor": "rc_" + str(rec.id),
                 "manufactureName": rec.manufacture_name,
@@ -269,26 +269,26 @@ class EkiProduct(models.Model):
 
     def generate_name(self):
         """Generating name for ek products"""
-
-        name = ''
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
+        name = self.name
         for var in self.product_template_variant_value_ids:
             name += str(var)
-        name += str(self.brand_id) if self.brand_id else ''
         name += str(self.categ_id) if self.categ_id else ''
         name += str(self.default_code) if self.default_code else ''
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         return name
 
-
-
     @api.model
     def create(self, vals):
-
+        # Générer le code par défaut
         vals["default_code"] = self.generate_code()
-        vals["name"] = self.generate_name()
 
+        # Appeler la méthode de création de la classe parente
         rec = super(EkiProduct, self).create(vals)
 
+        # Mettre à jour le nom après la création
+        rec.name = rec.generate_name()
 
         return rec
 
