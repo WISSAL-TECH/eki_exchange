@@ -273,7 +273,7 @@ class EkiProduct(models.Model):
         name = self.name
         for var in self.product_template_variant_value_ids:
             name += str(var)
-        name += ' ' + str(self.categ_id) if self.categ_id.name else ''
+        name += ' ' + str(self.categ_id.name) if self.categ_id else ''
         name += ' ' + str(self.default_code) if self.default_code else ''
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
