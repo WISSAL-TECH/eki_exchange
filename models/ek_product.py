@@ -271,10 +271,17 @@ class EkiProduct(models.Model):
         """Generating name for ek products"""
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
         name = self.name
-        for var in self.product_template_variant_value_ids:
-            name += str(var)
-        name += ' ' + str(self.categ_id.name) if self.categ_id else ''
+
+        # Iterate through each record in the Many2Many field
+        for variant_value in self.product_template_variant_value_ids:
+            name += str(variant_value)
+
+        # Add brand name if exists
+        name += ' ' + str(self.brand_id.name) if self.brand_id else ''
+
+        # Add default code if exists
         name += ' ' + str(self.default_code) if self.default_code else ''
+
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         return name
@@ -286,9 +293,11 @@ class EkiProduct(models.Model):
 
         # Appeler la méthode de création de la classe parente
         rec = super(EkiProduct, self).create(vals)
+        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n')
 
         # Mettre à jour le nom après la création
         rec.name = rec.generate_name()
+        _logger.info('\n\n\n NEW NAME OF PRODUCT USING VARIANTE\n\n\n\n--->  %s\n\n\n\n', rec.name)
 
         return rec
 
