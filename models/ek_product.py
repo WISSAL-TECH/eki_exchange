@@ -121,7 +121,7 @@ class Product(models.Model):
                         "description": '',
                         "reference": record.default_code,
                         "price": record.lst_price,
-                        "buyingPrice": 0,
+                        "buyingPrice": record.standard_price,
                         #"state": "Active",
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
