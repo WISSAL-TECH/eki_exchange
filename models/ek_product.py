@@ -78,7 +78,8 @@ class Product(models.Model):
                         'name': vals['category']
                     })
                     vals['categ_id'] = category.id
-            vals.pop('category')
+            else:
+                vals.pop('category')
             # GET IMAGE URL AND AUTOMATICALLY DISPLAY IT ON ODOO
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
