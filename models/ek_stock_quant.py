@@ -67,8 +67,8 @@ class EkQuant(models.Model):
 
         json_obj = [{
                     "pos": "EKIWH",
-                    "reference": line_product.default_code,
-                    "realQuantity": line_product.qty_available,
+                    "reference": self.product_id.default_code,
+                    "realQuantity": self.quantity,
                     "price": line_product.standard_price}]
 
         _logger.info(
