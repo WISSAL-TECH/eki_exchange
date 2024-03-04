@@ -68,6 +68,11 @@ class EkQuant(models.Model):
         json_obj = [{
                     "pos": "EKIWH",
                     "reference": self.product_id.default_code,
+                    "realQuantity": self.product_id.qty_available,
+                    "price": self.product_id.lst_price}]
+        json_obj_pdv = [{
+                    "pos": self.location_id.company_id.codification,
+                    "reference": self.product_id.default_code,
                     "realQuantity": self.quantity,
                     "price": self.product_id.lst_price}]
 
@@ -77,7 +82,13 @@ class EkQuant(models.Model):
                                  headers=self.headers)
         _logger.info(
             '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
-        return response1
+        _logger.info(
+            '\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
+        response2 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj_pdv),
+                                 headers=self.headers)
+        _logger.info(
+            '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
+        return response1, response2
 
 
 
