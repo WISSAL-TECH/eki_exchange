@@ -69,7 +69,7 @@ class EkQuant(models.Model):
                     "pos": "EKIWH",
                     "reference": self.product_id.default_code,
                     "realQuantity": self.quantity,
-                    "price": line_product.standard_price}]
+                    "price": self.product_id.lst_price}]
 
         _logger.info(
             '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
