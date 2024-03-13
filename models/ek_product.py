@@ -236,8 +236,8 @@ class Product(models.Model):
                 "description": self.description,
                 "categoryName": self.categ_id,
                 "brand": {
-                    "name": self.brand.name,
-                    "reference": self.brand.id
+                    "name": self.brand_id.name,
+                    "reference": self.brand_id.id
                 },
                 "refConstructor": "rc_" + str(self.id),
                 "manufactureName": self.manufacture_name,
