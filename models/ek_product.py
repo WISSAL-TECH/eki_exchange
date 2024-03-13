@@ -236,11 +236,11 @@ class Product(models.Model):
             data = {
                 "name": vals.get("name", ""),
                 "description": vals.get("description", "") if vals.get("description") else "",
-                "categoryName": vals["categ_id"].name if vals.get("categ_id") else (
-                    self.categ_id if self.categ_id else ""),
+                "categoryName": vals.get("categ_id").name if vals.get("categ_id") else (
+                    self.categ_id.name if self.categ_id else ""),
                 "brand": {
-                    "name": vals["brand_id"] if vals.get("brand_id") else "",
-                    "reference": vals["brand_id"] if vals.get("brand_id") else ""
+                    "name": vals.get("brand_id", "") if vals.get("brand_id") else "",
+                    "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
                 },
                 "refConstructor": "rc_" + str(self.id),
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
@@ -254,7 +254,8 @@ class Product(models.Model):
                                     headers=self.headers)
             _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
-            if "active" in vals and vals["active"] == False:
+
+        if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
                 response = requests.patch(str(domain) + str(url_archive_product) + "rc_" + str(self.id),
