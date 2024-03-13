@@ -234,20 +234,21 @@ class Product(models.Model):
             data = {
                 "name": self.name,
                 "description": self.description,
-                "categoryName": self.categ_id,
+                "categoryName": self.categ_id.name if self.categ_id else None,
+                # Extracting name attribute from product.category
                 "brand": {
-                    "name": self.brand_id.name,
-                    "reference": self.brand_id.id
+                    "name": self.brand_id.name if self.brand_id else None,  # Extracting name attribute from brand
+                    "reference": self.brand_id.id if self.brand_id else None  # Extracting id attribute from brand
                 },
                 "refConstructor": "rc_" + str(self.id),
                 "manufactureName": self.manufacture_name,
                 "activate": True,
                 "oldRef": "rc_" + str(self.id)
             }
+
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
             response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
                                     headers=self.headers)
-
             _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
             if "active" in vals and vals["active"] == False:
