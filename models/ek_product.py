@@ -235,12 +235,15 @@ class Product(models.Model):
                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
                brand_name = brand.name if brand else self.brand_id.name
 
+            if "categ_id" in vals:
+                categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
+                categ_name = categ.name if categ else self.brand_id.name
+
             # sending update to ekiclik
             data = {
                 "name": vals.get("name", ""),
                 "description": vals.get("description", "") if vals.get("description") else "",
-                "categoryName": vals.get("categ_id").name if vals.get("categ_id") else (
-                    self.categ_id.name if self.categ_id else ""),
+                "categoryName": categ_name,
                 "brand": {
                     "name": brand_name,
                     "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
