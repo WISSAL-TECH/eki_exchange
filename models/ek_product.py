@@ -234,15 +234,17 @@ class Product(models.Model):
 
             # sending update to ekiclik
             data = {
-                "name": vals["name"],
-                "description": vals['description'] if "description" in vals and vals['description'] else "" ,
-                "categoryName": vals["categ_id"].name if "categ_id" in vals and vals["categ_id"] else self.categ_id,
+                "name": vals.get("name", ""),
+                "description": vals.get("description", "") if vals.get("description") else "",
+                "categoryName": vals["categ_id"].name if vals.get("categ_id") else (
+                    self.categ_id.name if self.categ_id else ""),
                 "brand": {
-                    "name": vals["brand_id"].name if "brand_id" in vals and vals["brand_id"] else '',  # Extracting name attribute from brand
-                    "reference": vals["brand_id"].id if "brand_id" in vals and vals["brand_id"] else '' # Extracting id attribute from brand
+                    "name": vals["brand_id"].name if vals.get("brand_id") else "",
+                    "reference": vals["brand_id"].id if vals.get("brand_id") else ""
                 },
                 "refConstructor": "rc_" + str(self.id),
-                "manufactureName": vals["manufacture_name"] if "manufacture_name" in vals and vals["manufacture_name"] else self.manufacture_name,
+                "manufactureName": vals.get("manufacture_name", "") if vals.get(
+                    "manufacture_name") else self.manufacture_name,
                 "activate": True,
                 "oldRef": "rc_" + str(self.id)
             }
