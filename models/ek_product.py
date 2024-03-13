@@ -231,6 +231,8 @@ class Product(models.Model):
             return rec
         else:
             rec = super(Product, self).write(vals)
+            if "brand_id" in vals:
+               brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
 
             # sending update to ekiclik
             data = {
@@ -239,7 +241,7 @@ class Product(models.Model):
                 "categoryName": vals.get("categ_id").name if vals.get("categ_id") else (
                     self.categ_id.name if self.categ_id else ""),
                 "brand": {
-                    "name": vals.get("brand_id", "") if vals.get("brand_id") else "",
+                    "name": brand if brand else self.brand_id.name,
                     "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
                 },
                 "refConstructor": "rc_" + str(self.id),
