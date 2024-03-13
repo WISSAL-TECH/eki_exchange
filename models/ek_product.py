@@ -2,7 +2,7 @@ import json
 import sys
 
 import requests
-#from minio import Minio
+# from minio import Minio
 
 from odoo import models, fields, api, exceptions
 from odoo.http import request
@@ -11,7 +11,7 @@ from _datetime import datetime
 from odoo.exceptions import ValidationError
 
 from urllib.parse import quote
-from io import BytesIO ,StringIO
+from io import BytesIO, StringIO
 from .config import *
 import base64
 import random
@@ -23,7 +23,7 @@ _logger = logging.getLogger(__name__)
 class Product(models.Model):
     _inherit = ['product.template']
 
-    create_by = fields.Char(string="Créé à partir de",readonly=True)
+    create_by = fields.Char(string="Créé à partir de", readonly=True)
     brand = fields.Many2one("product.brand", 'Marque')
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
@@ -33,7 +33,8 @@ class Product(models.Model):
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
-             record.certificate_url = ''
+            record.certificate_url = ''
+
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
@@ -72,7 +73,7 @@ class Product(models.Model):
                 # Get the category record
                 category = self.env['product.category'].search([('name', '=', vals['category'])])
                 if category:
-                   vals['categ_id'] = category.id
+                    vals['categ_id'] = category.id
                 else:
                     category = self.env['product.category'].create({
                         'name': vals['category']
@@ -86,7 +87,6 @@ class Product(models.Model):
                 vals["image_1920"] = image
                 vals.pop("image_url")
 
-
             rec = super(Product, self).create(vals)
 
             return rec
@@ -99,7 +99,7 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            product_json ={
+            product_json = {
                 "name": rec.name,
                 "description": rec.description,
                 "categoryName": rec.categ_id.name,
@@ -115,7 +115,7 @@ class Product(models.Model):
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
             configurations = []
 
-            for record in variantes :
+            for record in variantes:
                 if record.product_template_attribute_value_ids:
                     configuration = {
                         'name': record.name,
@@ -123,7 +123,7 @@ class Product(models.Model):
                         "reference": record.default_code,
                         "price": record.lst_price,
                         "buyingPrice": record.standard_price,
-                        #"state": "Active",
+                        # "state": "Active",
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
@@ -141,36 +141,36 @@ class Product(models.Model):
             product_json["configurations"] = configurations
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
-            response = requests.post(str(domain)+str(url_product), data=json.dumps(product_json),
+            response = requests.post(str(domain) + str(url_product), data=json.dumps(product_json),
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
 
             return rec
 
-    #def create_doc_url(self, attach):
-        #client = Minio("play.min.io",
-        #               access_key="admin",
-        #               secret_key="d%gHsjnZ*eD")
-        #bucket_name = "file-storage-document-salam"
-        #destination_file = "eki_file"+str(attach.id)
+    # def create_doc_url(self, attach):
+    # client = Minio("play.min.io",
+    #               access_key="admin",
+    #               secret_key="d%gHsjnZ*eD")
+    # bucket_name = "file-storage-document-salam"
+    # destination_file = "eki_file"+str(attach.id)
 
-        #if attach.datas:
-        #    data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
+    # if attach.datas:
+    #    data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
 
-        #    client.fput_object(
-        #       bucket_name, destination_file, data_fileobj,
-        #    )
+    #    client.fput_object(
+    #       bucket_name, destination_file, data_fileobj,
+    #    )
 
-            # Get the URL for the uploaded file
-        #    url = client.presigned_get_object(bucket_name, destination_file)
+    # Get the URL for the uploaded file
+    #    url = client.presigned_get_object(bucket_name, destination_file)
 
-        #    print(
-        #        data_fileobj, "successfully uploaded as object",
-        #        destination_file, "to bucket", bucket_name,
-        #    )
+    #    print(
+    #        data_fileobj, "successfully uploaded as object",
+    #        destination_file, "to bucket", bucket_name,
+    #    )
 
-        #    attach.write({'url': url})
+    #    attach.write({'url': url})
 
     def write(self, vals):
         domain = ""
@@ -181,6 +181,7 @@ class Product(models.Model):
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/archive/"
         url_activate_product = "/api/odoo/products/activate/"
+        url_update_product = "/api/odoo/products/update"
 
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
@@ -208,7 +209,7 @@ class Product(models.Model):
                 # Get the category record
                 category = self.env['product.category'].search([('name', '=', vals['category'])])
                 if category:
-                   vals['categ_id'] = category.id
+                    vals['categ_id'] = category.id
                 else:
                     category = self.env['product.category'].create({
                         'name': vals['category']
@@ -229,6 +230,26 @@ class Product(models.Model):
 
             return rec
         else:
+            # sending update to ekiclik
+            data = {
+                "name": self.name,
+                "description": self.description,
+                "categoryName": self.categ_id,
+                "brand": {
+                    "name": self.brand.name,
+                    "reference": self.brand.id
+                },
+                "refConstructor": "rc_" + str(self.id),
+                "manufactureName": self.manufacture_name,
+                "activate": True,
+                "oldRef": "rc_" + str(self.id)
+            }
+            _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
+                                    headers=self.headers)
+
+            _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                         response.content)
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
@@ -237,7 +258,7 @@ class Product(models.Model):
 
                 _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-            if "active" in vals and vals["active"] == True:
+            elif "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
                 _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
                 response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
@@ -246,15 +267,15 @@ class Product(models.Model):
                 _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
 
-
             rec = super(Product, self).write(vals)
 
             return rec
 
+
 class EkiProduct(models.Model):
     _inherit = ['product.product']
 
-    headers = {"Content-Type": "application/json","Accept": "application/json", "Catch-Control": "no-cache"}
+    headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
 
     def generate_code(self):
@@ -310,10 +331,30 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/configuration/archive/"
         url_activate_product = "/api/odoo/products/configuration/activate/"
+        url_update_product = "/api/odoo/products/configuration/update/"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
 
         for rec in self:
+            data = {
+                "name": rec.name,
+                "reference": rec.default_code,
+                "refConstructor": rec.default_code,
+                "price": rec.lst_price,
+                "buyingPrice": rec.standard_price,
+                "state": '',
+                "productCharacteristics": [],
+                "active": True,
+                "description": rec.description,
+                "certificateUrl": '',
+                "oldRef": rec.default_code}
+
+            _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
+            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
+                                    headers=self.headers)
+
+            _logger.info('\n\n\n(update variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                         response.content)
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
