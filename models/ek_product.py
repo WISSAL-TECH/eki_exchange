@@ -239,7 +239,7 @@ class Product(models.Model):
                 "categoryName": vals["categ_id"] if vals.get("categ_id") else (
                     self.categ_id if self.categ_id else ""),
                 "brand": {
-                    "name": vals["brand_id"].name if vals.get("brand_id") else "",
+                    "name": vals["brand_id"] if vals.get("brand_id") else "",
                     "reference": vals["brand_id"].id if vals.get("brand_id") else ""
                 },
                 "refConstructor": "rc_" + str(self.id),
