@@ -235,7 +235,7 @@ class Product(models.Model):
             # sending update to ekiclik
             data = {
                 "name": vals["name"],
-                "description": vals['description'] if vals['description'] else "" ,
+                "description": "",
                 "categoryName": vals["categ_id"].name if vals["categ_id"] else None,
                 "brand": {
                     "name": vals["brand_id"].name if vals["brand_id"] else None,  # Extracting name attribute from brand
