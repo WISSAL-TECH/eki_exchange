@@ -255,7 +255,7 @@ class Product(models.Model):
             _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
 
-        if "active" in vals and vals["active"] == False:
+            if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
                 response = requests.patch(str(domain) + str(url_archive_product) + "rc_" + str(self.id),
