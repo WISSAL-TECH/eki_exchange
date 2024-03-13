@@ -236,7 +236,7 @@ class Product(models.Model):
             data = {
                 "name": vals.get("name", ""),
                 "description": vals.get("description", "") if vals.get("description") else "",
-                "categoryName": vals["categ_id"] if vals.get("categ_id") else (
+                "categoryName": vals["categ_id"].name if vals.get("categ_id") else (
                     self.categ_id if self.categ_id else ""),
                 "brand": {
                     "name": vals["brand_id"] if vals.get("brand_id") else "",
