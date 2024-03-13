@@ -231,10 +231,12 @@ class Product(models.Model):
             return rec
         else:
             rec = super(Product, self).write(vals)
+            brand_name = self.brand_id.name
             if "brand_id" in vals:
                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
                brand_name = brand.name if brand else self.brand_id.name
 
+            categ_name = self.categ_id.name
             if "categ_id" in vals:
                 categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
                 categ_name = categ.name if categ else self.brand_id.name
