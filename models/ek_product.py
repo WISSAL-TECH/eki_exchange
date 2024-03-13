@@ -234,18 +234,17 @@ class Product(models.Model):
 
             # sending update to ekiclik
             data = {
-                "name": rec.name,
-                "description": rec.description,
-                "categoryName": rec.categ_id.name if rec.categ_id else None,
-                # Extracting name attribute from product.category
+                "name": vals["name"],
+                "description": vals['description'],
+                "categoryName": vals["categ_id"].name if vals["categ_id"] else None,
                 "brand": {
-                    "name": rec.brand_id.name if rec.brand_id else None,  # Extracting name attribute from brand
-                    "reference": rec.brand_id.id if rec.brand_id else None  # Extracting id attribute from brand
+                    "name": vals["brand_id"].name if vals["brand_id"] else None,  # Extracting name attribute from brand
+                    "reference": vals["brand_id"].id if vals["brand_id"] else None  # Extracting id attribute from brand
                 },
-                "refConstructor": "rc_" + str(rec.id),
-                "manufactureName": rec.manufacture_name,
+                "refConstructor": "rc_" + str(self.id),
+                "manufactureName": vals["manufacture_name"],
                 "activate": True,
-                "oldRef": "rc_" + str(rec.id)
+                "oldRef": "rc_" + str(self.id)
             }
 
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
