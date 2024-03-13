@@ -230,20 +230,22 @@ class Product(models.Model):
 
             return rec
         else:
+            rec = super(Product, self).write(vals)
+
             # sending update to ekiclik
             data = {
-                "name": self.name,
-                "description": self.description,
-                "categoryName": self.categ_id.name if self.categ_id else None,
+                "name": rec.name,
+                "description": rec.description,
+                "categoryName": rec.categ_id.name if rec.categ_id else None,
                 # Extracting name attribute from product.category
                 "brand": {
-                    "name": self.brand_id.name if self.brand_id else None,  # Extracting name attribute from brand
-                    "reference": self.brand_id.id if self.brand_id else None  # Extracting id attribute from brand
+                    "name": rec.brand_id.name if rec.brand_id else None,  # Extracting name attribute from brand
+                    "reference": rec.brand_id.id if rec.brand_id else None  # Extracting id attribute from brand
                 },
-                "refConstructor": "rc_" + str(self.id),
-                "manufactureName": self.manufacture_name,
+                "refConstructor": "rc_" + str(rec.id),
+                "manufactureName": rec.manufacture_name,
                 "activate": True,
-                "oldRef": "rc_" + str(self.id)
+                "oldRef": "rc_" + str(rec.id)
             }
 
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
@@ -267,8 +269,6 @@ class Product(models.Model):
 
                 _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-
-            rec = super(Product, self).write(vals)
 
             return rec
 
