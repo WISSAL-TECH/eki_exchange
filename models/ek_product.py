@@ -240,7 +240,7 @@ class Product(models.Model):
                     self.categ_id if self.categ_id else ""),
                 "brand": {
                     "name": vals["brand_id"] if vals.get("brand_id") else "",
-                    "reference": vals["brand_id"].id if vals.get("brand_id") else ""
+                    "reference": vals["brand_id"] if vals.get("brand_id") else ""
                 },
                 "refConstructor": "rc_" + str(self.id),
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
