@@ -361,7 +361,7 @@ class EkiProduct(models.Model):
                 "certificateUrl": '',
                 "oldRef": rec.default_code}
 
-            _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n')
+            _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
             response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
                                     headers=self.headers)
 
