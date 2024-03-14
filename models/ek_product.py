@@ -288,6 +288,7 @@ class EkiProduct(models.Model):
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
+    reference = fields.Char(string='Reference')
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -349,7 +350,7 @@ class EkiProduct(models.Model):
         for rec in self:
             data = {
                 "name": rec.name,
-                "reference": rec.default_code,
+                "reference": rec.reference,
                 "refConstructor": rec.default_code,
                 "price": rec.lst_price,
                 "buyingPrice": rec.standard_price,
