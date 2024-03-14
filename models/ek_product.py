@@ -314,7 +314,7 @@ class EkiProduct(models.Model):
         name += ' ' + str(self.brand_id.name) if self.brand_id else ''
 
         # Add default code if exists
-        name += ' ' + str(self.default_code) if self.default_code else ''
+        name += ' ' + str(self.reference) if self.reference else ''
 
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
