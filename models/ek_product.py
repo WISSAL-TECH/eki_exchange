@@ -349,8 +349,8 @@ class EkiProduct(models.Model):
 
         for rec in self:
             data = {
-                "name": rec.name,
-                "reference": rec.reference,
+                "name": vals["name"],
+                "reference":  vals["reference"],
                 "refConstructor": rec.default_code,
                 "price": rec.lst_price,
                 "buyingPrice": rec.standard_price,
