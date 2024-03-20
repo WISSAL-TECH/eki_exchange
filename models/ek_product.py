@@ -3,7 +3,7 @@ import sys
 
 import requests
 # from minio import Minio
-
+import re
 from odoo import models, fields, api, exceptions
 from odoo.http import request
 import logging
@@ -99,6 +99,24 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
+            pattern = r'(\d[\d\s,.]+)'
+            if self.tax_string:
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, self.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Convert the numeric value to a float (if needed)
+                numeric_value = float(numeric_value)
+
+                print("Numeric value extracted:", numeric_value)
+            else:
+                numeric_value = self.lst_price
             product_json = {
                 "name": rec.name,
                 "description": rec.description,
@@ -121,7 +139,7 @@ class Product(models.Model):
                         'name': record.name,
                         "description": '',
                         "reference": record.default_code,
-                        "price": record.lst_price,
+                        "price": numeric_value,
                         "buyingPrice": record.standard_price,
                         # "state": "Active",
                         "productCharacteristics": [],
@@ -346,6 +364,7 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+
 
 
         for rec in self:
