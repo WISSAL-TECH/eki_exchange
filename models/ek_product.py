@@ -347,6 +347,7 @@ class EkiProduct(models.Model):
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
 
+
         for rec in self:
             data = {
                 "name": vals["name"],
