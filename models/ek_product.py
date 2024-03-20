@@ -116,7 +116,7 @@ class Product(models.Model):
 
                 print("Numeric value extracted:", numeric_value)
             else:
-                numeric_value = self.lst_price
+                numeric_value = self.list_price
             product_json = {
                 "name": rec.name,
                 "description": rec.description,
@@ -369,7 +369,7 @@ class EkiProduct(models.Model):
 
         for rec in self:
             data = {
-                "name": vals["name"],
+                "name": rec.name,
                 "reference":  vals["reference"],
                 "refConstructor": rec.default_code,
                 "price": rec.lst_price,
