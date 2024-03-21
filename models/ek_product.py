@@ -220,8 +220,11 @@ class Product(models.Model):
                     })
                     vals['brand_id'] = brand.id
             vals.pop('brand')
+            pattern = r'(\d[\d\s,.]+)'
+
             if "list_price" in vals and not vals["list_price"]:
                 vals.pop('list_price')
+
 
             if 'category' in vals and vals['category']:
                 # Get the category record
@@ -365,19 +368,36 @@ class EkiProduct(models.Model):
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
 
+        if self.tax_string:
+            pattern = r'(\d[\d\s,.]+)'
 
+            # Use the findall function to extract all matches
+            matches = re.findall(pattern, self.tax_string)
+
+            # Join the matches into a single string (if there are multiple matches)
+            numeric_value = ''.join(matches)
+
+            # Replace commas with dots (if necessary)
+            numeric_value = numeric_value.replace(',', '.')
+
+            # Convert the numeric value to a float (if needed)
+            numeric_value = float(numeric_value)
+
+            print("Numeric value extracted:", numeric_value)
+        else:
+            numeric_value = self.list_price
 
         for rec in self:
             data = {
-                "name": rec.name,
-                "reference":  vals["reference"] if "reference" in vals else self.reference,
-                "refConstructor": rec.default_code,
-                "price": rec.lst_price,
-                "buyingPrice": rec.standard_price,
+                "name":  vals["name"] if "name" in vals else rec.name,
+                "reference":  vals["reference"] if "reference" in vals else rec.reference,
+                "refConstructor":  vals["defaukt_code"] if "default_code" in vals else rec.default_code,
+                "price": numeric_value,
+                "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
                 "state": '',
                 "productCharacteristics": [],
                 "active": True,
-                "description": rec.description,
+                "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": '',
                 "oldRef": rec.default_code}
 
