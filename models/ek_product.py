@@ -99,11 +99,12 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            pattern = r'(\d[\d\s,.]+)'
             if self.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
 
                 # Use the findall function to extract all matches
                 matches = re.findall(pattern, self.tax_string)
+
 
                 # Join the matches into a single string (if there are multiple matches)
                 numeric_value = ''.join(matches)
@@ -111,10 +112,9 @@ class Product(models.Model):
                 # Replace commas with dots (if necessary)
                 numeric_value = numeric_value.replace(',', '.')
 
-                # Convert the numeric value to a float (if needed)
-                numeric_value = float(numeric_value)
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
 
-                print("Numeric value extracted:", numeric_value)
             else:
                 numeric_value = self.list_price
             product_json = {
@@ -380,10 +380,9 @@ class EkiProduct(models.Model):
             # Replace commas with dots (if necessary)
             numeric_value = numeric_value.replace(',', '.')
 
-            # Convert the numeric value to a float (if needed)
-            numeric_value = float(numeric_value)
+            # Remove non-breaking space characters
+            numeric_value = numeric_value.replace('\xa0', '')
 
-            print("Numeric value extracted:", numeric_value)
         else:
             numeric_value = self.list_price
 
