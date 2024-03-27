@@ -311,6 +311,13 @@ class EkiProduct(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Reference')
 
+    @api.onchange('reference')
+    def onchange_name(self):
+        name = self.name
+
+        # Add default code if exists
+        name += ' ' + str(self.reference) if self.reference else ''
+
     def generate_code(self):
         """Generating default code for ek products"""
 
