@@ -311,13 +311,6 @@ class EkiProduct(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Reference')
 
-    @api.onchange('reference')
-    def onchange_name(self):
-        name = self.name
-
-        # Add default code if exists
-        name += ' ' + str(self.reference) if self.reference else ''
-
     def generate_code(self):
         """Generating default code for ek products"""
 
@@ -339,10 +332,11 @@ class EkiProduct(models.Model):
             name += str(variant_value)
 
         # Add brand name if exists
-        name += ' ' + str(self.brand_id.name) if self.brand_id else ''
+        #name += ' ' + str(self.brand_id.name) if self.brand_id else ''
 
         # Add default code if exists
-        name += ' ' + str(self.reference) if self.reference else ''
+        if self.reference:
+           name += ' ' + str(self.reference)
 
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
@@ -374,7 +368,7 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-
+        numeric_value = 0
         if self.tax_string:
             pattern = r'(\d[\d\s,.]+)'
 
@@ -392,12 +386,25 @@ class EkiProduct(models.Model):
 
         else:
             numeric_value = self.list_price
+        name = ""
+        if "reference" in vals:
+            if "name" in vals :
+                name = str(vals["name"])
+            else:
+                name = self.name
+            # Add default code if exists
+            name += ' ' + str(self.reference) if self.reference else ''
+            _logger.info('new name ', name)
+        else:
+            name = vals["name"] if "name" in vals else self.name
+
+        vals['name'] = name
 
         for rec in self:
             data = {
-                "name":  vals["name"] if "name" in vals else rec.name,
+                "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
-                "refConstructor":  vals["defaukt_code"] if "default_code" in vals else rec.default_code,
+                "refConstructor":  vals["default_code"] if "default_code" in vals else rec.default_code,
                 "price": numeric_value,
                 "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
                 "state": '',
