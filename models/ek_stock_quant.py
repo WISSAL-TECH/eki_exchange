@@ -64,31 +64,35 @@ class EkQuant(models.Model):
         self.inventory_quantity_set = False
 
         line_product = self.env['product.product'].search([('id', '=', self.product_id.product_variant_id.id)])
+        if self.location_id.name == "Centr/Stock":
+            json_obj = [{
+                        "pos": "EKIWH",
+                        "reference": self.product_id.default_code,
+                        "realQuantity": self.product_id.qty_available,
+                        "price": self.product_id.lst_price}]
+            _logger.info(
+                '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
+            response1 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj),
+                                     headers=self.headers)
+            _logger.info(
+                '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
+            return response1
+        else:
+            json_obj_pdv = [{
+                        "pos": self.location_id.company_id.codification,
+                        "reference": self.product_id.default_code,
+                        "realQuantity": self.quantity,
+                        "price": self.product_id.lst_price}]
 
-        json_obj = [{
-                    "pos": "EKIWH",
-                    "reference": self.product_id.default_code,
-                    "realQuantity": self.product_id.qty_available,
-                    "price": self.product_id.lst_price}]
-        json_obj_pdv = [{
-                    "pos": self.location_id.company_id.codification,
-                    "reference": self.product_id.default_code,
-                    "realQuantity": self.quantity,
-                    "price": self.product_id.lst_price}]
 
-        _logger.info(
-            '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
-        response1 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj),
-                                 headers=self.headers)
-        _logger.info(
-            '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
-        _logger.info(
-            '\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
-        response2 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj_pdv),
-                                 headers=self.headers)
-        _logger.info(
-            '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
-        return response1, response2
+
+            _logger.info(
+                    '\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
+            response2 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj_pdv),
+                                         headers=self.headers)
+            _logger.info(
+                '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
+            return response2
 
 
 
