@@ -64,7 +64,7 @@ class EkQuant(models.Model):
         self.inventory_quantity_set = False
 
         line_product = self.env['product.product'].search([('id', '=', self.product_id.product_variant_id.id)])
-        if self.location_id.name == "Centr/Stock":
+        if self.location_id.company_id.name == "Centrale des Achats":
             json_obj = [{
                         "pos": "EKIWH",
                         "reference": self.product_id.default_code,
