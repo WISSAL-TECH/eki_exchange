@@ -68,7 +68,7 @@ class EkQuant(models.Model):
             json_obj = [{
                         "pos": "EKIWH",
                         "reference": self.product_id.default_code,
-                        "realQuantity": self.product_id.qty_available,
+                        "realQuantity": self.quantity,
                         "price": self.product_id.lst_price}]
             _logger.info(
                 '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
