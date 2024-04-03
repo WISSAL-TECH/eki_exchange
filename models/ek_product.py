@@ -44,9 +44,11 @@ class Product(models.Model):
         logging.warning(vals)
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = ""
+        domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_product = "/api/odoo/products"
@@ -163,6 +165,10 @@ class Product(models.Model):
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
+            response_cpa = requests.post(str(domain_cpa) + str(url_product), data=json.dumps(product_json),
+                                     headers=self.headers)
+            _logger.info('\n\n\n(CREATE product) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                         response_cpa.content)
 
             return rec
 
@@ -192,9 +198,11 @@ class Product(models.Model):
 
     def write(self, vals):
         domain = ""
+        domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/archive/"
@@ -283,6 +291,10 @@ class Product(models.Model):
                                     headers=self.headers)
             _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
+            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                                    headers=self.headers)
+            _logger.info('\n\n\n(update product) response from eki  CPA\n\n\n\n--->  %s\n\n\n\n',
+                         response_cpa.content)
 
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
@@ -292,6 +304,11 @@ class Product(models.Model):
 
                 _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
             elif "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
                 _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
@@ -300,6 +317,11 @@ class Product(models.Model):
 
                 _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate product) response from eki cpa\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
 
             return rec
 
@@ -359,10 +381,13 @@ class EkiProduct(models.Model):
 
     def write(self, vals):
         domain = ""
+        domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
+        _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain_cpa)
         url_archive_product = "/api/odoo/products/configuration/archive/"
         url_activate_product = "/api/odoo/products/configuration/activate/"
         url_update_product = "/api/odoo/products/configuration"
@@ -420,6 +445,11 @@ class EkiProduct(models.Model):
 
             _logger.info('\n\n\n(update variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
+            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                                    headers=self.headers)
+
+            _logger.info('\n\n\n(update variante) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                         response_cpa.content)
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
@@ -428,6 +458,11 @@ class EkiProduct(models.Model):
 
                 _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.default_code),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
             if "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
                 _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
@@ -436,5 +471,10 @@ class EkiProduct(models.Model):
 
                 _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.default_code),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
 
         return super(EkiProduct, self).write(vals)

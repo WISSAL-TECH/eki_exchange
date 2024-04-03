@@ -30,9 +30,12 @@ class ResPartner(models.Model):
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
         domain = ""
+        domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
+            
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
 
@@ -95,6 +98,12 @@ class ResPartner(models.Model):
 
                 _logger.info(
                     '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
+                response2 = requests.put(str(domain_cpa) + self.url_client, data=json.dumps(data_address),
+                                         headers=self.headers)
+
+
+                _logger.info(
+                    '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
                 return response
 
             except Exception as e:
@@ -109,9 +118,11 @@ class ResPartner(models.Model):
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
         domain = ""
+        domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
 
 
         # THIS CONDITION IS MADE BECAUSE OF
@@ -192,5 +203,9 @@ class ResPartner(models.Model):
                                          headers=self.headers)
                 _logger.info(
                     '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
+                response2 = requests.put(str(domain_cpa) + self.url_client, data=json.dumps(data_address),
+                                         headers=self.headers)
+                _logger.info(
+                    '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
 
             return res

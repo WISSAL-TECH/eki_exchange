@@ -19,9 +19,11 @@ class EkQuant(models.Model):
 
     def action_apply_inventory(self):
         domain = ""
+        domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         if config_settings:
             domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         products_tracked_without_lot = []
@@ -76,7 +78,11 @@ class EkQuant(models.Model):
                                      headers=self.headers)
             _logger.info(
                 '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
-            return response1
+            response_cpa = requests.put(str(domain_cpa) + self.url_stock, data=json.dumps(json_obj),
+                                     headers=self.headers)
+            _logger.info(
+                '\n\n\n response cpa \n\n\n\n--->>  %s\n\n\n\n', response_cpa)
+            return response1, response_cpa
         else:
             json_obj_pdv = [{
                         "pos": self.location_id.company_id.codification,
@@ -92,7 +98,11 @@ class EkQuant(models.Model):
                                          headers=self.headers)
             _logger.info(
                 '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
-            return response2
+            response2_cpa = requests.put(str(domain_cpa) + self.url_stock, data=json.dumps(json_obj_pdv),
+                                         headers=self.headers)
+            _logger.info(
+                '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2_cpa)
+            return response2, response2_cpa
 
 
 
