@@ -29,11 +29,18 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    constructor_ref = fields.Char("Réference constructeur")
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
             record.certificate_url = ''
+    @api.depends('ref_odoo')
+    def _compute_ref_odoo(self):
+        for record in self:
+            record.ref_odoo = "rc_" + str(record.id)
+
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -127,9 +134,10 @@ class Product(models.Model):
                     "name": rec.brand_id.name,
                     "reference": "br_" + str(rec.brand_id.id)
                 },
-                "refConstructor": "rc_" + str(rec.id),
+                "refConstructor": rec.constructor_ref if rec.constructor_ref else '',
                 "manufactureName": rec.manufacture_name,
                 "activate": True,
+                "ref_odoo": rec.ref_odoo,
 
             }
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
@@ -140,7 +148,7 @@ class Product(models.Model):
                     configuration = {
                         'name': record.name,
                         "description": '',
-                        "reference": record.default_code,
+                        "reference": record.constructor_ref if record.constructor_ref else '',
                         "price": numeric_value,
                         "buyingPrice": record.standard_price,
                         # "state": "Active",
@@ -148,6 +156,7 @@ class Product(models.Model):
                         "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
                         "certificateUrl": record.certificate_url,
+                        "ref_odoo": record.ref_odoo,
                     }
 
                     for value in record.product_template_attribute_value_ids:
@@ -260,7 +269,7 @@ class Product(models.Model):
             return rec
         else:
             rec = super(Product, self).write(vals)
-            brand_name = self.brand_id.name
+            brand_name = self.brand_id.name if self.brand_id else ''
             if "brand_id" in vals:
                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
                brand_name = brand.name if brand else self.brand_id.name
@@ -279,11 +288,12 @@ class Product(models.Model):
                     "name": brand_name,
                     "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
                 },
-                "refConstructor": "rc_" + str(self.id),
+                "refConstructor": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
                     "manufacture_name") else self.manufacture_name,
                 "activate": True,
-                "oldRef": "rc_" + str(self.id)
+                "oldRef": "rc_" + str(self.id),
+                "ref_odoo": vals.get("ref_odoo", "") if vals.get("ref_odoo") else "",
             }
 
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
@@ -331,7 +341,13 @@ class EkiProduct(models.Model):
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
-    reference = fields.Char(string='Reference')
+    reference = fields.Char(string='Réference constructeur')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+
+    @api.depends('ref_odoo')
+    def _compute_ref_odoo(self):
+        for record in self:
+            record.ref_odoo = "rc_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -366,9 +382,6 @@ class EkiProduct(models.Model):
 
     @api.model
     def create(self, vals):
-        # Générer le code par défaut
-        vals["default_code"] = self.generate_code()
-
         # Appeler la méthode de création de la classe parente
         rec = super(EkiProduct, self).create(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n')
@@ -393,7 +406,7 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-        numeric_value = 0
+        numeric_value =  self.list_price
         if self.tax_string:
             pattern = r'(\d[\d\s,.]+)'
 
@@ -409,8 +422,7 @@ class EkiProduct(models.Model):
             # Remove non-breaking space characters
             numeric_value = numeric_value.replace('\xa0', '')
 
-        else:
-            numeric_value = self.list_price
+
         name = ""
         if "reference" in vals:
             if "name" in vals :
@@ -428,8 +440,8 @@ class EkiProduct(models.Model):
         for rec in self:
             data = {
                 "name": name,
-                "reference":  vals["reference"] if "reference" in vals else rec.reference,
-                "refConstructor":  vals["default_code"] if "default_code" in vals else rec.default_code,
+                "reference":  vals["reference"] if "reference" in vals else "",
+                "refConstructor": vals["reference"] if "reference" in vals else "",
                 "price": numeric_value,
                 "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
                 "state": '',
@@ -437,7 +449,9 @@ class EkiProduct(models.Model):
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": '',
-                "oldRef": rec.default_code}
+                "oldRef": rec.ref_odoo,
+                "ref_odoo": vals.get("ref_odoo", "") if vals.get("ref_odoo") else ""
+            }
 
             _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
             response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
