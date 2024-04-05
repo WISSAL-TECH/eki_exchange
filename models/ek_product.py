@@ -292,8 +292,8 @@ class Product(models.Model):
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
                     "manufacture_name") else self.manufacture_name,
                 "activate": True,
-                "oldRef": "rc_" + str(self.id),
-                "ref_odoo": vals.get("ref_odoo", "") if vals.get("ref_odoo") else self.ref_odoo,
+                "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
+                "ref_odoo": "rc_" + str(self.id),
             }
 
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
@@ -449,8 +449,8 @@ class EkiProduct(models.Model):
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": '',
-                "oldRef": rec.ref_odoo,
-                "ref_odoo": vals.get("ref_odoo", "") if vals.get("ref_odoo") else ""
+                "oldRef": vals["reference"] if "reference" in vals else "",
+                "ref_odoo": rec.ref_odoo
             }
 
             _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
