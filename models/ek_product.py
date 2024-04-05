@@ -401,8 +401,8 @@ class EkiProduct(models.Model):
             domain_cpa = config_settings.domain_cpa
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain_cpa)
-        url_archive_product = "/api/odoo/products/configuration/archive/"
-        url_activate_product = "/api/odoo/products/configuration/activate/"
+        url_archive_product = "/api/odoo/products/configuration/archive/ref-constructor"
+        url_activate_product = "/api/odoo/products/configuration/activate/ref-constructor"
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
@@ -467,12 +467,12 @@ class EkiProduct(models.Model):
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.default_code),
+                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.default_code),
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
@@ -480,12 +480,12 @@ class EkiProduct(models.Model):
             if "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
                 _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.default_code),
+                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.default_code),
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
