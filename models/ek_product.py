@@ -288,12 +288,12 @@ class Product(models.Model):
                     "name": brand_name,
                     "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
                 },
-                "refConstructor": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
+                "refConstructor": vals.get("constructor_ref", "") if vals.get("constructor_ref") else self.constructor_ref,
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
                     "manufacture_name") else self.manufacture_name,
                 "activate": True,
                 "oldRef": "rc_" + str(self.id),
-                "ref_odoo": vals.get("ref_odoo", "") if vals.get("ref_odoo") else "",
+                "ref_odoo": vals.get("ref_odoo", "") if vals.get("ref_odoo") else self.ref_odoo,
             }
 
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
