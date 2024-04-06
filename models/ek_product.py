@@ -435,7 +435,7 @@ class EkiProduct(models.Model):
             _logger.info('new name ', name)
         else:
             name = vals["name"] if "name" in vals else self.name
-            _logger.info('N A M E', name)
+            _logger.info('N A M E %s', name)
 
         vals['name'] = name
 
