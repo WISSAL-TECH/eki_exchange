@@ -292,8 +292,9 @@ class Product(models.Model):
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
                     "manufacture_name") else self.manufacture_name,
                 "activate": True,
-                "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
-                "ref_odoo": "rc_" + str(self.id),
+                #"oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
+                "ref_odoo": vals.get("ref_odoo", "") if vals.get(
+                    "ref_odoo") else self.ref_odoo,
             }
 
             _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
@@ -309,12 +310,12 @@ class Product(models.Model):
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + "rc_" + str(self.id),
+                response = requests.patch(str(domain) + str(url_archive_product) + str(self.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + "rc_" + str(self.id),
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(self.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
@@ -401,8 +402,8 @@ class EkiProduct(models.Model):
             domain_cpa = config_settings.domain_cpa
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain_cpa)
-        url_archive_product = "/api/odoo/products/configuration/archive/ref-constructor"
-        url_activate_product = "/api/odoo/products/configuration/activate/ref-constructor"
+        url_archive_product = "/api/odoo/products/configuration/archive/"
+        url_activate_product = "/api/odoo/products/configuration/activate/"
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
@@ -434,6 +435,7 @@ class EkiProduct(models.Model):
             _logger.info('new name ', name)
         else:
             name = vals["name"] if "name" in vals else self.name
+            _logger.info('N A M E', name)
 
         vals['name'] = name
 
@@ -449,7 +451,7 @@ class EkiProduct(models.Model):
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": '',
-                "oldRef": vals["reference"] if "reference" in vals else "",
+                #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
 
@@ -467,12 +469,12 @@ class EkiProduct(models.Model):
             if "active" in vals and vals["active"] == False:
                 # send archive product to ekiclik
                 _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
+                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
@@ -480,12 +482,12 @@ class EkiProduct(models.Model):
             if "active" in vals and vals["active"] == True:
                 # send activate product to ekiclik
                 _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
+                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.reference)+ '/ref-odoo'+ str(rec.ref_odoo),
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.ref_odoo),
                                           headers=self.headers)
 
                 _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',

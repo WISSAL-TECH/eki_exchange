@@ -69,7 +69,7 @@ class EkQuant(models.Model):
         if self.location_id.company_id.name == "Centrale des Achats":
             json_obj = [{
                         "pos": "EKIWH",
-                        "reference": self.product_id.default_code,
+                        "configuration_ref_odoo": self.product_id.ref_odoo,
                         "realQuantity": self.quantity,
                         "price": self.product_id.lst_price}]
             _logger.info(
@@ -86,7 +86,7 @@ class EkQuant(models.Model):
         else:
             json_obj_pdv = [{
                         "pos": self.location_id.company_id.codification,
-                        "reference": self.product_id.default_code,
+                        "configuration_ref_odoo": self.product_id.ref_odoo,
                         "realQuantity": self.quantity,
                         "price": self.product_id.lst_price}]
 
