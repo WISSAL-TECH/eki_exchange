@@ -281,7 +281,7 @@ class Product(models.Model):
 
             # sending update to ekiclik
             data = {
-                "name": vals.get("name", ""),
+                "name": vals.get("name","") if vals.get("name") else self.name ,
                 "description": vals.get("description", "") if vals.get("description") else "",
                 "categoryName": categ_name,
                 "brand": {
