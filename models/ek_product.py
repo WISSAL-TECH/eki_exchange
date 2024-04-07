@@ -432,7 +432,7 @@ class EkiProduct(models.Model):
                 name = self.name
             # Add default code if exists
             name += ' ' + str(self.reference) if self.reference else ''
-            _logger.info('new name ', name)
+            _logger.info('new name %s', name)
         else:
             name = vals["name"] if "name" in vals else self.name
             _logger.info('N A M E %s', name)
