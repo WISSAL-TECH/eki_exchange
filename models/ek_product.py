@@ -29,7 +29,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
     constructor_ref = fields.Char("Réference constructeur", required=True)
 
     @api.depends('certificate')
