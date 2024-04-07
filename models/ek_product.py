@@ -134,7 +134,7 @@ class Product(models.Model):
                     "name": rec.brand_id.name,
                     "reference": "br_" + str(rec.brand_id.id)
                 },
-                "refConstructor": rec.constructor_ref if rec.constructor_ref else '',
+                "refConstructor": rec.constructor_ref if rec.constructor_ref else "null",
                 "manufactureName": rec.manufacture_name,
                 "activate": True,
                 "ref_odoo": rec.ref_odoo,
