@@ -30,7 +30,7 @@ class Product(models.Model):
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
-    constructor_ref = fields.Char("Réference constructeur")
+    constructor_ref = fields.Char("Réference constructeur", required=True)
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
