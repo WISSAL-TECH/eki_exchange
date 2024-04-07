@@ -297,7 +297,7 @@ class Product(models.Model):
                     "ref_odoo") else self.ref_odoo,
             }
 
-            _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+            _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n', data)
             response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
                                     headers=self.headers)
             _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
