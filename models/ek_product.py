@@ -440,10 +440,12 @@ class EkiProduct(models.Model):
         vals['name'] = name
 
         for rec in self:
+            origin_product = rec.product_tmpl_id
+
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else "",
-                "refConstructor": vals["reference"] if "reference" in vals else "",
+                "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                 "price": numeric_value,
                 "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
                 "state": '',
