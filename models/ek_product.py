@@ -441,6 +441,9 @@ class EkiProduct(models.Model):
 
         for rec in self:
             origin_product = rec.product_tmpl_id
+            if not name :
+                name = origin_product.name
+                _logger.info('N A M E from product %s', name)
 
             data = {
                 "name": name,
