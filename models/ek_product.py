@@ -32,6 +32,8 @@ class Product(models.Model):
     ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
+    default_code = fields.Char(string="Reference interne", invisible=True)
+    company_id = fields.Many2one("res.company", string="Société", invisible=True)
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
