@@ -46,7 +46,7 @@ class ResCompany(models.Model):
             data["ek_user_emails"] = ek_user_emails
 
             if "source" in vals and vals['source']:
-                if vals['source'] == 'CPA':
+                if vals['source'] == 'cpa':
                     # envoyer pdv a cpa
                     _logger.info(
                         '\n\n\n pos BODY JSON \n\n\n\n--->>  %s\n\n\n\n', data)
@@ -54,7 +54,7 @@ class ResCompany(models.Model):
                                                  headers=self.headers)
                     _logger.info('\n\n\n(CREATE pos) response from cpa\n\n\n\n--->  %s\n\n\n\n',
                                  response_cpa.content)
-                elif vals['source'] == "ALSALAM":
+                elif vals['source'] == "salam":
                     _logger.info(
                         '\n\n\n pos BODY JSON \n\n\n\n--->>  %s\n\n\n\n', data)
                     response = requests.post(str(domain) + str(url_pos), data=json.dumps(data),
