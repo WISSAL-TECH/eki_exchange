@@ -30,15 +30,14 @@ class ResCompany(models.Model):
                 domain_cpa = config_settings.domain_cpa
             url_pos = "/api/odoo/pos"
 
-            data = {"name_pos": vals['name_pos'],
-                    "address_pos":  vals['address_pos'],
-                    "pos_phone_one": vals['pos_phone_one'],
-                    "pos_phone_two": vals['pos_phone_two'],
-                    "pos_wilaya": vals['pos_wilaya'],
-                    "pos_commune": vals['pos_commune'],
-                    "codification": vals['codification'],
-                    "ek_user_emails": ["email1@example.com", "email2@example.com"],
-                    "source": vals['source']}
+            data = {"name_pos": vals.get('name_pos'),
+                    "address_pos":  vals.get('address_pos'),
+                    "pos_phone_one": vals.get('pos_phone_one'),
+                    "pos_phone_two": vals.get('pos_phone_two'),
+                    "pos_wilaya": vals.get('pos_wilaya'),
+                    "pos_commune": vals.get('pos_commune'),
+                    "codification": vals.get('codification'),
+                    "source": vals.get('source')}
             ek_user_emails = []
 
             for value in vals['ek_user_emails']:
@@ -46,7 +45,7 @@ class ResCompany(models.Model):
 
             data["ek_user_emails"] = ek_user_emails
 
-            if "source" in vals and vals['source']:
+            if "source" in vals and vals.get('source'):
                 if vals['source'] == 'salam':
                     # envoyer pdv a cpa
                     _logger.info(
