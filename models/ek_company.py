@@ -61,11 +61,13 @@ class ResCompany(models.Model):
                                              headers=self.headers)
                     _logger.info('\n\n\n(CREATE pos) response from alsalam \n\n\n\n--->  %s\n\n\n\n',
                                  response.content)
+            vals.pop("ek_user_emails")
             vals.pop("source")
-            rec = super(ResCompany, self).create({
-                'name': vals.get('name_pos'),
-                'codification': vals.get('codification'),
-            })
+            vals.pop("pos_commune")
+            vals.pop("pos_wilaya")
+            vals["name"] = vals.get('name_pos')
+            vals.pop("name_pos")
+            rec = super(ResCompany, self).create(vals)
 
             return rec
         else:
