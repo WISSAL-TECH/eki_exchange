@@ -1,3 +1,5 @@
+import re
+
 from odoo import models, fields, api, _, exceptions
 import logging
 import json
@@ -67,11 +69,29 @@ class EkQuant(models.Model):
 
         line_product = self.env['product.product'].search([('id', '=', self.product_id.product_variant_id.id)])
         if self.location_id.company_id.name == "Centrale des Achats":
+            numeric_value = ""
+            if self.product_id.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, self.product_id.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+
+            else:
+                numeric_value = self.product_id.lst_price
             json_obj = [{
                         "pos": "EKIWH",
                         "configuration_ref_odoo": self.product_id.ref_odoo,
                         "realQuantity": self.quantity,
-                        "price": self.product_id.lst_price}]
+                        "price": numeric_value}]
             _logger.info(
                 '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
             response1 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj),
@@ -84,11 +104,29 @@ class EkQuant(models.Model):
                 '\n\n\n response cpa \n\n\n\n--->>  %s\n\n\n\n', response_cpa)
             return response1, response_cpa
         else:
+            numeric_value = ""
+            if self.product_id.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, self.product_id.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+
+            else:
+                numeric_value = self.product_id.lst_price
             json_obj_pdv = [{
                         "pos": self.location_id.company_id.codification,
                         "configuration_ref_odoo": self.product_id.ref_odoo,
                         "realQuantity": self.quantity,
-                        "price": self.product_id.lst_price}]
+                        "price": numeric_value}]
 
 
 
