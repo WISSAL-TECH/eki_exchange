@@ -37,7 +37,7 @@ class ResCompany(models.Model):
                     "pos_commune": vals['pos_commune'],
                     "codification": vals['codification'],
                     "ek_user_emails": ["email1@example.com", "email2@example.com"],
-                    "source": vals['pos'],}
+                    "source": vals['source']}
             ek_user_emails = []
 
             for value in vals['ek_user_emails']:
