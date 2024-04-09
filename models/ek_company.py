@@ -44,8 +44,9 @@ class ResCompany(models.Model):
                     "source": vals.get('source')}
             ek_user_emails = []
 
-            for value in vals['ek_user_emails']:
-                ek_user_emails.append(value)
+            if "ek_user_emails" in vals and vals['ek_user_emails']:
+                for value in vals['ek_user_emails']:
+                   ek_user_emails.append(value)
 
             data["ek_user_emails"] = ek_user_emails
             _logger.info(
