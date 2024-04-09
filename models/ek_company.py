@@ -62,7 +62,7 @@ class ResCompany(models.Model):
                                              headers=self.headers)
                     _logger.info('\n\n\n(CREATE pos) response from alsalam \n\n\n\n--->  %s\n\n\n\n',
                                  response.content)
-
+            vals.pop("source")
             rec = super(ResCompany, self).create({
                 'name': vals.get('name_pos'),
                 'codification': vals.get('codification'),
