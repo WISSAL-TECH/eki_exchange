@@ -16,6 +16,7 @@ class ResCompany(models.Model):
     _inherit = 'res.company'
 
     create_by = fields.Char()
+    source = fields.Char()
 
     def create(self, vals):
         if 'create_by' in vals and vals['create_by'] != 'odoo':
