@@ -19,6 +19,8 @@ class ResCompany(models.Model):
     source = fields.Char()
 
     def create(self, vals):
+        logging.warning("create pos ======")
+        logging.warning(vals)
         if 'create_by' in vals and vals.get('create_by') != 'odoo':
             logging.warning("create pos from ekiclik ======")
             logging.warning(vals)
