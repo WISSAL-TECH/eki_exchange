@@ -67,6 +67,8 @@ class ResCompany(models.Model):
             vals.pop("pos_wilaya")
             vals["name"] = vals.get('name_pos')
             vals.pop("name_pos")
+            logging.warning("create pos from ek ======")
+            logging.warning(vals)
             rec = super(ResCompany, self).create(vals)
 
             return rec
