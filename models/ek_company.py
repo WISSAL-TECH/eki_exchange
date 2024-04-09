@@ -19,7 +19,7 @@ class ResCompany(models.Model):
     source = fields.Char()
 
     def create(self, vals):
-        if 'create_by' in vals and vals['create_by'] != 'odoo':
+        if 'create_by' in vals and vals.get('create_by') != 'odoo':
             logging.warning("create pos from ekiclik ======")
             logging.warning(vals)
             domain = ""
@@ -44,7 +44,8 @@ class ResCompany(models.Model):
                 ek_user_emails.append(value)
 
             data["ek_user_emails"] = ek_user_emails
-
+            _logger.info(
+                '\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
             if "source" in vals and vals.get('source'):
                 if vals['source'] == 'salam':
                     # envoyer pdv a cpa
