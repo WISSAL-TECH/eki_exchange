@@ -18,6 +18,8 @@ class ResCompany(models.Model):
     create_by = fields.Char()
     source = fields.Char()
 
+    headers = {"Content-Type": "application/json","Accept": "application/json", "Catch-Control": "no-cache"}
+
     def create(self, vals):
         logging.warning("create pos ======")
         logging.warning(vals)
