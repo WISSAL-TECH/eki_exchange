@@ -55,7 +55,7 @@ class ResCompany(models.Model):
                     ek_user_emails.append(value)
 
             data["ek_user_emails"] = ek_user_emails
-            body["data"]= data
+            body["params"]["data"] = data
             _logger.info(
                 '\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
             if "source" in vals and vals.get('source'):
