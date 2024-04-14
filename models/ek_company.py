@@ -18,7 +18,7 @@ class ResCompany(models.Model):
     create_by = fields.Char()
     source = fields.Char()
 
-    headers = {"Content-Type": "application/json","Accept": "application/json", "Catch-Control": "no-cache"}
+    headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
     def create(self, vals):
         logging.warning("create pos ======")
@@ -34,8 +34,13 @@ class ResCompany(models.Model):
                 domain_cpa = config_settings.domain_cpa
             url_pos = "/api/odoo/pos"
 
+            body = {"params": {
+                "data": {
+                }
+            }
+            }
             data = {"name_pos": vals.get('name_pos'),
-                    "address_pos":  vals.get('address_pos'),
+                    "address_pos": vals.get('address_pos'),
                     "pos_phone_one": vals.get('pos_phone_one'),
                     "pos_phone_two": vals.get('pos_phone_two'),
                     "pos_wilaya": vals.get('pos_wilaya'),
@@ -47,24 +52,25 @@ class ResCompany(models.Model):
 
             if "ek_user_emails" in vals and vals['ek_user_emails']:
                 for value in vals['ek_user_emails']:
-                   ek_user_emails.append(value)
+                    ek_user_emails.append(value)
 
             data["ek_user_emails"] = ek_user_emails
+            body["data"]= data
             _logger.info(
-                '\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
+                '\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
             if "source" in vals and vals.get('source'):
                 if vals['source'] == 'salam':
                     # envoyer pdv a cpa
                     _logger.info(
-                        '\n\n\n pos BODY JSON \n\n\n\n--->>  %s\n\n\n\n', data)
-                    response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(data),
+                        '\n\n\n pos BODY JSON \n\n\n\n--->>  %s\n\n\n\n', body)
+                    response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(body),
                                                  headers=self.headers)
                     _logger.info('\n\n\n(CREATE pos) response from cpa\n\n\n\n--->  %s\n\n\n\n',
                                  response_cpa.content)
                 elif vals['source'] == "cpa":
                     _logger.info(
-                        '\n\n\n pos BODY JSON \n\n\n\n--->>  %s\n\n\n\n', data)
-                    response = requests.post(str(domain) + str(url_pos), data=json.dumps(data),
+                        '\n\n\n pos BODY JSON \n\n\n\n--->>  %s\n\n\n\n', body)
+                    response = requests.post(str(domain) + str(url_pos), data=json.dumps(body),
                                              headers=self.headers)
                     _logger.info('\n\n\n(CREATE pos) response from alsalam \n\n\n\n--->  %s\n\n\n\n',
                                  response.content)
