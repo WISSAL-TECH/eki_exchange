@@ -41,6 +41,7 @@ class ResCompany(models.Model):
                     "pos_wilaya": vals.get('pos_wilaya'),
                     "pos_commune": vals.get('pos_commune'),
                     "codification": vals.get('codification'),
+                    "status": vals.get('status'),
                     "source": vals.get('source')}
             ek_user_emails = []
 
@@ -71,6 +72,7 @@ class ResCompany(models.Model):
             vals.pop("source")
             vals.pop("pos_commune")
             vals.pop("pos_wilaya")
+            vals.pop("status")
             vals["name"] = vals.get('name_pos')
             vals.pop("name_pos")
             logging.warning("create pos from ek ======")
