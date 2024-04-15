@@ -112,16 +112,20 @@ class ResCompany(models.Model):
                         "codification": vals.get('codification') if vals.get('codification') else '',
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
+
                 ek_user_emails = []
 
                 if "users" in vals:
                     user_ids = vals.get('users', [])
-                    users = self.env['res.users'].browse(user_ids)
-                    _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', users)
-                    for user in users:
-                        _logger.info('\n\n\n USER \n\n\n\n--->  %s\n\n\n\n',user)
-                        if user and user.login:
-                            ek_user_emails.append(user.login)
+                    _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids)
+
+                    if False in user_ids:
+                        user_ids.remove(False)
+
+                    if user_ids:
+                        users = self.env['res.users'].browse(user_ids)
+                        login_values = users.mapped('login')
+                        ek_user_emails = login_values
 
                 data["ek_user_emails"] = ek_user_emails
                 _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
