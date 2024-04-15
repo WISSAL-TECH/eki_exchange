@@ -124,7 +124,11 @@ class ResCompany(models.Model):
 
                     if user_ids:
                         users = self.env['res.users'].browse(user_ids)
+                        _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', users)
+
                         login_values = users.mapped('login')
+                        _logger.info('\n\n\n values \n\n\n\n--->  %s\n\n\n\n', login_values)
+
                         ek_user_emails = login_values
 
                 data["ek_user_emails"] = ek_user_emails
