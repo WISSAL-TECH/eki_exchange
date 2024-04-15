@@ -62,7 +62,7 @@ class ResUsers(models.Model):
                 "phone": vals.get('phone'),
                 "addresse": vals.get('addresse'),
                 "codification": vals.get('codification'),
-                "roles": vals.get('roles'),
+                "role": vals.get('roles'),
                 "email": vals.get('login')
             }
 
