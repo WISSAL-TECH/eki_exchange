@@ -114,10 +114,11 @@ class ResCompany(models.Model):
                         "source": vals.get('source') if vals.get('source') else ''}
                 ek_user_emails = []
 
-                if "users" in vals and isinstance(vals['users'], list):
+                if "users" in vals:
                     users = self.env['res.users'].browse(vals['users'])
                     for user in users:
-                        ek_user_emails.append(user.login)
+                        if user:
+                            ek_user_emails.append(user.login)
 
                 data["ek_user_emails"] = ek_user_emails
                 _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
