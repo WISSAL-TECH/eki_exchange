@@ -100,7 +100,6 @@ class ResCompany(models.Model):
         else:
             logging.warning("create pos from odoo ======")
             logging.warning(vals)
-            rec = super(ResCompany, self).create(vals)
 
             data = {"name_pos": vals.get('name') if vals.get('name') else '',
                     "address_pos": vals.get('login') if vals.get('login') else '',
@@ -111,7 +110,13 @@ class ResCompany(models.Model):
                     "codification": vals.get('codification') if vals.get('codification') else '',
                     "status": "ACTIVE",
                     "source": vals.get('source') if vals.get('source') else ''}
+            ek_user_emails = []
 
+            if "users" in vals and vals['users']:
+                for user in vals['users']:
+                    ek_user_emails.append(user.login)
+
+            data["ek_user_emails"] = ek_user_emails
             _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
 
             response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(data),
@@ -121,6 +126,6 @@ class ResCompany(models.Model):
             response = requests.post(str(domain) + str(url_pos), data=json.dumps(data),
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE POS) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
-
+            rec = super(ResCompany, self).create(vals)
 
             return rec
