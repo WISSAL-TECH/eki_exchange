@@ -13,7 +13,8 @@ _logger = logging.getLogger(__name__)
 
 
 class EkWilaya(models.Model):
-    _inherit = 'ek.wilaya'
+    _name = 'ek.wilaya'
+    _rec_name = 'name'
 
     name = fields.Char("Wilaya")
 
