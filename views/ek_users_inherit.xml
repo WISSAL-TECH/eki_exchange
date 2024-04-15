@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_userst_inherit_form" model="ir.ui.view">
+        <field name="name">res.users.inherit</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='avatar_128']" position="after">
+                <field name="ek_user"/>
+            </xpath>
+            <xpath expr="//page[@name='company_id']" position="after">
+                <page string="Informations Ekiclik" name="ek_info" attrs="{'invisible' : [('ek_user', '=',False)]}">
+                    <group>
+                        <group>
+                            <field name="first_name"/>
+                            <field name="last_name"/>
+                            <field name="phone"/>
+                        </group>
+                        <group>
+                            <field name="address"/>
+                            <field name="codification"/>
+                            <field name="roles"/>
+                        </group>
+
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
+
