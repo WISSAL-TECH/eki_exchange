@@ -8,8 +8,7 @@ import requests
 import re
 from odoo import models, fields, api, exceptions
 from odoo.http import request
-
-from odoo.odoo.exceptions import UserError
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
