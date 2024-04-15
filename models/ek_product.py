@@ -410,26 +410,7 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-        numeric_value =  0
         for rec in self:
-            if rec.tax_string:
-                pattern = r'(\d[\d\s,.]+)'
-
-                # Use the findall function to extract all matches
-                matches = re.findall(pattern, rec.tax_string)
-
-                # Join the matches into a single string (if there are multiple matches)
-                numeric_value = ''.join(matches)
-
-                # Replace commas with dots (if necessary)
-                numeric_value = numeric_value.replace(',', '.')
-
-                # Remove non-breaking space characters
-                numeric_value = numeric_value.replace('\xa0', '')
-            else:
-                numeric_value = rec.lst_price
-
-
             name = ""
             if "reference" in vals:
                 if "name" in vals :
@@ -450,7 +431,23 @@ class EkiProduct(models.Model):
             if not name :
                 name = origin_product.name
                 _logger.info('N A M E from product %s', name)
+            numeric_value = 0
+            if rec.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
 
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, rec.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+            else:
+                numeric_value = vals.get('lst_price')
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else "",
