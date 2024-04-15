@@ -9,6 +9,8 @@ import re
 from odoo import models, fields, api, exceptions
 from odoo.http import request
 
+from odoo.odoo.exceptions import UserError
+
 _logger = logging.getLogger(__name__)
 
 
@@ -27,11 +29,21 @@ class ResUsers(models.Model):
     ], )
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
+    def _check_codification_length(self, vals):
+        codification = vals.get('codification')
+        if codification and len(codification) != 21:
+            raise UserError("Codification must be 21 characters long.")
+
+    def write(self, vals):
+        self._check_codification_length(vals)
+        return super(ResUsers, self).write(vals)
 
     @api.model
     def create(self, vals):
+        self._check_codification_length(vals)
+
         rec = super(ResUsers, self).create(vals)
-        if "ek_user" in vals and vals.get('ek_user')== True:
+        if "ek_user" in vals and vals.get('ek_user') == True:
 
             logging.warning("create user ======")
             logging.warning(vals)
@@ -64,11 +76,8 @@ class ResUsers(models.Model):
                                      headers=self.headers)
             _logger.info('\n\n\n(CREATE user) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
 
-
             return rec
 
         else:
 
             return rec
-
-
