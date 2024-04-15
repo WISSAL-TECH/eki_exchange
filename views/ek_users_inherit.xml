@@ -9,7 +9,7 @@
             <xpath expr="//field[@name='avatar_128']" position="after">
                 <field name="ek_user"/>
             </xpath>
-            <xpath expr="//page[@name='company_id']" position="after">
+            <xpath expr="//page[@name='preferences']" position="after">
                 <page string="Informations Ekiclik" name="ek_info" attrs="{'invisible' : [('ek_user', '=',False)]}">
                     <group>
                         <group>
