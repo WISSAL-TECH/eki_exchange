@@ -15,7 +15,6 @@ _logger = logging.getLogger(__name__)
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
-    create_by = fields.Char()
     ek_user = fields.Boolean(string="Utilisateur ekiclik", default=False)
     first_name = fields.Char("Nom")
     last_name = fields.Char("Prénom")
