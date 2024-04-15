@@ -119,16 +119,13 @@ class ResCompany(models.Model):
                     user_ids = vals.get('users', [])
                     _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids)
 
-                    if False in user_ids:
-                        user_ids.remove(False)
+                    # Remove any False value from the user_ids list
+                    user_ids = [user_id for user_id in user_ids if user_id]
 
                     if user_ids:
                         users = self.env['res.users'].browse(user_ids)
-                        _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', users)
-
-                        login_values = users.mapped('login')
-                        _logger.info('\n\n\n values \n\n\n\n--->  %s\n\n\n\n', login_values)
-
+                        # Extract login values from the users
+                        login_values = [user.login for user in users if user.login]
                         ek_user_emails = login_values
 
                 data["ek_user_emails"] = ek_user_emails
