@@ -7,3 +7,4 @@ from . import utils
 from . import client
 from . import config
 from . import ek_company
+from . import ek_user
