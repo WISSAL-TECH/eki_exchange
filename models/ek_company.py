@@ -115,7 +115,7 @@ class ResCompany(models.Model):
                 ek_user_emails = []
 
                 if "users" in vals:
-                    user_ids = [user_id for user_id in vals['users'] if user_id]
+                    user_ids = vals.get('users', [])
                     users = self.env['res.users'].browse(user_ids)
                     _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', users)
                     for user in users:
