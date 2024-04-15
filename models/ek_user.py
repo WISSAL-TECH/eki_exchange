@@ -63,7 +63,8 @@ class ResUsers(models.Model):
                 "phone": vals.get('phone'),
                 "addresse": vals.get('addresse'),
                 "codification": vals.get('codification'),
-                "roles": vals.get('roles')
+                "roles": vals.get('roles'),
+                "email": vals.get('login')
             }
 
             _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
