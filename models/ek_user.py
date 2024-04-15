@@ -28,6 +28,7 @@ class ResUsers(models.Model):
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
+    @api.model
     def create(self, vals):
         rec = super(ResUsers, self).create(vals)
 
