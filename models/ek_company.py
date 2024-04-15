@@ -102,7 +102,11 @@ class ResCompany(models.Model):
             logging.warning("create pos from odoo ======")
             logging.warning(vals)
             if vals.get('pos')== True:
-
+                body = {"params": {
+                    "data": {
+                    }
+                }
+                }
                 data = {"name_pos": vals.get('name') if vals.get('name') else '',
                         "address_pos": vals.get('login') if vals.get('login') else '',
                         "pos_phone_one": vals.get('phone') if vals.get('phone') else '',
@@ -126,13 +130,15 @@ class ResCompany(models.Model):
                         ek_user_emails.append(login_value)
 
                 data["ek_user_emails"] = ek_user_emails
-                _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
+                body["params"]["data"] = data
 
-                response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(data),
+                _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
+
+                response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(body),
                                              headers=self.headers)
                 _logger.info('\n\n\n(CREATE POS) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
 
-                response = requests.post(str(domain) + str(url_pos), data=json.dumps(data),
+                response = requests.post(str(domain) + str(url_pos), data=json.dumps(body),
                                          headers=self.headers)
                 _logger.info('\n\n\n(CREATE POS) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
                 rec = super(ResCompany, self).create(vals)
