@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@class='oe_title']/group/field[@name='partner_id']" position="after">
-                <field name="ek_user" widget="boolean_checkbox" string="Utilisateur ekiclik"/>
+                <field name="ek_user" widget="heckbox" string="Utilisateur ekiclik"/>
             </xpath>
             <xpath expr="//page[@name='preferences']" position="after">
                 <page string="Informations Ekiclik" name="ek_info" attrs="{'invisible' : [('ek_user', '=',False)]}">
