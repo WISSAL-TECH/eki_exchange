@@ -12,11 +12,18 @@ from odoo.http import request
 _logger = logging.getLogger(__name__)
 
 
+class EkWilaya(models.Model):
+    _inherit = 'ek.wilaya'
+
+    name = fields.Char("Wilaya")
+
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
     create_by = fields.Char()
     source = fields.Char()
+    pos_commune = fields.Char("Commune")
+    pos_wilaya = fields.Many2one("ek.wilaya", "Wilaya")
 
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -24,16 +31,18 @@ class ResCompany(models.Model):
     def create(self, vals):
         logging.warning("create pos ======")
         logging.warning(vals)
+        domain = ""
+        domain_cpa = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
+        url_pos = "/api/odoo/pos"
+
         if 'create_by' in vals and vals.get('create_by') != 'odoo':
             logging.warning("create pos from ekiclik ======")
             logging.warning(vals)
-            domain = ""
-            domain_cpa = ""
-            config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-            if config_settings:
-                domain = config_settings.domain
-                domain_cpa = config_settings.domain_cpa
-            url_pos = "/api/odoo/pos"
+
 
             body = {"params": {
                 "data": {
@@ -91,5 +100,26 @@ class ResCompany(models.Model):
             logging.warning("create pos from odoo ======")
             logging.warning(vals)
             rec = super(ResCompany, self).create(vals)
+
+            data = {"name_pos": vals.get('name') if vals.get('name') else '',
+                    "address_pos": vals.get('login') if vals.get('login') else '',
+                    "pos_phone_one": vals.get('phone') if vals.get('phone') else '',
+                    "pos_phone_two": vals.get('mobile') if vals.get('mobile') else '',
+                    "pos_wilaya": vals.get('pos_wilaya') if vals.get('pos_wilaya') else '',
+                    "pos_commune": vals.get('pos_commune') if vals.get('pos_commune') else '',
+                    "codification": vals.get('codification') if vals.get('codification') else '',
+                    "status": "ACTIVE",
+                    "source": vals.get('source') if vals.get('source') else ''}
+
+            _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
+
+            response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(data),
+                                         headers=self.headers)
+            _logger.info('\n\n\n(CREATE POS) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
+
+            response = requests.post(str(domain) + str(url_pos), data=json.dumps(data),
+                                     headers=self.headers)
+            _logger.info('\n\n\n(CREATE POS) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
+
 
             return rec
