@@ -22,7 +22,6 @@
                             <field name="codification"/>
                             <field name="roles"/>
                         </group>
-
                     </group>
                 </page>
             </xpath>
