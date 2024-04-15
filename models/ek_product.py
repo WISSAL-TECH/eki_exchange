@@ -410,7 +410,7 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-        numeric_value =  self.list_price
+        numeric_value =  0
         if self.tax_string:
             pattern = r'(\d[\d\s,.]+)'
 
@@ -425,6 +425,8 @@ class EkiProduct(models.Model):
 
             # Remove non-breaking space characters
             numeric_value = numeric_value.replace('\xa0', '')
+        else:
+            numeric_value = self.lst_price
 
 
         name = ""
