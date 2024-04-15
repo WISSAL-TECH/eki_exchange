@@ -53,7 +53,7 @@ class ResUsers(models.Model):
             if config_settings:
                 domain = config_settings.domain
                 domain_cpa = config_settings.domain_cpa
-                url_users = "/api/odoo/users"
+            url_users = "/api/odoo/users"
 
             data = {
                 "username": vals.get('name'),
