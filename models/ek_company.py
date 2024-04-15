@@ -117,7 +117,7 @@ class ResCompany(models.Model):
                 if "users" in vals:
                     users = self.env['res.users'].browse(vals['users'])
                     for user in users:
-                        if user:
+                        if user and user.login:
                             ek_user_emails.append(user.login)
 
                 data["ek_user_emails"] = ek_user_emails
