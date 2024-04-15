@@ -411,38 +411,39 @@ class EkiProduct(models.Model):
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         numeric_value =  0
-        if self.tax_string:
-            pattern = r'(\d[\d\s,.]+)'
+        for rec in self:
+            if rec.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
 
-            # Use the findall function to extract all matches
-            matches = re.findall(pattern, self.tax_string)
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, rec.tax_string)
 
-            # Join the matches into a single string (if there are multiple matches)
-            numeric_value = ''.join(matches)
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
 
-            # Replace commas with dots (if necessary)
-            numeric_value = numeric_value.replace(',', '.')
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
 
-            # Remove non-breaking space characters
-            numeric_value = numeric_value.replace('\xa0', '')
-        else:
-            numeric_value = self.lst_price
-
-
-        name = ""
-        if "reference" in vals:
-            if "name" in vals :
-                name = str(vals["name"])
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
             else:
-                name = self.name
-            # Add default code if exists
-            name += ' ' + str(self.reference) if self.reference else ''
-            _logger.info('new name %s', name)
-        else:
-            name = vals["name"] if "name" in vals else self.name
-            _logger.info('N A M E %s', name)
+                numeric_value = rec.lst_price
 
-        vals['name'] = name
+
+            name = ""
+            if "reference" in vals:
+                if "name" in vals :
+                    name = str(vals["name"])
+                else:
+                    name = rec.name
+                # Add default code if exists
+                name += ' ' + str(rec.reference) if rec.reference else ''
+                _logger.info('new name %s', name)
+            else:
+                name = vals["name"] if "name" in vals else rec.name
+                _logger.info('N A M E %s', name)
+
+            vals['name'] = name
 
         for rec in self:
             origin_product = rec.product_tmpl_id
