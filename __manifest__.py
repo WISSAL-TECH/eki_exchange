@@ -31,6 +31,7 @@
 
         #views
         'views/ek_product_inherit.xml'
+        'views/ek_users_inherit.xml'
 
 
 
