@@ -128,7 +128,7 @@ class Product(models.Model):
                 numeric_value = numeric_value.replace('\xa0', '')
 
             else:
-                numeric_value = self.list_price
+                numeric_value = vals.get('list_price')
             product_json = {
                 "name": rec.name,
                 "description": rec.description,
