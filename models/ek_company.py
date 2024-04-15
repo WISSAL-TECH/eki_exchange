@@ -17,8 +17,7 @@ class ResCompany(models.Model):
 
     create_by = fields.Char()
     source = fields.Char()
-    pos = fields.Boolean(string="Pos")
-    users = fields.Many2many("res.users")
+
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
