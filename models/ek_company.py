@@ -8,6 +8,7 @@ import requests
 import re
 from odoo import models, fields, api, exceptions
 from odoo.http import request
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -26,11 +27,21 @@ class ResCompany(models.Model):
     pos_commune = fields.Char("Commune")
     pos_wilaya = fields.Many2one("ek.wilaya", "Wilaya")
 
+    def _check_codification_length(self, vals):
+        codification = vals.get('codification')
+        if codification and len(codification) != 21:
+            raise UserError("Codification must be 21 characters long.")
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
+    def write(self, vals):
+        self._check_codification_length(vals)
+        return super(ResCompany, self).write(vals)
+
     @api.model
     def create(self, vals):
+        self._check_codification_length(vals)
+
         logging.warning("create pos ======")
         logging.warning(vals)
         domain = ""
