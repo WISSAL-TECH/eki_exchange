@@ -130,15 +130,18 @@ class ResCompany(models.Model):
                 ek_user_emails = []
 
                 if "users" in vals:
-                    user_ids = vals.get('users', [])
-                    _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids)
+                    user_ids_list = vals.get('users', [])
+                    _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids_list)
 
-                    for user_record in user_ids:
-                        if len(user_record) > 2:
-                            user_id = user_record[2][0]  # Access the ID '15'
-                            user = self.env['res.users'].browse(user_id)
-                            login_value = user.login
-                            ek_user_emails.append(login_value)
+                    # Ensure user_ids_list is not empty and contains at least one record
+                    if user_ids_list:
+                        user_ids = user_ids_list[0]  # Get the first record
+                        if len(user_ids) > 2:
+                            user_ids_inner_list = user_ids[2]  # Access the third element, which is a list of user IDs
+                            for user_id in user_ids_inner_list:
+                                user = self.env['res.users'].browse(user_id)
+                                login_value = user.login
+                                ek_user_emails.append(login_value)
 
                 data["ek_user_emails"] = ek_user_emails
                 body["params"]["data"] = data
