@@ -21,7 +21,7 @@ class ResUsers(models.Model):
     last_name = fields.Char("Prénom", required=True)
     phone = fields.Char("Téléphone", required=True)
     address = fields.Char("Address", required=True)
-    codification = fields.Char("Codification",required=True)
+    codification = fields.Char("Codification" ,required=True)
     roles = fields.Selection([
         ('ROLE_CREDIT_ANALYST_EK', 'Credit analyst'),
         ('ROLE_POS_EK', 'Pos')
