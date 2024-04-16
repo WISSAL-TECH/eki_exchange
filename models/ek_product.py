@@ -113,7 +113,7 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            if self.tax_string:
+            if vals.get('tax_string') or rec.tax_string or self.tax_string:
                 pattern = r'(\d[\d\s,.]+)'
 
                 # Use the findall function to extract all matches
