@@ -416,17 +416,12 @@ class EkiProduct(models.Model):
         #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
         if "name" in vals and vals['name'] or self.name:
            name = vals['name'] if "name" in vals and vals['name'] else self.name
-        else:
-            _logger.info('\n\n\n self.product_tmpl_id\n\n\n\n--->  %s\n\n\n\n', self.product_tmpl_id)
-
-            product = self.env['product.template'].search([('name', '=', self.product_tmpl_id)])
-            name = product.name
 
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Iterate through each record in the Many2Many field
         for variant_value in self.product_template_variant_value_ids:
-            name += str(variant_value)
+            name += str(variant_value.name)
             _logger.info('\n\n\n  NAME with variantes\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Add brand name if exists
@@ -471,8 +466,6 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         for rec in self:
             name = rec.generate_name(vals)
-
-            vals['name'] = name
 
         for rec in self:
             origin_product = rec.product_tmpl_id
