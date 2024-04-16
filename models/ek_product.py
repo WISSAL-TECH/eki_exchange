@@ -423,7 +423,7 @@ class EkiProduct(models.Model):
 
         # Add default code if exists
         if vals["reference"]:
-           name += ' ' + str(vals['referenece'])
+           name += ' ' + vals["referenece"]
            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         elif self.reference :
