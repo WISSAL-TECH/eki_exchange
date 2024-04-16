@@ -414,6 +414,7 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
         #_logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
         #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
+        name = ''
         if "name" in vals and vals['name'] or self.name:
            name = vals['name'] if "name" in vals and vals['name'] else self.name
 
