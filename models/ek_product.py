@@ -414,7 +414,14 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
         _logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
         _logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
-        name = vals['name'] if "name" in vals and vals['name'] else self.name
+        if vals['name'] or self.name:
+           name = vals['name'] if "name" in vals and vals['name'] else self.name
+        else:
+            _logger.info('\n\n\n self.product_tmpl_id\n\n\n\n--->  %s\n\n\n\n', self.product_tmpl_id)
+
+            product = self.env['product.template'].search([('name', '=', self.product_tmpl_id)])
+            name = product.name
+
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Iterate through each record in the Many2Many field
