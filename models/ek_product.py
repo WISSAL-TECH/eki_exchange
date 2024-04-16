@@ -34,7 +34,9 @@ class Product(models.Model):
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
     company_id = fields.Many2one("res.company", string="Société", invisible=True)
-
+    categ_id = fields.Many2one("product.category", string="Catégorie d'article", required=True)
+    attribute_line_ids = fields.One2many('product.template.attribute.line', 'product_tmpl_id', 'Product Attributes',
+                                         copy=True, required= True)
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
