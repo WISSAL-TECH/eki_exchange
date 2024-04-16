@@ -57,10 +57,10 @@ class ResUsers(models.Model):
 
             data = {
                 "username": vals.get('name'),
-                "first_name": vals.get('first_name'),
-                "last_name": vals.get('last_name'),
+                "firstname": vals.get('first_name'),
+                "lastname": vals.get('last_name'),
                 "phone": vals.get('phone'),
-                "addresse": vals.get('addresse'),
+                "address": vals.get('address'),
                 "codification": vals.get('codification'),
                 "role": vals.get('roles'),
                 "email": vals.get('login')
