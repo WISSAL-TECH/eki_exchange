@@ -438,6 +438,8 @@ class EkiProduct(models.Model):
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
         vals['reference'] = self.generate_code()
+        _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
+
         vals['name'] = self.generate_name(vals)
         rec = super(EkiProduct, self).create(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
