@@ -52,6 +52,8 @@ class Product(models.Model):
     def create(self, vals):
         logging.warning("create product ======")
         logging.warning(vals)
+        _logger.info('\n\n\n(CREATE product) LIST PRICE IN VALS \n\n\n\n--->  %s\n\n\n\n',
+                     vals['list_price'])
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = ""
         domain_cpa = ""
@@ -129,6 +131,9 @@ class Product(models.Model):
 
             else:
                 numeric_value = vals.get('list_price')
+
+            _logger.info('\n\n\n(CREATE product) numeric_value \n\n\n\n--->  %s\n\n\n\n',
+                         numeric_value)
             product_json = {
                 "name": rec.name,
                 "description": rec.description,
