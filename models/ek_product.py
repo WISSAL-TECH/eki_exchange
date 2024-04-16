@@ -412,6 +412,9 @@ class EkiProduct(models.Model):
     def generate_name(self, vals):
         """Generating name for ek products"""
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
+        _logger.info(vals["name"])
+        _logger.info(self.name)
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
         name = vals['name'] if "name" in vals and vals['name'] else self.name
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
