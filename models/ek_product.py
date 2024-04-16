@@ -494,7 +494,7 @@ class EkiProduct(models.Model):
 
                 # Remove non-breaking space characters
                 numeric_value = numeric_value.replace('\xa0', '')
-            if vals['tax_string']:
+            if 'tax_string' in vals and vals['tax_string']:
                 pattern = r'(\d[\d\s,.]+)'
 
                 # Use the findall function to extract all matches
