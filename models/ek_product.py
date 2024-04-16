@@ -448,7 +448,9 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
-        rec.write({'reference': 'ref'})
+        rec.write({'reference': ref})
+        name = self.generate_name(vals)
+        rec.write({'name': name})
 
         return rec
 
@@ -489,7 +491,7 @@ class EkiProduct(models.Model):
 
                 # Remove non-breaking space characters
                 numeric_value = numeric_value.replace('\xa0', '')
-            if 'tax_string' in vals and vals['tax_string']:
+            elif 'tax_string' in vals and vals['tax_string']:
                 pattern = r'(\d[\d\s,.]+)'
 
                 # Use the findall function to extract all matches
