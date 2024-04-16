@@ -127,18 +127,18 @@ class ResCompany(models.Model):
                         "codification": vals.get('codification') if vals.get('codification') else '',
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
-
                 ek_user_emails = []
 
                 if "users" in vals:
                     user_ids = vals.get('users', [])
                     _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids)
 
-                    if user_ids and len(user_ids[0]) > 2:
-                        user_id = user_ids[0][2][0]  # Access the ID '15'
-                        user = self.env['res.users'].browse(user_id)
-                        login_value = user.login
-                        ek_user_emails.append(login_value)
+                    for user_record in user_ids:
+                        if len(user_record) > 2:
+                            user_id = user_record[2][0]  # Access the ID '15'
+                            user = self.env['res.users'].browse(user_id)
+                            login_value = user.login
+                            ek_user_emails.append(login_value)
 
                 data["ek_user_emails"] = ek_user_emails
                 body["params"]["data"] = data
