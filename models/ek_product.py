@@ -453,6 +453,11 @@ class EkiProduct(models.Model):
 
         return rec
 
+    @api.onchange('reference')
+    def onchange_reference(self):
+        for rec in self:
+            rec.write({'reference': rec.reference})
+            return rec
     def write(self, vals):
         domain = ""
         domain_cpa = ""
