@@ -413,10 +413,12 @@ class EkiProduct(models.Model):
         """Generating name for ek products"""
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
         name = vals['name'] if "name" in vals and vals['name'] else self.name
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Iterate through each record in the Many2Many field
         for variant_value in self.product_template_variant_value_ids:
             name += str(variant_value)
+            _logger.info('\n\n\n  NAME with variantes\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Add brand name if exists
         #name += ' ' + str(self.brand_id.name) if self.brand_id else ''
