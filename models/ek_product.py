@@ -414,7 +414,7 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
         #_logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
         #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
-        if vals['name'] or self.name:
+        if "name" in vals and vals['name'] or self.name:
            name = vals['name'] if "name" in vals and vals['name'] else self.name
         else:
             _logger.info('\n\n\n self.product_tmpl_id\n\n\n\n--->  %s\n\n\n\n', self.product_tmpl_id)
@@ -433,7 +433,7 @@ class EkiProduct(models.Model):
         #name += ' ' + str(self.brand_id.name) if self.brand_id else ''
 
         # Add default code if exists
-        if vals["reference"]:
+        if "reference" in vals and vals["reference"]:
            name += ' ' + vals["reference"]
            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
@@ -450,9 +450,6 @@ class EkiProduct(models.Model):
         # Appeler la méthode de création de la classe parente
         vals['reference'] = self.generate_code()
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
-        name = self.generate_name(vals)
-
-        vals['name'] = name
         rec = super(EkiProduct, self).create(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
 
@@ -473,18 +470,7 @@ class EkiProduct(models.Model):
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         for rec in self:
-            name = ""
-            if "reference" in vals:
-                if "name" in vals :
-                    name = str(vals["name"])
-                else:
-                    name = rec.name
-                # Add default code if exists
-                name += ' ' + str(rec.reference) if rec.reference else ''
-                _logger.info('new name %s', name)
-            else:
-                name = vals["name"] if "name" in vals else rec.name
-                _logger.info('N A M E %s', name)
+            name = rec.generate_name(vals)
 
             vals['name'] = name
 
