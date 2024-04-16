@@ -421,7 +421,7 @@ class EkiProduct(models.Model):
 
         # Iterate through each record in the Many2Many field
         for variant_value in self.product_template_variant_value_ids:
-            name += str(variant_value.name)
+            name += ' ' + str(variant_value.name)
             _logger.info('\n\n\n  NAME with variantes\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Add brand name if exists
@@ -446,9 +446,11 @@ class EkiProduct(models.Model):
         vals['reference'] = self.generate_code()
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
+        _logger.info('\n\n\n create calling write \n\n\n\n--->  %s\n\n\n\n', vals)
+        recc = super(EkiProduct, self).write(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
 
-        return rec
+        return rec, recc
 
     def write(self, vals):
         domain = ""
