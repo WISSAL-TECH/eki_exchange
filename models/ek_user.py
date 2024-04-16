@@ -25,7 +25,7 @@ class ResUsers(models.Model):
     roles = fields.Selection([
         ('ROLE_CREDIT_ANALYST_EK', 'Credit analyst'),
         ('ROLE_POS_EK', 'Pos')
-    ], required=True )
+    ], string="Roles", required=True)
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     def _check_codification_length(self, vals):
