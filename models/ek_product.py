@@ -412,8 +412,8 @@ class EkiProduct(models.Model):
     def generate_name(self, vals):
         """Generating name for ek products"""
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
-        _logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
-        _logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
+        #_logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
+        #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
         if vals['name'] or self.name:
            name = vals['name'] if "name" in vals and vals['name'] else self.name
         else:
