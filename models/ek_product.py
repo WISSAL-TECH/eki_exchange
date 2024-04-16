@@ -389,8 +389,9 @@ class EkiProduct(models.Model):
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
-    reference = fields.Char(string='Réference constructeur')
+    reference = fields.Char(string='Réference')
     ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    barcode = fields.Char("Code-barres", readonly=True)
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
@@ -408,10 +409,10 @@ class EkiProduct(models.Model):
 
         return product_code
 
-    def generate_name(self):
+    def generate_name(self, vals):
         """Generating name for ek products"""
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
-        name = self.name
+        name = vals['name'] if "name" in vals and vals['name'] else self.name
 
         # Iterate through each record in the Many2Many field
         for variant_value in self.product_template_variant_value_ids:
@@ -421,8 +422,13 @@ class EkiProduct(models.Model):
         #name += ' ' + str(self.brand_id.name) if self.brand_id else ''
 
         # Add default code if exists
-        if self.reference:
-           name += ' ' + str(self.reference)
+        if vals["reference"]:
+           name += ' ' + str(vals['referenece'])
+           _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        elif self.reference :
+            name += ' ' + str(self.reference)
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
@@ -431,12 +437,10 @@ class EkiProduct(models.Model):
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
+        vals['reference'] = self.generate_code()
+        vals['name'] = self.generate_name(vals)
         rec = super(EkiProduct, self).create(vals)
-        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n')
-
-        # Mettre à jour le nom après la création
-        rec.name = rec.generate_name()
-        _logger.info('\n\n\n NEW NAME OF PRODUCT USING VARIANTE\n\n\n\n--->  %s\n\n\n\n', rec.name)
+        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
 
         return rec
 
@@ -490,11 +494,25 @@ class EkiProduct(models.Model):
 
                 # Remove non-breaking space characters
                 numeric_value = numeric_value.replace('\xa0', '')
+            if vals['tax_string']:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, vals['tax_string'])
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
             else:
                 numeric_value = vals.get('lst_price')
             data = {
                 "name": name,
-                "reference":  vals["reference"] if "reference" in vals else "",
+                "reference":  vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                 "price": numeric_value,
                 "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
@@ -546,3 +564,4 @@ class EkiProduct(models.Model):
                              response_cpa.content)
 
         return super(EkiProduct, self).write(vals)
+
