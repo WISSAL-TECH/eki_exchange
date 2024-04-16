@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_odoo_utils,odoo_utils,model_odoo_utils,base.group_user,1,1,1,1
 access_ek_wilaya,ek_wilaya,model_ek_wilaya,base.group_user,1,1,1,1
+access_ek_commune,ek_commune,model_ek_commune,base.group_user,1,1,1,1

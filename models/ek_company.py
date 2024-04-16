@@ -18,13 +18,18 @@ class EkWilaya(models.Model):
     _rec_name = 'name'
 
     name = fields.Char("Wilaya")
+class EkCommune(models.Model):
+    _name = 'ek.commune'
+    _rec_name = 'name'
+
+    name = fields.Char("Commune")
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
     create_by = fields.Char()
     source = fields.Char()
-    pos_commune = fields.Char("Commune")
+    pos_commune = fields.Many2one("ek.commune", "Commune")
     pos_wilaya = fields.Many2one("ek.wilaya", "Wilaya")
 
     def _check_codification_length(self, vals):
