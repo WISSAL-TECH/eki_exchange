@@ -42,7 +42,7 @@ class Product(models.Model):
     def _check_attribute_line_ids(self):
         for record in self:
             if not record.attribute_line_ids:
-                raise ValidationError(_("Veuillez sélectionner au moins une variante."))
+                raise ValidationError(_("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
