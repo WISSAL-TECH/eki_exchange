@@ -417,8 +417,6 @@ class EkiProduct(models.Model):
         if "name" in vals and vals['name'] or self.name:
            name = vals['name'] if "name" in vals and vals['name'] else self.name
 
-        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
-
         # Iterate through each record in the Many2Many field
         for variant_value in self.product_template_variant_value_ids:
             name += ' ' + str(variant_value.name)
