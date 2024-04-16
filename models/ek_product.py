@@ -4,7 +4,7 @@ import sys
 import requests
 # from minio import Minio
 import re
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, _
 from odoo.http import request
 import logging
 from _datetime import datetime
@@ -36,7 +36,14 @@ class Product(models.Model):
     company_id = fields.Many2one("res.company", string="Société", invisible=True)
     categ_id = fields.Many2one("product.category", string="Catégorie d'article", required=True)
     attribute_line_ids = fields.One2many('product.template.attribute.line', 'product_tmpl_id', 'Product Attributes',
-                                         copy=True, required= True)
+                                         copy=True, required=True)
+
+    @api.constrains('attribute_line_ids')
+    def _check_attribute_line_ids(self):
+        for record in self:
+            if not record.attribute_line_ids:
+                raise ValidationError(_("Veuillez sélectionner au moins une variante."))
+
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
