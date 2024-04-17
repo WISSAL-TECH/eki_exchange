@@ -169,7 +169,7 @@ class Product(models.Model):
                 numeric_value = numeric_value.replace('\xa0', '')
 
             else:
-                numeric_value = vals.get('list_price')
+                numeric_value = vals.get('list_price') if vals['list_price'] else self.list_price
 
             _logger.info('\n\n\n(CREATE product) numeric_value \n\n\n\n--->  %s\n\n\n\n',
                          numeric_value)
