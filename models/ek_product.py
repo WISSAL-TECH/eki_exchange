@@ -400,6 +400,7 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
 
+    @api.model
     def create_doc_url(self, attachment):
         s3 = boto3.client('s3',
                           aws_access_key_id='YOUR_ACCESS_KEY_ID',
@@ -407,8 +408,8 @@ class EkiProduct(models.Model):
                           region_name='eu-west-2'
                           )
         bucket = "wicommerce-storage"
-        if attachment.datas:
-            try:
+        try:
+            if attachment.datas:
                 # Generate a unique S3 key for the attachment
                 s3_key = f'attachments/{attachment.res_id}{attachment.name}'
                 s3_key_encoded = quote(s3_key)
@@ -424,22 +425,22 @@ class EkiProduct(models.Model):
 
                 # Return the S3 URL
                 return s3_url
-            except Exception as e:
-                # Handle exceptions (e.g., S3 upload failed)
-                print(f"Error uploading attachment to S3: {e}")
+            else:
+                # Handle case where attachment has no data
+                _logger.warning("Attachment has no data.")
                 return None
-        else:
-            # Handle case where attachment has no data
-            print("Attachment has no data")
+        except Exception as e:
+            # Handle specific exceptions (e.g., S3 upload failed)
+            _logger.error(f"Error uploading attachment to S3: {e}")
             return None
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
             if record.certificate:
-               record.certificate_url = record.create_doc_url(record.certificate)
-            else :
-                record.certificate_url =''
+                record.certificate_url = record.create_doc_url(record.certificate)
+            else:
+                record.certificate_url = ''
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
