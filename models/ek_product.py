@@ -435,7 +435,8 @@ class EkiProduct(models.Model):
     @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
-            record.certificate_url = record.create_doc_url(record.certificate)
+            if record.certificate:
+               record.certificate_url = record.create_doc_url(record.certificate)
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
