@@ -396,7 +396,7 @@ class EkiProduct(models.Model):
     ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
-    certificate_url = fields.Char("Certificate URL")
+    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     image_url = fields.Char()
     image_count = fields.Float()
 
@@ -433,7 +433,7 @@ class EkiProduct(models.Model):
             print("Attachment has no data")
             return None
 
-    @api.onchange('certificate')
+    @api.depends('certificate')
     def _compute_certificate_url(self):
         for record in self:
             if record.certificate:
