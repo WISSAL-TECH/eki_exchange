@@ -400,39 +400,28 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
 
-    @api.model
-    def create_doc_url(self, attachment):
+    def create_doc_url(self, attach):
         s3 = boto3.client('s3',
-                          aws_access_key_id='YOUR_ACCESS_KEY_ID',
-                          aws_secret_access_key='YOUR_SECRET_ACCESS_KEY',
+                          aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
+                          aws_secret_access_key='38vqzSr6q9MHEycWoJyis2fl/WsjoIbvwFBCKyyK',
                           region_name='eu-west-2'
                           )
         bucket = "wicommerce-storage"
-        try:
-            if attachment.datas:
-                # Generate a unique S3 key for the attachment
-                s3_key = f'attachments/{attachment.res_id}{attachment.name}'
-                s3_key_encoded = quote(s3_key)
+        if attach.datas:
+            # Generate a unique S3 key for the image
+            s3_key = f'attachments/{attach.res_id}{attach.name}'
+            s3_key_encoded = quote(s3_key)
+            # Convert the image binary data to a BytesIO object
+            data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
 
-                # Convert the attachment binary data to a BytesIO object
-                data_fileobj = BytesIO(base64.standard_b64decode(attachment.datas))
+            # Upload the image to S3
+            s3.put_object(Bucket=bucket, Key=s3_key, Body=data_fileobj, ContentType=attach.mimetype)
 
-                # Upload the attachment to S3
-                s3.put_object(Bucket=bucket, Key=s3_key, Body=data_fileobj, ContentType=attachment.mimetype)
+            # Construct the S3 image URL
+            s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
 
-                # Construct the S3 attachment URL
-                s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
-
-                # Return the S3 URL
-                return s3_url
-            else:
-                # Handle case where attachment has no data
-                _logger.warning("Attachment has no data.")
-                return None
-        except Exception as e:
-            # Handle specific exceptions (e.g., S3 upload failed)
-            _logger.error(f"Error uploading attachment to S3: {e}")
-            return None
+            # Update the product record with the S3 image URL
+            attach.write({'url_s3': s3_url})
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
