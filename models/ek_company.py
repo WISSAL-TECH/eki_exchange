@@ -73,11 +73,11 @@ class ResCompany(models.Model):
                 state = self.env['ek.commune'].search([('id', '=', vals['pos_commune'])], limit=1)
                 commune = state.name
 
-
+            mobile = self.mobile if self.mobile else ''
             data = {"name_pos": vals.get('name') if vals.get('name') else self.name,
                     "address_pos": vals.get('street') if vals.get('street') else self.street,
                     "pos_phone_one": vals.get('phone') if vals.get('phone') else self.phone,
-                    "pos_phone_two": vals.get('mobile') if vals.get('mobile') else self.mobile,
+                    "pos_phone_two": vals.get('mobile') if vals.get('mobile') else mobile,
                     "pos_wilaya": wilaya if wilaya else self.state_id.name,
                     "pos_commune": commune if commune else self.pos_commune.name,
                     "codification": vals.get('codification') if vals.get('codification') else self.codification,
