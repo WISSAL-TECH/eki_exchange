@@ -58,7 +58,7 @@ class ResCompany(models.Model):
         url_pos = "/api/odoo/pos"
         logging.warning("update pos from odoo ======")
         logging.warning(vals)
-        if vals['pos'] == True or self.pos == True:
+        if ('pos' in vals and vals['pos'] == True) or self.pos == True:
             body = {"params": {
                 "data": {
                 }
