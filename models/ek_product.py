@@ -612,7 +612,6 @@ class EkiProduct(models.Model):
 
                     # Update the product record with the S3 image URL
                     self.with_context(no_send_data=True).write({'image_url': s3_url})
-                    vals['image_url'] = s3_url
                     self.image_count += 1
 
             no_image_image = rec.image_url if rec.image_url else ""
