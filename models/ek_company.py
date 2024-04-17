@@ -68,8 +68,8 @@ class ResCompany(models.Model):
                     "address_pos": vals.get('street') if vals.get('street') else self.street,
                     "pos_phone_one": vals.get('phone') if vals.get('phone') else self.phone,
                     "pos_phone_two": vals.get('mobile') if vals.get('mobile') else self.mobile,
-                    "pos_wilaya": vals.get('state_id') if vals.get('state_id') else self.state_id,
-                    "pos_commune": vals.get('pos_commune') if vals.get('pos_commune') else self.pos_commune,
+                    "pos_wilaya": vals.get('state_id').name if vals.get('state_id') else self.state_id.name,
+                    "pos_commune": vals.get('pos_commune').name if vals.get('pos_commune') else self.pos_commune.name,
                     "codification": vals.get('codification') if vals.get('codification') else self.codification,
                     "status": "ACTIVE",
                     "source": vals.get('source') if vals.get('source') else self.source}
@@ -216,8 +216,8 @@ class ResCompany(models.Model):
                         "address_pos": vals.get('street') if vals.get('street') else '',
                         "pos_phone_one": vals.get('phone') if vals.get('phone') else '',
                         "pos_phone_two": vals.get('mobile') if vals.get('mobile') else '',
-                        "pos_wilaya": vals.get('state_id') if vals.get('state_id') else rec.state_id,
-                        "pos_commune": vals.get('pos_commune') if vals.get('pos_commune') else rec.pos_commune,
+                        "pos_wilaya": vals.get('state_id').name if vals.get('state_id') else rec.state_id.name,
+                        "pos_commune": vals.get('pos_commune').name if vals.get('pos_commune') else rec.pos_commune.name,
                         "codification": vals.get('codification') if vals.get('codification') else '',
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
