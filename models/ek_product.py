@@ -569,7 +569,6 @@ class EkiProduct(models.Model):
                 attachment = self.env['ir.attachment'].create({
                     'name': 'Certificate Attachment',  # Set the name of the attachment as desired
                     'datas': certificate_data,
-                    'datas_fname': 'certificate.pdf',  # Set the file name as desired
                     'res_model': self._name,
                     'res_id': rec.id,
                 })
