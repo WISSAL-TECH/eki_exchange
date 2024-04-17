@@ -399,6 +399,7 @@ class EkiProduct(models.Model):
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     image_url = fields.Char()
 
+
     def create_doc_url(self, attachment):
         s3 = boto3.client('s3',
                           aws_access_key_id='YOUR_ACCESS_KEY_ID',
