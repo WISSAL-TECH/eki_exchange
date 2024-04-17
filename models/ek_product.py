@@ -399,28 +399,38 @@ class EkiProduct(models.Model):
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     image_url = fields.Char()
 
-    def create_doc_url(self, attach):
+    def create_doc_url(self, attachment):
         s3 = boto3.client('s3',
-                          aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
-                          aws_secret_access_key='38vqzSr6q9MHEycWoJyis2fl/WsjoIbvwFBCKyyK',
+                          aws_access_key_id='YOUR_ACCESS_KEY_ID',
+                          aws_secret_access_key='YOUR_SECRET_ACCESS_KEY',
                           region_name='eu-west-2'
                           )
         bucket = "wicommerce-storage"
-        if attach.datas:
-            # Generate a unique S3 key for the image
-            s3_key = f'attachments/{attach.res_id}{attach.name}'
-            s3_key_encoded = quote(s3_key)
-            # Convert the image binary data to a BytesIO object
-            data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
+        if attachment.datas:
+            try:
+                # Generate a unique S3 key for the attachment
+                s3_key = f'attachments/{attachment.res_id}{attachment.name}'
+                s3_key_encoded = quote(s3_key)
 
-            # Upload the image to S3
-            s3.put_object(Bucket=bucket, Key=s3_key, Body=data_fileobj, ContentType=attach.mimetype)
+                # Convert the attachment binary data to a BytesIO object
+                data_fileobj = BytesIO(base64.standard_b64decode(attachment.datas))
 
-            # Construct the S3 image URL
-            s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+                # Upload the attachment to S3
+                s3.put_object(Bucket=bucket, Key=s3_key, Body=data_fileobj, ContentType=attachment.mimetype)
 
-            # Update the product record with the S3 image URL
-            return s3_url
+                # Construct the S3 attachment URL
+                s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+                # Return the S3 URL
+                return s3_url
+            except Exception as e:
+                # Handle exceptions (e.g., S3 upload failed)
+                print(f"Error uploading attachment to S3: {e}")
+                return None
+        else:
+            # Handle case where attachment has no data
+            print("Attachment has no data")
+            return None
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
