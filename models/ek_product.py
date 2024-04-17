@@ -614,7 +614,7 @@ class EkiProduct(models.Model):
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
-                "price": numeric_value,
+                "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price ,
                 "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
                 "state": '',
                 "productCharacteristics": [],
