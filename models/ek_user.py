@@ -119,13 +119,13 @@ class ResUsers(models.Model):
 
             _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
 
-            response_cpa = requests.post(str(domain_cpa) + str(url_users), data=json.dumps(data),
+            response_cpa = requests.put(str(domain_cpa) + str(url_users), data=json.dumps(data),
                                          headers=self.headers)
-            _logger.info('\n\n\n(CREATE user) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
+            _logger.info('\n\n\n(UPDATE user) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
 
-            response = requests.post(str(domain) + str(url_users), data=json.dumps(data),
+            response = requests.put(str(domain) + str(url_users), data=json.dumps(data),
                                      headers=self.headers)
-            _logger.info('\n\n\n(CREATE user) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
+            _logger.info('\n\n\n(UPDATE user) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
 
             return rec
 
