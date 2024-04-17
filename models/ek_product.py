@@ -199,7 +199,7 @@ class Product(models.Model):
                         'name': name,
                         "description": '',
                         "reference": record.constructor_ref if record.constructor_ref else '',
-                        "price": numeric_value,
+                        "price": record.lst_price,
                         "buyingPrice": rec.standard_price,
                         # "state": "Active",
                         "productCharacteristics": [],
