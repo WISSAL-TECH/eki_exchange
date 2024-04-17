@@ -68,8 +68,8 @@ class ResCompany(models.Model):
                     "address_pos": vals.get('street') if vals.get('street') else self.street,
                     "pos_phone_one": vals.get('phone') if vals.get('phone') else self.phone,
                     "pos_phone_two": vals.get('mobile') if vals.get('mobile') else self.mobile,
-                    "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else self.state_id,
-                    "pos_commune": vals.get('pos_commune.name') if vals.get('pos_commune') else self.pos_commune,
+                    "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else self.state_id.name,
+                    "pos_commune": vals.get('pos_commune.name') if vals.get('pos_commune') else self.pos_commune.name,
                     "codification": vals.get('codification') if vals.get('codification') else self.codification,
                     "status": "ACTIVE",
                     "source": vals.get('source') if vals.get('source') else self.source}
@@ -215,6 +215,8 @@ class ResCompany(models.Model):
         else:
             logging.warning("create pos from odoo ======")
             logging.warning(vals)
+            rec = super(ResCompany, self).create(vals)
+
             if vals.get('pos')== True:
                 body = {"params": {
                     "data": {
@@ -225,8 +227,8 @@ class ResCompany(models.Model):
                         "address_pos": vals.get('street') if vals.get('street') else '',
                         "pos_phone_one": vals.get('phone') if vals.get('phone') else '',
                         "pos_phone_two": vals.get('mobile') if vals.get('mobile') else '',
-                        "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else self.state_id,
-                        "pos_commune": vals.get('pos_commune.name') if vals.get('pos_commune') else self.pos_commune,
+                        "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else rec.state_id.name,
+                        "pos_commune": vals.get('pos_commune.name') if vals.get('pos_commune') else rec.pos_commune.name,
                         "codification": vals.get('codification') if vals.get('codification') else '',
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
@@ -276,7 +278,6 @@ class ResCompany(models.Model):
                 response = requests.post(str(domain) + str(url_pos), data=json.dumps(body),
                                          headers=self.headers)
                 _logger.info('\n\n\n(CREATE POS) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
-                rec = super(ResCompany, self).create(vals)
 
                 return rec
 
