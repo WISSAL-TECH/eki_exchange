@@ -587,28 +587,31 @@ class EkiProduct(models.Model):
                                   )
                 bucket = "imtech-product"
                 if vals['image_1920']:
-                    logging.warning('self')
+                    if vals['image_1920']:
+                        # Get the binary data from the binary field
+                        image_data = vals['image_1920']
 
-                    # Generate a unique S3 key for the image
-                    s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
-                    s3_key_encoded = quote(s3_key)
-                    # Convert the image binary data to a BytesIO object
-                    # format, encoding = mimetypes.guess_type('dummy.jpg', strict=False)
-                    image_fileobj = BytesIO(base64.standard_b64decode(self.image_1920))
+                        # Convert the image binary data to a BytesIO object
+                        image_fileobj = BytesIO(image_data)
 
-                    # Upload the image to S3
-                    # s3.upload_fileobj(image_fileobj, bucket, s3_key_encoded,ExtraArgs={'ContentType': 'image/png'})
+                        # Continue with the rest of the code
+                        logging.warning('self')
 
-                    # Upload the image to S3
-                    s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
+                        # Generate a unique S3 key for the image
+                        s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
+                        s3_key_encoded = quote(s3_key)
 
-                    # Construct the S3 image URL
-                    s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+                        # Upload the image to S3
+                        s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
 
-                    # Update the product record with the S3 image URL
-                    self.with_context(no_send_data=True).write({'image_url': s3_url})
-                    vals['image_url'] = s3_url
-                    self.image_count += 1
+                        # Construct the S3 image URL
+                        s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+                        # Update the product record with the S3 image URL
+                        self.with_context(no_send_data=True).write({'image_url': s3_url})
+                        vals['image_url'] = s3_url
+                        self.image_count += 1
+
             no_image_image = rec.image_url if rec.image_url else ""
             no_certificate_url= rec.image_url if rec.image_url else ""
             data = {
