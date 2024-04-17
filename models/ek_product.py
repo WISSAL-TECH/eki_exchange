@@ -1,6 +1,7 @@
 import json
 import sys
 
+import boto3
 import requests
 # from minio import Minio
 import re
@@ -391,9 +392,40 @@ class EkiProduct(models.Model):
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
-    reference = fields.Char(string='Réference')
+    reference = fields.Char(string='Réference', required=True)
     ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     barcode = fields.Char("Code-barres", readonly=True)
+    certificate = fields.Binary("Certificat")
+    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
+    image_url = fields.Char()
+
+    def create_doc_url(self, attach):
+        s3 = boto3.client('s3',
+                          aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
+                          aws_secret_access_key='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',
+                          region_name='eu-west-2'
+                          )
+        bucket = "wicommerce-storage"
+        if attach.datas:
+            # Generate a unique S3 key for the image
+            s3_key = f'attachments/{attach.res_id}{attach.name}'
+            s3_key_encoded = quote(s3_key)
+            # Convert the image binary data to a BytesIO object
+            data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
+
+            # Upload the image to S3
+            s3.put_object(Bucket=bucket, Key=s3_key, Body=data_fileobj, ContentType=attach.mimetype)
+
+            # Construct the S3 image URL
+            s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+            # Update the product record with the S3 image URL
+            return s3_url
+
+    @api.depends('certificate')
+    def _compute_certificate_url(self):
+        for record in self:
+            record.certificate_url = record.create_doc_url(record.certificate)
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
@@ -493,6 +525,34 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+        if 'image_1920' in vals:
+            s3 = boto3.client('s3',
+                              aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
+                              aws_secret_access_key='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',
+                              region_name='eu-west-2'
+                              )
+            bucket = "imtech-product"
+            if self.image_1920:
+                logging.warning('self')
+
+                # Generate a unique S3 key for the image
+                s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
+                s3_key_encoded = quote(s3_key)
+                # Convert the image binary data to a BytesIO object
+                # format, encoding = mimetypes.guess_type('dummy.jpg', strict=False)
+                image_fileobj = BytesIO(base64.standard_b64decode(self.image_1920))
+
+                # Upload the image to S3
+                # s3.upload_fileobj(image_fileobj, bucket, s3_key_encoded,ExtraArgs={'ContentType': 'image/png'})
+
+                # Upload the image to S3
+                s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
+
+                # Construct the S3 image URL
+                s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+                # Update the product record with the S3 image URL
+                self.with_context(no_send_data=True).write({'image_url': s3_url})
         for rec in self:
             name = rec.generate_name(vals)
 
@@ -532,6 +592,34 @@ class EkiProduct(models.Model):
                 numeric_value = numeric_value.replace('\xa0', '')
             else:
                 numeric_value = vals.get('lst_price')
+            if 'image_1920' in vals:
+                s3 = boto3.client('s3',
+                                  aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
+                                  aws_secret_access_key='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',
+                                  region_name='eu-west-2'
+                                  )
+                bucket = "imtech-product"
+                if self.image_1920:
+                    logging.warning('self')
+
+                    # Generate a unique S3 key for the image
+                    s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
+                    s3_key_encoded = quote(s3_key)
+                    # Convert the image binary data to a BytesIO object
+                    # format, encoding = mimetypes.guess_type('dummy.jpg', strict=False)
+                    image_fileobj = BytesIO(base64.standard_b64decode(self.image_1920))
+
+                    # Upload the image to S3
+                    # s3.upload_fileobj(image_fileobj, bucket, s3_key_encoded,ExtraArgs={'ContentType': 'image/png'})
+
+                    # Upload the image to S3
+                    s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
+
+                    # Construct the S3 image URL
+                    s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+                    # Update the product record with the S3 image URL
+                    self.with_context(no_send_data=True).write({'image_url': s3_url})
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
@@ -542,7 +630,8 @@ class EkiProduct(models.Model):
                 "productCharacteristics": [],
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
-                "certificateUrl": '',
+                "certificateUrl": rec.certificate_url,
+                "image": rec.image_url,
                 #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
