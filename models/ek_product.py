@@ -612,7 +612,7 @@ class EkiProduct(models.Model):
                                   region_name='eu-west-2'
                                   )
                 bucket = "imtech-product"
-                if self.image_1920:
+                if vals['image_1920']:
                     logging.warning('self')
 
                     # Generate a unique S3 key for the image
@@ -633,6 +633,7 @@ class EkiProduct(models.Model):
 
                     # Update the product record with the S3 image URL
                     self.with_context(no_send_data=True).write({'image_url': s3_url})
+                    vals['image_url'] = s3_url
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
@@ -644,7 +645,7 @@ class EkiProduct(models.Model):
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": rec.certificate_url,
-                "images": rec.image_url,
+                "images": vals['image_url'] if 'image_url' in vals else rec.image_url,
                 #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
