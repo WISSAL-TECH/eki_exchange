@@ -197,7 +197,7 @@ class ResCompany(models.Model):
             logging.warning(vals)
             rec = super(ResCompany, self).create(vals)
 
-            if vals.get('pos')== True:
+            if ('pos' in vals and vals['pos'] == True) or self.pos == True:
                 body = {"params": {
                     "data": {
                     }
