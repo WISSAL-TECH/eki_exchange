@@ -396,7 +396,7 @@ class EkiProduct(models.Model):
     ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
-    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
+    certificate_url = fields.Char("Certificate URL")
     image_url = fields.Char()
     image_count = fields.Float()
 
@@ -433,14 +433,6 @@ class EkiProduct(models.Model):
             # Handle specific exceptions (e.g., S3 upload failed)
             _logger.error(f"Error uploading attachment to S3: {e}")
             return None
-
-    @api.depends('certificate')
-    def _compute_certificate_url(self):
-        for record in self:
-            if record.certificate:
-                record.certificate_url = record.create_doc_url(record.certificate)
-            else:
-                record.certificate_url = ''
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
@@ -580,6 +572,9 @@ class EkiProduct(models.Model):
                 numeric_value = numeric_value.replace('\xa0', '')
             else:
                 numeric_value = vals.get('lst_price')
+            if 'certificate' in vals:
+                vals['certificate_url'] = rec.create_doc_url(vals['certificate'])
+                
             if 'image_1920' in vals:
                 s3 = boto3.client('s3',
                                   aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
@@ -610,7 +605,8 @@ class EkiProduct(models.Model):
                     self.with_context(no_send_data=True).write({'image_url': s3_url})
                     vals['image_url'] = s3_url
                     self.image_count += 1
-            no_image_image = rec.image_url if rec.image_url else None
+            no_image_image = rec.image_url if rec.image_url else ""
+            no_certificate_url= rec.image_url if rec.image_url else ""
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
@@ -621,7 +617,7 @@ class EkiProduct(models.Model):
                 "productCharacteristics": [],
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
-                "certificateUrl": rec.certificate_url,
+                "certificateUrl": vals['certificate_url'] if 'certificate_url' in vals else no_certificate_url,
                 "images": vals['image_url'] if 'image_url' in vals else no_image_image,
                 #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
