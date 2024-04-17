@@ -20,7 +20,6 @@ import string
 
 _logger = logging.getLogger(__name__)
 
-
 class Product(models.Model):
     _inherit = ['product.template']
 
