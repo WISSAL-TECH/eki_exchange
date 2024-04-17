@@ -17,27 +17,17 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     ek_user = fields.Boolean(string="Utilisateur ekiclik", default=False)
-    first_name = fields.Char("Nom")
-    last_name = fields.Char("Prénom")
-    phone = fields.Char("Téléphone")
-    address = fields.Char("Address")
-    codification = fields.Char("Codification")
+    first_name = fields.Char("Nom", required=True)
+    last_name = fields.Char("Prénom", required=True)
+    phone = fields.Char("Téléphone", required=True)
+    address = fields.Char("Address", required=True)
+    codification = fields.Char("Codification", required=True)
     roles = fields.Selection([
         ('ROLE_CREDIT_ANALYST_EK', 'Credit analyst'),
         ('ROLE_POS_EK', 'Pos')
-    ], string="Roles")
+    ], string="Roles", required=True)
 
-    @api.onchange('ek_user')
-    def _onchange_ek_user(self):
-        if self.ek_user:
-            self._fields['codification'].required = True
-            self._fields['first_name'].required = True
-            self._fields['last_name'].required = True
-            self._fields['phone'].required = True
-            self._fields['address'].required = True
-            self._fields['roles'].required = True
-        else:
-            self._fields['codification'].required = False
+
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     def _check_codification_length(self, vals):
         codification = vals.get('codification')
