@@ -207,8 +207,8 @@ class ResCompany(models.Model):
                         "address_pos": vals.get('street') if vals.get('street') else '',
                         "pos_phone_one": vals.get('phone') if vals.get('phone') else '',
                         "pos_phone_two": vals.get('mobile') if vals.get('mobile') else '',
-                        "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else '',
-                        "pos_commune": vals.get('city') if vals.get('city') else '',
+                        "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else self.state_id,
+                        "pos_commune": vals.get('pos_commune.name') if vals.get('pos_commune') else self.pos_commune,
                         "codification": vals.get('codification') if vals.get('codification') else '',
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
