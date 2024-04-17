@@ -562,8 +562,9 @@ class EkiProduct(models.Model):
             else:
                 numeric_value = vals.get('lst_price')
             if 'certificate' in vals:
-                vals['certificate_url'] = rec.create_doc_url(vals['certificate'])
-                
+                certificate_attachment = self.env['ir.attachment'].browse(vals['certificate'])
+                vals['certificate_url'] = rec.create_doc_url(certificate_attachment)
+
             if 'image_1920' in vals:
                 s3 = boto3.client('s3',
                                   aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
