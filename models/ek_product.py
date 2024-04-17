@@ -641,7 +641,7 @@ class EkiProduct(models.Model):
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": rec.certificate_url,
-                "image": rec.image_url,
+                "images": rec.image_url,
                 #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
