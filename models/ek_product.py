@@ -560,7 +560,7 @@ class EkiProduct(models.Model):
                 # Remove non-breaking space characters
                 numeric_value = numeric_value.replace('\xa0', '')
             else:
-                numeric_value = vals.get('lst_price')
+                numeric_value = vals['lst_price']
             if 'certificate' in vals:
                 # Extract the binary data from the 'certificate' field
                 certificate_data = vals.pop('certificate')
