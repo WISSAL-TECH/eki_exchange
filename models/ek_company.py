@@ -101,6 +101,24 @@ class ResCompany(models.Model):
                             user = self.env['res.users'].browse(user_id)
                             login_value = user.login
                             ek_user_emails.append(login_value)
+            if "pos_user" in vals:
+                pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
+
+                pos_record = self.env['res.users'].browse(pos_id)
+
+                # Now you can access the login field of the 'pos' record
+                if pos_record and pos_record.login:
+                    # If the 'pos' record exists and has a login value
+                    ek_user_emails.append(pos_record.login)
+            else:
+                pos_id = self.pos_user  # Get the ID of the 'pos' field from vals
+
+                pos_record = self.env['res.users'].browse(pos_id)
+
+                # Now you can access the login field of the 'pos' record
+                if pos_record and pos_record.login:
+                    # If the 'pos' record exists and has a login value
+                    ek_user_emails.append(pos_record.login)
 
             data["ek_user_emails"] = ek_user_emails
             body["params"]["data"] = data
@@ -227,6 +245,24 @@ class ResCompany(models.Model):
                                 user = self.env['res.users'].browse(user_id)
                                 login_value = user.login
                                 ek_user_emails.append(login_value)
+                if "pos_user" in vals:
+                    pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
+
+                    pos_record = self.env['res.users'].browse(pos_id)
+
+                    # Now you can access the login field of the 'pos' record
+                    if pos_record and pos_record.login:
+                        # If the 'pos' record exists and has a login value
+                        ek_user_emails.append(pos_record.login)
+                else:
+                    pos_id = self.pos_user  # Get the ID of the 'pos' field from vals
+
+                    pos_record = self.env['res.users'].browse(pos_id)
+
+                    # Now you can access the login field of the 'pos' record
+                    if pos_record and pos_record.login:
+                        # If the 'pos' record exists and has a login value
+                        ek_user_emails.append(pos_record.login)
 
                 data["ek_user_emails"] = ek_user_emails
                 body["params"]["data"] = data
