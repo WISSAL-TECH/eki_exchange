@@ -56,9 +56,9 @@ class ResCompany(models.Model):
             domain = config_settings.domain
             domain_cpa = config_settings.domain_cpa
         url_pos = "/api/odoo/pos"
-        logging.warning("create pos from odoo ======")
+        logging.warning("update pos from odoo ======")
         logging.warning(vals)
-        if vals.get('pos') == True:
+        if vals['pos'] == True or self.pos == True:
             body = {"params": {
                 "data": {
                 }
