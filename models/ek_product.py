@@ -421,7 +421,7 @@ class EkiProduct(models.Model):
             s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
 
             # Update the product record with the S3 image URL
-            attach.write({'url_s3': s3_url})
+            return s3_url
 
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
