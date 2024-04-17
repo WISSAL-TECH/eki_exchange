@@ -562,8 +562,23 @@ class EkiProduct(models.Model):
             else:
                 numeric_value = vals.get('lst_price')
             if 'certificate' in vals:
-                certificate_attachment = self.env['ir.attachment'].browse(vals['certificate'])
-                vals['certificate_url'] = rec.create_doc_url(certificate_attachment)
+                # Extract the binary data from the 'certificate' field
+                certificate_data = vals.pop('certificate')
+
+                # Create an attachment record
+                attachment = self.env['ir.attachment'].create({
+                    'name': 'Certificate Attachment',  # Set the name of the attachment as desired
+                    'datas': certificate_data,
+                    'datas_fname': 'certificate.pdf',  # Set the file name as desired
+                    'res_model': self._name,
+                    'res_id': rec.id,
+                })
+
+                # Obtain the URL of the attachment
+                certificate_url = rec.create_doc_url(attachment)
+
+                # Update the 'certificate_url' field with the URL
+                vals['certificate_url'] = certificate_url
 
             if 'image_1920' in vals:
                 s3 = boto3.client('s3',
