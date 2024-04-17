@@ -48,6 +48,7 @@ class Product(models.Model):
     def _compute_certificate_url(self):
         for record in self:
             record.certificate_url = ''
+
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
