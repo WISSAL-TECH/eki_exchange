@@ -192,7 +192,8 @@ class Product(models.Model):
 
             for record in variantes:
                 if record.product_template_attribute_value_ids:
-                    name = record.generate_name_variante(rec.name, record.constructor_ref, record.product_template_attribute_value_ids.name)
+                    ref = record.generate_code()
+                    name = record.generate_name_variante(rec.name, ref, record.product_template_attribute_value_ids.name)
                     configuration = {
                         'name': name,
                         "description": '',
