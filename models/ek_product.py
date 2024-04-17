@@ -609,7 +609,7 @@ class EkiProduct(models.Model):
                     self.with_context(no_send_data=True).write({'image_url': s3_url})
                     vals['image_url'] = s3_url
                     self.image_count += 1
-
+            no_image_image = rec.image_url if rec.image_url else None
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
@@ -621,7 +621,7 @@ class EkiProduct(models.Model):
                 "active": True,
                 "description":  vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": rec.certificate_url,
-                "images": vals['image_url'] if 'image_url' in vals else rec.image_url,
+                "images": vals['image_url'] if 'image_url' in vals else no_image_image,
                 #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
