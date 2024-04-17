@@ -615,7 +615,7 @@ class EkiProduct(models.Model):
                     self.image_count += 1
 
             no_image_image = rec.image_url if rec.image_url else ""
-            no_certificate_url= rec.certificate if rec.certificate else ""
+            no_certificate_url = rec.certificate_url if rec.certificate_url else ""
             data = {
                 "name": name,
                 "reference":  vals["reference"] if "reference" in vals else rec.reference,
