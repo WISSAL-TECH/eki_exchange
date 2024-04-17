@@ -122,7 +122,7 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            if vals.get('tax_string') :
+            if 'tax_string' in vals and vals.get('tax_string') :
                 pattern = r'(\d[\d\s,.]+)'
 
                 # Use the findall function to extract all matches
@@ -192,12 +192,13 @@ class Product(models.Model):
 
             for record in variantes:
                 if record.product_template_attribute_value_ids:
+                    name = record.generate_name_variante(rec.name, record.constructor_ref, record.product_template_attribute_value_ids.name)
                     configuration = {
-                        'name': record.name,
+                        'name': name,
                         "description": '',
                         "reference": record.constructor_ref if record.constructor_ref else '',
                         "price": numeric_value,
-                        "buyingPrice": record.standard_price,
+                        "buyingPrice": rec.standard_price,
                         # "state": "Active",
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
@@ -408,6 +409,24 @@ class EkiProduct(models.Model):
         product_code = f"eki_{random_number}"
 
         return product_code
+
+    def generate_name_variante(self, name, ref, variante ):
+        """Generating name for ek products"""
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
+        #_logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
+        #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
+        # Add default code if exists
+
+        if ref:
+           name += ' ' + ref
+           _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+        if variante:
+           name += ' ' + variante
+           _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        return name
 
     def generate_name(self, vals):
         """Generating name for ek products"""
