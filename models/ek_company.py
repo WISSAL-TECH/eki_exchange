@@ -41,7 +41,81 @@ class ResCompany(models.Model):
 
     def write(self, vals):
         self._check_codification_length(vals)
-        return super(ResCompany, self).write(vals)
+        logging.warning("create pos ======")
+        logging.warning(vals)
+        domain = ""
+        domain_cpa = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
+        url_pos = "/api/odoo/pos"
+        logging.warning("create pos from odoo ======")
+        logging.warning(vals)
+        if vals.get('pos') == True:
+            body = {"params": {
+                "data": {
+                }
+            }
+            }
+            data = {"name_pos": vals.get('name') if vals.get('name') else self.name,
+                    "address_pos": vals.get('street') if vals.get('street') else self.street,
+                    "pos_phone_one": vals.get('phone') if vals.get('phone') else self.phone,
+                    "pos_phone_two": vals.get('mobile') if vals.get('mobile') else self.mobile,
+                    "pos_wilaya": vals.get('state_id.name') if vals.get('state_id') else self.state_id,
+                    "pos_commune": vals.get('city') if vals.get('city') else self.city,
+                    "codification": vals.get('codification') if vals.get('codification') else self.codification,
+                    "status": "ACTIVE",
+                    "source": vals.get('source') if vals.get('source') else self.source}
+            ek_user_emails = []
+
+            if "users" in vals:
+                user_ids_list = vals.get('users', [])
+                _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids_list)
+
+                # Ensure user_ids_list is not empty and contains at least one record
+                if user_ids_list:
+                    user_ids = user_ids_list[0]  # Get the first record
+                    if len(user_ids) > 2:
+                        user_ids_inner_list = user_ids[2]  # Access the third element, which is a list of user IDs
+                        for user_id in user_ids_inner_list:
+                            user = self.env['res.users'].browse(user_id)
+                            login_value = user.login
+                            ek_user_emails.append(login_value)
+            else :
+                user_ids_list = self.users
+                _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids_list)
+
+                # Ensure user_ids_list is not empty and contains at least one record
+                if user_ids_list:
+                    user_ids = user_ids_list[0]  # Get the first record
+                    if len(user_ids) > 2:
+                        user_ids_inner_list = user_ids[2]  # Access the third element, which is a list of user IDs
+                        for user_id in user_ids_inner_list:
+                            user = self.env['res.users'].browse(user_id)
+                            login_value = user.login
+                            ek_user_emails.append(login_value)
+
+            data["ek_user_emails"] = ek_user_emails
+            body["params"]["data"] = data
+
+            _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
+
+            response_cpa = requests.put(str(domain_cpa) + str(url_pos), data=json.dumps(body),
+                                         headers=self.headers)
+            _logger.info('\n\n\n(UPDATE POS) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
+
+            response = requests.put(str(domain) + str(url_pos), data=json.dumps(body),
+                                     headers=self.headers)
+            _logger.info('\n\n\n(UPDATE POS) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
+            rec = super(ResCompany, self).write(vals)
+
+            return rec
+
+        else:
+            rec = super(ResCompany, self).write(vals)
+
+            return rec
 
     @api.model
     def create(self, vals):
