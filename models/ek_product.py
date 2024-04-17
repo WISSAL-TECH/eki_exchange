@@ -625,6 +625,12 @@ class EkiProduct(models.Model):
                 #"oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
+            for value in rec.product_template_attribute_value_ids:
+                product_characteristic = {
+                    "name": value.attribute_id.name if value.attribute_id else '',
+                    "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                }
+                data["productCharacteristics"].append(product_characteristic)
 
             _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
             response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
