@@ -580,13 +580,13 @@ class EkiProduct(models.Model):
                 vals['certificate_url'] = certificate_url
 
             if 'image_1920' in vals:
-                s3 = boto3.client('s3',
-                                  aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
-                                  aws_secret_access_key='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',
-                                  region_name='eu-west-2'
-                                  )
-                bucket = "imtech-product"
                 if vals['image_1920']:
+                    s3 = boto3.client('s3',
+                                      aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
+                                      aws_secret_access_key='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',
+                                      region_name='eu-west-2'
+                                      )
+                    bucket = "imtech-product"
                     # Get the binary data from the binary field
                     image_data = vals['image_1920']
 
