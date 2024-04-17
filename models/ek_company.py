@@ -89,8 +89,7 @@ class ResCompany(models.Model):
                 users = self.env['res.users'].browse(vals['users'])
                 if users and users.login:
                     ek_user_emails.append(users.login)
-            else:
-                if self.users and self.users.login:
+            elif self.users and self.users.login:
                     ek_user_emails.append(self.users.login)
 
             if "pos_user" in vals:
@@ -224,18 +223,12 @@ class ResCompany(models.Model):
                 ek_user_emails = []
 
                 if "users" in vals:
-                    user_ids_list = vals.get('users', [])
-                    _logger.info('\n\n\n USERS \n\n\n\n--->  %s\n\n\n\n', user_ids_list)
+                    users = self.env['res.users'].browse(vals['users'])
+                    if users and users.login:
+                        ek_user_emails.append(users.login)
+                elif self.users and self.users.login:
+                        ek_user_emails.append(self.users.login)
 
-                    # Ensure user_ids_list is not empty and contains at least one record
-                    if user_ids_list:
-                        user_ids = user_ids_list[0]  # Get the first record
-                        if len(user_ids) > 2:
-                            user_ids_inner_list = user_ids[2]  # Access the third element, which is a list of user IDs
-                            for user_id in user_ids_inner_list:
-                                user = self.env['res.users'].browse(user_id)
-                                login_value = user.login
-                                ek_user_emails.append(login_value)
                 if "pos_user" in vals:
                     pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
 
