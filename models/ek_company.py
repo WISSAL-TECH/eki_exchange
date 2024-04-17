@@ -31,6 +31,12 @@ class ResCompany(models.Model):
     source = fields.Char()
     pos_commune = fields.Many2one("ek.commune", "Commune")
     pos_wilaya = fields.Many2one("ek.wilaya", "Wilaya")
+    country_id = fields.Many2one('res.country', string='Country', required=True, default=lambda self: self._default_country())
+
+    @api.model
+    def _default_country(self):
+        algeria = self.env['res.country'].search([('name', '=', 'Algérie')], limit=1)
+        return algeria.id if algeria else False
 
     def _check_codification_length(self, vals):
         codification = vals.get('codification')
