@@ -58,49 +58,59 @@ class ResCompany(models.Model):
         url_pos = "/api/odoo/pos"
         logging.warning("update pos from odoo ======")
         logging.warning(vals)
-        if vals.get('pos') or self.pos:
-            body = {"params": {"data": {}}}
-            wilaya = self.state_id.name if self.state_id else ''
-            commune = self.pos_commune.name if self.pos_commune else ''
 
-            data = {
-                "name_pos": vals.get('name', self.name),
-                "address_pos": vals.get('street', self.street),
-                "pos_phone_one": vals.get('phone', self.phone),
-                "pos_phone_two": vals.get('mobile', self.mobile) if self.mobile else '',
-                "pos_wilaya": wilaya,
-                "pos_commune": commune,
-                "codification": vals.get('codification', self.codification),
-                "status": "ACTIVE",
-                "source": vals.get('source', self.source)
-            }
+        # Check if 'pos' is in vals and if its value is True
+        if vals.get('pos') or any(self.filtered(lambda r: r.pos)):
+            # Prepare data for requests
+            body = {"params": {"data": {}}}
+            wilaya = vals.get('state_id') and self.env['res.country.state'].browse(vals['state_id']).name or ''
+            commune = vals.get('pos_commune') and self.env['ek.commune'].browse(vals['pos_commune']).name or ''
+            mobile = vals.get('mobile') or self.mapped('mobile') or ''
+            name_pos = vals.get('name') or self.mapped('name')
+            address_pos = vals.get('street') or self.mapped('street')
+            pos_phone_one = vals.get('phone') or self.mapped('phone')
+            pos_phone_two = vals.get('mobile') or mobile
+            codification = vals.get('codification') or self.mapped('codification')
+            source = vals.get('source') or self.mapped('source')
 
             ek_user_emails = []
-            if vals.get("users"):
+            if vals.get('users'):
                 users = self.env['res.users'].browse(vals['users'])
-                ek_user_emails.extend([user.login for user in users if user.login])
-            elif self.users:
-                ek_user_emails.extend([user.login for user in self.users if user.login])
+                ek_user_emails.extend(users.filtered(lambda user: user.login).mapped('login'))
+            elif self.mapped('users'):
+                ek_user_emails.extend(self.mapped('users').filtered(lambda user: user.login).mapped('login'))
 
-            if vals.get("pos_user"):
+            if vals.get('pos_user'):
                 pos_record = self.env['res.users'].browse(vals['pos_user'])
-                ek_user_emails.extend([pos_record.login for pos_record in pos_record if pos_record.login])
-            elif self.pos_user:
-                ek_user_emails.append(self.pos_user.login)
+                ek_user_emails.append(pos_record.login) if pos_record.login else None
+            elif self.mapped('pos_user'):
+                ek_user_emails.extend(self.mapped('pos_user').filtered(lambda user: user.login).mapped('login'))
 
-            data["ek_user_emails"] = ek_user_emails
+            data = {
+                "name_pos": name_pos,
+                "address_pos": address_pos,
+                "pos_phone_one": pos_phone_one,
+                "pos_phone_two": pos_phone_two,
+                "pos_wilaya": wilaya or self.mapped('state_id').name,
+                "pos_commune": commune or self.mapped('pos_commune').name,
+                "codification": codification,
+                "status": "ACTIVE",
+                "source": source,
+                "ek_user_emails": ek_user_emails
+            }
             body["params"]["data"] = data
 
-            _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
-
+            # Make requests to external services
             response_cpa = requests.put(str(domain_cpa) + str(url_pos), data=json.dumps(body), headers=self.headers)
-            _logger.info('\n\n\n(UPDATE POS) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
+            _logger.info('(UPDATE POS) response from cpa: %s', response_cpa.content)
 
             response = requests.put(str(domain) + str(url_pos), data=json.dumps(body), headers=self.headers)
-            _logger.info('\n\n\n(UPDATE POS) response from alsalam \n\n\n\n---> %s\n\n\n\n', response.content)
+            _logger.info('(UPDATE POS) response from alsalam: %s', response.content)
 
-        return super(ResCompany, self).write(vals)
+        # Perform database write operation
+        rec = super(ResCompany, self).write(vals)
 
+        return rec
 
     @api.model
     def create(self, vals):
