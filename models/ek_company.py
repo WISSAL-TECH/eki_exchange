@@ -92,7 +92,7 @@ class ResCompany(models.Model):
                 "pos_phone_one": pos_phone_one,
                 "pos_phone_two": pos_phone_two,
                 "pos_wilaya": wilaya[0].name if wilaya else '',
-                "pos_commune": commune or self.mapped('pos_commune').name,
+                "pos_commune": commune[0].name if commune else '',
                 "codification": codification,
                 "status": "ACTIVE",
                 "source": source,
