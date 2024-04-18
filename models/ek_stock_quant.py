@@ -126,7 +126,7 @@ class EkQuant(models.Model):
                         "pos": self.location_id.company_id.codification,
                         "configuration_ref_odoo": self.product_id.ref_odoo,
                         "realQuantity": self.quantity,
-                        "price": numeric_value}]
+                        "price": self.product_id.lst_price}]
 
 
 
