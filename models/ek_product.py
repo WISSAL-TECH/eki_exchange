@@ -193,15 +193,17 @@ class Product(models.Model):
 
             for record in variantes:
                 if record.product_template_attribute_value_ids:
-                    #ref = record.generate_code()
-                    name = record.generate_name_variante(rec.name, rec.constructor_ref, record.product_template_attribute_value_ids.name)
+                    values =[]
+                    for value in record.product_template_attribute_value_ids:
+                        values.append(value.name)
+                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
+                                                         values)
                     configuration = {
                         'name': name,
                         "description": '',
                         "reference": record.constructor_ref if record.constructor_ref else '',
                         "price": record.lst_price,
                         "buyingPrice": rec.standard_price,
-                        # "state": "Active",
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
@@ -218,6 +220,7 @@ class Product(models.Model):
                     configurations.append(configuration)
 
             product_json["configurations"] = configurations
+
             _logger.info(
                 '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
             response = requests.post(str(domain) + str(url_product), data=json.dumps(product_json),
@@ -439,19 +442,18 @@ class EkiProduct(models.Model):
 
         return product_code
 
-    def generate_name_variante(self, name, ref, variante ):
+    def generate_name_variante(self, name, ref, variante):
         """Generating name for ek products"""
-        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
-        #_logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
-        #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
         # Add default code if exists
 
         if ref:
-           name += ' ' + ref
-           _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+            name += ' ' + ref
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
         if variante:
-           name += ' ' + variante
-           _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+            for v in variante:
+                name += ' ' + str(v)
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
