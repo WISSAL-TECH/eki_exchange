@@ -321,7 +321,7 @@ class ResCompany(models.Model):
                 ek_user_emails.append(pos_users_list)
 
                 data["users"] = ek_user_emails
-                body.appen(data)
+                body.append(data)
 
                 _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
 
