@@ -70,7 +70,7 @@ class ResCompany(models.Model):
             address_pos = vals.get('street') or self.mapped('street')
             pos_phone_one = vals.get('phone') or self.mapped('phone')
             pos_phone_two = vals.get('mobile') or mobile
-            codification = vals.get('codification') if 'codification' in vals else self.codification,
+            codification = vals.get('codification', self.codification) if 'codification' in vals else self.codification
             source = vals.get('source') or self.mapped('source')
 
             body["params"]["data"]["name_pos"] = name_pos
