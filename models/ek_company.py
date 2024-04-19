@@ -149,6 +149,8 @@ class ResCompany(models.Model):
             data["ek_user_emails"] = ek_user_emails
             body["params"]["data"] = data
             # Make requests to external services
+            logging.warning("update pos ======")
+            logging.warning(body)
             response_cpa = requests.put(str(domain_cpa) + str(url_pos), data=json.dumps(body), headers=self.headers)
             _logger.info('(UPDATE POS) response from cpa: %s', response_cpa.content)
 
