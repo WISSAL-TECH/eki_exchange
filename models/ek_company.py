@@ -64,12 +64,11 @@ class ResCompany(models.Model):
             # Prepare data for requests
             body = {"params": {"data": {}}}
             wilaya = vals.get('state_id', self.state_id) and self.env['res.country.state'].browse(vals['state_id']).name or self.state_id.name
-            commune = vals.get('pos_commune') and self.env['ek.commune'].browse(vals['pos_commune']).name or ''
-            mobile = vals.get('mobile') or self.mapped('mobile') or ''
+            commune = vals.get('pos_commune', self.pos_commune) and self.env['ek.commune'].browse(vals['pos_commune']).name or self.pos_commune.name
             name_pos = vals.get('name') if 'name' in vals else self.name
-            address_pos = vals.get('street') or self.mapped('street')
-            pos_phone_one = vals.get('phone') or self.mapped('phone')
-            pos_phone_two = vals.get('mobile') or mobile
+            address_pos = vals.get('street') if 'street' in vals else self.street
+            pos_phone_one = vals.get('phone') if 'phone' in vals else self.phone
+            pos_phone_two = vals.get('mobile') if 'mobile' in vals else self.mobile
             codification = vals.get('codification', self.codification) if 'codification' in vals else self.codification
             source = vals.get('source') or self.mapped('source')
 
