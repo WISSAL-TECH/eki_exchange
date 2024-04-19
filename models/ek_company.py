@@ -321,15 +321,14 @@ class ResCompany(models.Model):
                 ek_user_emails.append(pos_users_list)
 
                 data["users"] = ek_user_emails
-                body.append(data)
 
-                _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
+                _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', data)
 
-                response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(body),
+                response_cpa = requests.post(str(domain_cpa) + str(url_pos), data=json.dumps(data),
                                              headers=self.headers)
                 _logger.info('\n\n\n(CREATE POS) response from cpa\n\n\n\n--->  %s\n\n\n\n', response_cpa.content)
 
-                response = requests.post(str(domain) + str(url_pos), data=json.dumps(body),
+                response = requests.post(str(domain) + str(url_pos), data=json.dumps(data),
                                          headers=self.headers)
                 _logger.info('\n\n\n(CREATE POS) response from alsalam \n\n\n\n--->  %s\n\n\n\n', response.content)
 
