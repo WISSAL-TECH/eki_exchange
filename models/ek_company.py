@@ -63,7 +63,7 @@ class ResCompany(models.Model):
         if vals.get('pos') or any(self.filtered(lambda r: r.pos)):
             # Prepare data for requests
             body = {"params": {"data": {}}}
-            wilaya = vals.get('state_id') and self.env['res.country.state'].browse(vals['state_id']).name or ''
+            wilaya = vals.get('state_id', self.state_id) and self.env['res.country.state'].browse(vals['state_id']).name or self.state_id.name
             commune = vals.get('pos_commune') and self.env['ek.commune'].browse(vals['pos_commune']).name or ''
             mobile = vals.get('mobile') or self.mapped('mobile') or ''
             name_pos = vals.get('name') if 'name' in vals else self.name
