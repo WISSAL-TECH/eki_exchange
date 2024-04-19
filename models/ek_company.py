@@ -59,19 +59,21 @@ class ResCompany(models.Model):
         logging.warning("update pos from odoo ======")
         logging.warning(vals)
 
-        # Check if 'pos' is in vals and if its value is True
-        if vals.get('pos') or any(self.filtered(lambda r: r.pos)):
+        # Iterate over each record
+        for record in self:
             # Prepare data for requests
             body = {}
-            #no_mobile = self.mobile if self.mobile else ''
-            wilaya = self.env['res.country.state'].browse(vals['state_id']).name if 'state_id' in vals else self.state_id.name
-            commune = self.env['ek.commune'].browse(vals['pos_commune']).name if 'pos_commune' in vals else self.pos_commune.name
-            name_pos = vals.get('name') if 'name' in vals else self.name
-            address_pos = vals.get('street') if 'street' in vals else self.street
-            pos_phone_one = vals.get('phone') if 'phone' in vals else self.phone
+            wilaya = self.env['res.country.state'].browse(
+                vals['state_id']).name if 'state_id' in vals else record.state_id.name
+            commune = self.env['ek.commune'].browse(
+                vals['pos_commune']).name if 'pos_commune' in vals else record.pos_commune.name
+            name_pos = vals.get('name') if 'name' in vals else record.name
+            address_pos = vals.get('street') if 'street' in vals else record.street
+            pos_phone_one = vals.get('phone') if 'phone' in vals else record.phone
             pos_phone_two = vals.get('mobile') if 'mobile' in vals else ""
-            codification = vals.get('codification', self.codification) if 'codification' in vals else self.codification
-            source = vals.get('source') if 'source' in vals else self.source
+            codification = vals.get('codification',
+                                    record.codification) if 'codification' in vals else record.codification
+            source = vals.get('source') if 'source' in vals else record.source
 
             body["name_pos"] = name_pos
             body["address_pos"] = address_pos
@@ -87,7 +89,7 @@ class ResCompany(models.Model):
             logging.warning(body)
 
             ek_user_emails = []
-            user =  {}
+            user = {}
 
             if "users" in vals:
                 users = self.env['res.users'].browse(vals['users'])
@@ -101,16 +103,15 @@ class ResCompany(models.Model):
                     user["role"] = users.roles
                     user["email"] = users.login
 
-
-            elif self.users:
-                user["username"] = self.users.name
-                user["firstname"] = self.users.first_name
-                user["lastname"] = self.users.last_name
-                user["phone"] = self.users.phone
-                user["address"] = self.users.address
-                user["codification"] = self.users.codification
-                user["role"] = self.users.roles
-                user["email"] = self.users.login
+            elif record.users:
+                user["username"] = record.users.name
+                user["firstname"] = record.users.first_name
+                user["lastname"] = record.users.last_name
+                user["phone"] = record.users.phone
+                user["address"] = record.users.address
+                user["codification"] = record.users.codification
+                user["role"] = record.users.roles
+                user["email"] = record.users.login
 
             logging.warning("create pos (user values) ======")
             logging.warning(user)
@@ -132,16 +133,15 @@ class ResCompany(models.Model):
                     pos_users_list["role"] = pos_record.roles
                     pos_users_list["email"] = pos_record.login
 
-
-            elif self.pos_user:
-                pos_users_list["username"] = self.pos_user.name
-                pos_users_list["firstname"] = self.pos_user.first_name
-                pos_users_list["lastname"] = self.pos_user.last_name
-                pos_users_list["phone"] = self.pos_user.phone
-                pos_users_list["address"] = self.pos_user.address
-                pos_users_list["codification"] = self.pos_user.codification
-                pos_users_list["role"] = self.pos_user.roles
-                pos_users_list["email"] = self.pos_user.login
+            elif record.pos_user:
+                pos_users_list["username"] = record.pos_user.name
+                pos_users_list["firstname"] = record.pos_user.first_name
+                pos_users_list["lastname"] = record.pos_user.last_name
+                pos_users_list["phone"] = record.pos_user.phone
+                pos_users_list["address"] = record.pos_user.address
+                pos_users_list["codification"] = record.pos_user.codification
+                pos_users_list["role"] = record.pos_user.roles
+                pos_users_list["email"] = record.pos_user.login
 
             logging.warning("create pos (pos user values) ======")
             logging.warning(pos_users_list)
