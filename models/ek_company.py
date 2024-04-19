@@ -66,11 +66,11 @@ class ResCompany(models.Model):
             wilaya = vals.get('state_id') and self.env['res.country.state'].browse(vals['state_id']).name or ''
             commune = vals.get('pos_commune') and self.env['ek.commune'].browse(vals['pos_commune']).name or ''
             mobile = vals.get('mobile') or self.mapped('mobile') or ''
-            name_pos = vals.get('name') or self.mapped('name')
+            name_pos = vals.get('name') if 'name' in vals else self.name
             address_pos = vals.get('street') or self.mapped('street')
             pos_phone_one = vals.get('phone') or self.mapped('phone')
             pos_phone_two = vals.get('mobile') or mobile
-            codification = vals['codification'] if 'codification' in vals else self.codification,
+            codification = vals.get('codification', self.codification),
             source = vals.get('source') or self.mapped('source')
 
             body["params"]["data"]["name_pos"] = name_pos
