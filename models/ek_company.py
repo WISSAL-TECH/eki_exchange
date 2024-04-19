@@ -74,17 +74,65 @@ class ResCompany(models.Model):
             source = vals.get('source') or self.mapped('source')
 
             ek_user_emails = []
-            if vals.get('users'):
-                users = self.env['res.users'].browse(vals['users'])
-                ek_user_emails.extend(users.filtered(lambda user: user.login).mapped('login'))
-            elif self.mapped('users'):
-                ek_user_emails.extend(self.mapped('users').filtered(lambda user: user.login).mapped('login'))
+            user = []
 
-            if vals.get('pos_user'):
-                pos_record = self.env['res.users'].browse(vals['pos_user'])
-                ek_user_emails.append(pos_record.login) if pos_record.login else None
-            elif self.mapped('pos_user'):
-                ek_user_emails.extend(self.mapped('pos_user').filtered(lambda user: user.login).mapped('login'))
+            if "users" in vals:
+                users = self.env['res.users'].browse(vals['users'])
+                if users:
+                    user["username"] = users.name
+                    user["firstname"] = users.first_name
+                    user["lastname"] = users.last_name
+                    user["phone"] = users.phone
+                    user["address"] = users.address
+                    user["codification"] = users.codification
+                    user["role"] = users.roles
+                    user["email"] = users.login
+
+
+            elif self.users:
+                user["username"] = self.users.name
+                user["firstname"] = self.users.first_name
+                user["lastname"] = self.users.last_name
+                user["phone"] = self.users.phone
+                user["address"] = self.users.address
+                user["codification"] = self.users.codification
+                user["role"] = self.users.roles
+                user["email"] = self.users.login
+
+            logging.warning("create pos (user values) ======")
+            logging.warning(user)
+            ek_user_emails.append(user)
+
+            pos_users_list = []
+
+            if "pos_user" in vals:
+                pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
+
+                pos_record = self.env['res.users'].browse(pos_id)
+                if pos_record:
+                    pos_users_list["username"] = pos_record.name
+                    pos_users_list["firstname"] = pos_record.first_name
+                    pos_users_list["lastname"] = pos_record.last_name
+                    pos_users_list["phone"] = pos_record.phone
+                    pos_users_list["address"] = pos_record.address
+                    pos_users_list["codification"] = pos_record.codification
+                    pos_users_list["role"] = pos_record.roles
+                    pos_users_list["email"] = pos_record.login
+
+
+            elif self.pos_user:
+                user["username"] = self.pos_user.name
+                user["firstname"] = self.pos_user.first_name
+                user["lastname"] = self.pos_user.last_name
+                user["phone"] = self.pos_user.phone
+                user["address"] = self.pos_user.address
+                user["codification"] = self.pos_user.codification
+                user["role"] = self.pos_user.roles
+                user["email"] = self.pos_user.login
+
+            logging.warning("create pos (pos user values) ======")
+            logging.warning(pos_users_list)
+            ek_user_emails.append(pos_users_list)
 
             data = {
                 "name_pos": name_pos,
@@ -96,10 +144,10 @@ class ResCompany(models.Model):
                 "codification": codification,
                 "status": "ACTIVE",
                 "source": source,
-                "ek_user_emails": ek_user_emails
             }
-            body["params"]["data"] = data
 
+            data["ek_user_emails"] = ek_user_emails
+            body["params"]["data"] = data
             # Make requests to external services
             response_cpa = requests.put(str(domain_cpa) + str(url_pos), data=json.dumps(body), headers=self.headers)
             _logger.info('(UPDATE POS) response from cpa: %s', response_cpa.content)
@@ -212,32 +260,65 @@ class ResCompany(models.Model):
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
                 ek_user_emails = []
+                user = []
 
                 if "users" in vals:
                     users = self.env['res.users'].browse(vals['users'])
-                    if users and users.login:
-                        ek_user_emails.append(users.login)
-                elif self.users and self.users.login:
-                        ek_user_emails.append(self.users.login)
+                    if users:
+                        user["username"] = users.name
+                        user["firstname"] = users.first_name
+                        user["lastname"] = users.last_name
+                        user["phone"] = users.phone
+                        user["address"] = users.address
+                        user["codification"] = users.codification
+                        user["role"] = users.roles
+                        user["email"] = users.login
+
+
+                elif self.users :
+                        user["username"] = self.users.name
+                        user["firstname"] = self.users.first_name
+                        user["lastname"] = self.users.last_name
+                        user["phone"] = self.users.phone
+                        user["address"] = self.users.address
+                        user["codification"] = self.users.codification
+                        user["role"] = self.users.roles
+                        user["email"] = self.users.login
+
+                logging.warning("create pos (user values) ======")
+                logging.warning(user)
+                ek_user_emails.append(user)
+
+                pos_users_list = []
 
                 if "pos_user" in vals:
                     pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
 
                     pos_record = self.env['res.users'].browse(pos_id)
+                    if pos_record:
+                        pos_users_list["username"] = pos_record.name
+                        pos_users_list["firstname"] = pos_record.first_name
+                        pos_users_list["lastname"] = pos_record.last_name
+                        pos_users_list["phone"] = pos_record.phone
+                        pos_users_list["address"] = pos_record.address
+                        pos_users_list["codification"] = pos_record.codification
+                        pos_users_list["role"] = pos_record.roles
+                        pos_users_list["email"] = pos_record.login
 
-                    # Now you can access the login field of the 'pos' record
-                    if pos_record and pos_record.login:
-                        # If the 'pos' record exists and has a login value
-                        ek_user_emails.append(pos_record.login)
-                else:
-                    pos_id = self.pos_user  # Get the ID of the 'pos' field from vals
 
-                    pos_record = self.env['res.users'].browse(pos_id)
+                elif self.pos_user:
+                    user["username"] = self.pos_user.name
+                    user["firstname"] = self.pos_user.first_name
+                    user["lastname"] = self.pos_user.last_name
+                    user["phone"] = self.pos_user.phone
+                    user["address"] = self.pos_user.address
+                    user["codification"] = self.pos_user.codification
+                    user["role"] = self.pos_user.roles
+                    user["email"] = self.pos_user.login
 
-                    # Now you can access the login field of the 'pos' record
-                    if pos_record and pos_record.login:
-                        # If the 'pos' record exists and has a login value
-                        ek_user_emails.append(pos_record.login)
+                logging.warning("create pos (pos user values) ======")
+                logging.warning(pos_users_list)
+                ek_user_emails.append(pos_users_list)
 
                 data["ek_user_emails"] = ek_user_emails
                 body["params"]["data"] = data
