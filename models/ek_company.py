@@ -74,7 +74,7 @@ class ResCompany(models.Model):
             source = vals.get('source') or self.mapped('source')
 
             ek_user_emails = []
-            user = []
+            user =  {}
 
             if "users" in vals:
                 users = self.env['res.users'].browse(vals['users'])
@@ -103,7 +103,7 @@ class ResCompany(models.Model):
             logging.warning(user)
             ek_user_emails.append(user)
 
-            pos_users_list = []
+            pos_users_list =  {}
 
             if "pos_user" in vals:
                 pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
@@ -121,14 +121,14 @@ class ResCompany(models.Model):
 
 
             elif self.pos_user:
-                user["username"] = self.pos_user.name
-                user["firstname"] = self.pos_user.first_name
-                user["lastname"] = self.pos_user.last_name
-                user["phone"] = self.pos_user.phone
-                user["address"] = self.pos_user.address
-                user["codification"] = self.pos_user.codification
-                user["role"] = self.pos_user.roles
-                user["email"] = self.pos_user.login
+                pos_users_list["username"] = self.pos_user.name
+                pos_users_list["firstname"] = self.pos_user.first_name
+                pos_users_list["lastname"] = self.pos_user.last_name
+                pos_users_list["phone"] = self.pos_user.phone
+                pos_users_list["address"] = self.pos_user.address
+                pos_users_list["codification"] = self.pos_user.codification
+                pos_users_list["role"] = self.pos_user.roles
+                pos_users_list["email"] = self.pos_user.login
 
             logging.warning("create pos (pos user values) ======")
             logging.warning(pos_users_list)
@@ -260,7 +260,7 @@ class ResCompany(models.Model):
                         "status": "ACTIVE",
                         "source": vals.get('source') if vals.get('source') else ''}
                 ek_user_emails = []
-                user = []
+                user = {}
 
                 if "users" in vals:
                     users = self.env['res.users'].browse(vals['users'])
@@ -289,7 +289,7 @@ class ResCompany(models.Model):
                 logging.warning(user)
                 ek_user_emails.append(user)
 
-                pos_users_list = []
+                pos_users_list = {}
 
                 if "pos_user" in vals:
                     pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
