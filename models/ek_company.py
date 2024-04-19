@@ -73,6 +73,25 @@ class ResCompany(models.Model):
             codification = vals['codification'] if 'codification' in vals else self.codification,
             source = vals.get('source') or self.mapped('source')
 
+            # Convert ek_user_emails dictionaries to strings
+            for user_email in vals['ek_user_emails']:
+                for key, value in user_email.items():
+                    user_email[key] = value[0] if isinstance(value, list) else value
+
+            body["params"]["data"]["name_pos"] = name_pos
+            body["params"]["data"]["address_pos"] = address_pos
+            body["params"]["data"]["pos_phone_one"] = pos_phone_one
+            body["params"]["data"]["pos_phone_two"] = pos_phone_two
+            body["params"]["data"]["pos_wilaya"] = wilaya
+            body["params"]["data"]["pos_commune"] = commune
+            body["params"]["data"]["codification"] = codification
+            body["params"]["data"]["status"] = "ACTIVE"
+            body["params"]["data"]["source"] = source
+            body["params"]["data"]["ek_user_emails"] = vals["ek_user_emails"]
+
+            logging.warning("updated body ======")
+            logging.warning(body)
+
             ek_user_emails = []
             user =  {}
 
@@ -103,7 +122,7 @@ class ResCompany(models.Model):
             logging.warning(user)
             ek_user_emails.append(user)
 
-            pos_users_list =  {}
+            pos_users_list = {}
 
             if "pos_user" in vals:
                 pos_id = vals['pos_user']  # Get the ID of the 'pos' field from vals
