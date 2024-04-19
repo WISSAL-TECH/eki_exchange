@@ -82,7 +82,6 @@ class ResCompany(models.Model):
             body["params"]["data"]["codification"] = codification
             body["params"]["data"]["status"] = "ACTIVE"
             body["params"]["data"]["source"] = source
-            body["params"]["data"]["ek_user_emails"] = vals["ek_user_emails"]
 
             logging.warning("updated body ======")
             logging.warning(body)
@@ -148,20 +147,8 @@ class ResCompany(models.Model):
             logging.warning(pos_users_list)
             ek_user_emails.append(pos_users_list)
 
-            data = {
-                "name_pos": name_pos,
-                "address_pos": address_pos,
-                "pos_phone_one": pos_phone_one,
-                "pos_phone_two": pos_phone_two,
-                "pos_wilaya": wilaya[0].name if wilaya else '',
-                "pos_commune": commune[0].name if commune else '',
-                "codification": codification,
-                "status": "ACTIVE",
-                "source": source,
-            }
+            body["params"]["data"]["ek_user_emails"] = ek_user_emails
 
-            data["ek_user_emails"] = ek_user_emails
-            body["params"]["data"] = data
             # Make requests to external services
             logging.warning("update pos ======")
             logging.warning(body)
