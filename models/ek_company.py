@@ -147,7 +147,7 @@ class ResCompany(models.Model):
             logging.warning(pos_users_list)
             ek_user_emails.append(pos_users_list)
 
-            body["params"]["data"]["users"] = ek_user_emails
+            body["users"] = ek_user_emails
 
             # Make requests to external services
             logging.warning("update pos ======")
@@ -203,7 +203,7 @@ class ResCompany(models.Model):
                     ek_user_emails.append(value)
 
             data["ek_user_emails"] = ek_user_emails
-            body["params"]["data"] = data
+            body["data"] = data
             _logger.info(
                 '\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
             if "source" in vals and vals.get('source'):
