@@ -73,11 +73,6 @@ class ResCompany(models.Model):
             codification = vals['codification'] if 'codification' in vals else self.codification,
             source = vals.get('source') or self.mapped('source')
 
-            # Convert ek_user_emails dictionaries to strings
-            for user_email in vals['ek_user_emails']:
-                for key, value in user_email.items():
-                    user_email[key] = value[0] if isinstance(value, list) else value
-
             body["params"]["data"]["name_pos"] = name_pos
             body["params"]["data"]["address_pos"] = address_pos
             body["params"]["data"]["pos_phone_one"] = pos_phone_one
