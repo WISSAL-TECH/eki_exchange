@@ -62,7 +62,7 @@ class ResCompany(models.Model):
         # Check if 'pos' is in vals and if its value is True
         if vals.get('pos') or any(self.filtered(lambda r: r.pos)):
             # Prepare data for requests
-            body = {"params": {"data": {}}}
+            body = {}
             no_mobile = self.mobile if self.mobile else ''
             wilaya = self.env['res.country.state'].browse(vals['state_id']).name if 'state_id' in vals else self.state_id.name
             commune = self.env['ek.commune'].browse(vals['pos_commune']).name if 'pos_commune' in vals else self.pos_commune.name
@@ -73,15 +73,15 @@ class ResCompany(models.Model):
             codification = vals.get('codification', self.codification) if 'codification' in vals else self.codification
             source = vals.get('source') if 'source' in vals else self.source
 
-            body["params"]["data"]["name_pos"] = name_pos
-            body["params"]["data"]["address_pos"] = address_pos
-            body["params"]["data"]["pos_phone_one"] = pos_phone_one
-            body["params"]["data"]["pos_phone_two"] = pos_phone_two
-            body["params"]["data"]["pos_wilaya"] = wilaya
-            body["params"]["data"]["pos_commune"] = commune
-            body["params"]["data"]["codification"] = codification
-            body["params"]["data"]["status"] = "ACTIVE"
-            body["params"]["data"]["source"] = source
+            body["name_pos"] = name_pos
+            body["address_pos"] = address_pos
+            body["pos_phone_one"] = pos_phone_one
+            body["pos_phone_two"] = pos_phone_two
+            body["pos_wilaya"] = wilaya
+            body["pos_commune"] = commune
+            body["codification"] = codification
+            body["status"] = "ACTIVE"
+            body["source"] = source
 
             logging.warning("updated body ======")
             logging.warning(body)
@@ -240,11 +240,8 @@ class ResCompany(models.Model):
             rec = super(ResCompany, self).create(vals)
 
             if 'pos' in vals and vals['pos'] == True:
-                body = {"params": {
-                    "data": {
-                    }
-                }
-                }
+                body = {}
+
                 wilaya = ""
                 if 'state_id' in vals and vals['state_id']:
                     state = self.env['res.country.state'].search([('id', '=', vals['state_id'])], limit=1)
@@ -324,7 +321,7 @@ class ResCompany(models.Model):
                 ek_user_emails.append(pos_users_list)
 
                 data["users"] = ek_user_emails
-                body["params"]["data"] = data
+                body.appen(data)
 
                 _logger.info('\n\n\n D A T A \n\n\n\n--->>  %s\n\n\n\n', body)
 
