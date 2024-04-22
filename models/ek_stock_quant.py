@@ -91,7 +91,7 @@ class EkQuant(models.Model):
                         "pos": "EKIWH",
                         "configuration_ref_odoo": self.product_id.ref_odoo,
                         "realQuantity": self.quantity,
-                        "price": numeric_value}]
+                        "price": self.product_id.lst_price}]
             _logger.info(
                 '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
             response1 = requests.put(str(domain) + self.url_stock, data=json.dumps(json_obj),
