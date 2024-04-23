@@ -405,7 +405,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -438,7 +438,7 @@ class EkiProduct(models.Model):
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
-            record.ref_odoo = "rc_variante_" + str(record.id)
+            record.ref_odoo = "rc_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
