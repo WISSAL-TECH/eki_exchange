@@ -175,6 +175,7 @@ class Product(models.Model):
 
                 # Remove non-breaking space characters
                 numeric_value = numeric_value.replace('\xa0', '')
+
             else:
                 numeric_value = vals['list_price'] if vals['list_price'] else rec.list_price
 
@@ -194,34 +195,30 @@ class Product(models.Model):
                 "ref_odoo": rec.ref_odoo,
 
             }
-            variantes = self.env['product.product'].search([('product_tmpl_id', '=', rec.id)])
+            variantes = self.env['product.product'].search([('name', '=', rec.name)])
             configurations = []
 
-            for variant in variantes:
-                if variant.product_template_attribute_value_ids:
+            for record in variantes:
+                if record.product_template_attribute_value_ids:
                     values = []
-                    for value in variant.product_template_attribute_value_ids:
+                    for value in record.product_template_attribute_value_ids:
                         values.append(value.name)
-                    # Generate a new name for the product variant based on the template name
-                    name = variant.generate_name_variante(rec.name, rec.constructor_ref, values)
-
-                    # Update the name of the product variant
-                    variant.write({'name': name})
-
+                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
+                                                         values)
                     configuration = {
-                        'name': variant.name,  # Use the updated name
+                        'name': name,
                         "description": '',
-                        "reference": variant.constructor_ref if variant.constructor_ref else '',
-                        "price": variant.lst_price,
+                        "reference": record.constructor_ref if record.constructor_ref else '',
+                        "price": record.lst_price,
                         "buyingPrice": rec.standard_price,
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
-                        "certificateUrl": variant.certificate_url,
-                        "ref_odoo": variant.ref_odoo,
+                        "certificateUrl": record.certificate_url,
+                        "ref_odoo": record.ref_odoo,
                     }
 
-                    for value in variant.product_template_attribute_value_ids:
+                    for value in record.product_template_attribute_value_ids:
                         product_characteristic = {
                             "name": value.attribute_id.name if value.attribute_id else '',
                             "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
@@ -508,7 +505,10 @@ class EkiProduct(models.Model):
         rec = super(EkiProduct, self).create(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
         rec.write({'reference': ref})
-        name = self.generate_name(vals)
+        values = []
+        for value in rec.product_template_attribute_value_ids:
+            values.append(value.name)
+        name = self.generate_name_variante(rec.name, rec.constructor_ref, values)
         rec.write({'name': name})
 
         return rec
