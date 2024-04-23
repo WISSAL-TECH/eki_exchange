@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -62,7 +62,10 @@ class Product(models.Model):
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
-            record.ref_odoo = "rc_" + str(record.id)
+            if not record.ref_odoo:
+                letters_and_digits = string.ascii_letters + string.digits
+                ref_odoo = ''.join(random.choice(letters_and_digits) for i in range(7))
+                record.ref_odoo = "rc_" + ref_odoo
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
