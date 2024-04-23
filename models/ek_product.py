@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -59,13 +59,11 @@ class Product(models.Model):
         for record in self:
             record.certificate_url = ''
 
-    @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
-            if not record.ref_odoo:
-                letters_and_digits = string.ascii_letters + string.digits
-                ref_odoo = ''.join(random.choice(letters_and_digits) for i in range(7))
-                record.ref_odoo = "rc_" + ref_odoo
+            letters_and_digits = string.ascii_letters + string.digits
+            ref_odoo = ''.join(random.choice(letters_and_digits) for i in range(7))
+            record.ref_odoo = "rc_" + ref_odoo
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -405,7 +403,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -435,13 +433,11 @@ class EkiProduct(models.Model):
             # Update the product record with the S3 image URL
             return s3_url
 
-    @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
-            if not record.ref_odoo:
-                letters_and_digits = string.ascii_letters + string.digits
-                ref_odoo = ''.join(random.choice(letters_and_digits) for i in range(7))
-                record.ref_odoo = "rc_" + ref_odoo
+            letters_and_digits = string.ascii_letters + string.digits
+            ref_odoo = ''.join(random.choice(letters_and_digits) for i in range(7))
+            record.ref_odoo = "rc_" + ref_odoo
 
     def generate_code(self):
         """Generating default code for ek products"""
