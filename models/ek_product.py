@@ -175,7 +175,6 @@ class Product(models.Model):
 
                 # Remove non-breaking space characters
                 numeric_value = numeric_value.replace('\xa0', '')
-
             else:
                 numeric_value = vals['list_price'] if vals['list_price'] else rec.list_price
 
@@ -195,32 +194,34 @@ class Product(models.Model):
                 "ref_odoo": rec.ref_odoo,
 
             }
-            variantes = self.env['product.product'].search([('name', '=', rec.name)])
+            variantes = self.env['product.product'].search([('product_tmpl_id', '=', rec.id)])
             configurations = []
 
-            for record in variantes:
-                if record.product_template_attribute_value_ids:
+            for variant in variantes:
+                if variant.product_template_attribute_value_ids:
                     values = []
-                    for value in record.product_template_attribute_value_ids:
+                    for value in variant.product_template_attribute_value_ids:
                         values.append(value.name)
-                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
-                                                         values)
-                    record.write({'name': name})
+                    # Generate a new name for the product variant based on the template name
+                    name = variant.generate_name_variante(rec.name, rec.constructor_ref, values)
+
+                    # Update the name of the product variant
+                    variant.write({'name': name})
 
                     configuration = {
-                        'name': record.name,
+                        'name': variant.name,  # Use the updated name
                         "description": '',
-                        "reference": record.constructor_ref if record.constructor_ref else '',
-                        "price": record.lst_price,
+                        "reference": variant.constructor_ref if variant.constructor_ref else '',
+                        "price": variant.lst_price,
                         "buyingPrice": rec.standard_price,
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
-                        "certificateUrl": record.certificate_url,
-                        "ref_odoo": record.ref_odoo,
+                        "certificateUrl": variant.certificate_url,
+                        "ref_odoo": variant.ref_odoo,
                     }
 
-                    for value in record.product_template_attribute_value_ids:
+                    for value in variant.product_template_attribute_value_ids:
                         product_characteristic = {
                             "name": value.attribute_id.name if value.attribute_id else '',
                             "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
