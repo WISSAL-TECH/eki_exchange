@@ -20,6 +20,7 @@ import string
 
 _logger = logging.getLogger(__name__)
 
+
 class Product(models.Model):
     _inherit = ['product.template']
 
@@ -37,12 +38,21 @@ class Product(models.Model):
     categ_id = fields.Many2one("product.category", string="Catégorie d'article", required=True)
     attribute_line_ids = fields.One2many('product.template.attribute.line', 'product_tmpl_id', 'Product Attributes',
                                          copy=True, required=True)
+    detailed_type = fields.Selection([
+        ('consu', 'Consommable'),
+        ('service', 'Service'), ('product', 'Article stockable')], string="Type d'article", default='product',
+        required=True,
+        help=
+        "Un produit stockable est un produit dont on gère le stock. L'application \"Inventaire\" doit être installée. \n"
+        "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
+        "Un service est un produit immatériel que vous fournissez.")
 
     @api.constrains('attribute_line_ids')
     def _check_attribute_line_ids(self):
         for record in self:
             if not record.attribute_line_ids:
-                raise ValidationError(_("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
+                raise ValidationError(
+                    _("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
@@ -53,7 +63,6 @@ class Product(models.Model):
     def _compute_ref_odoo(self):
         for record in self:
             record.ref_odoo = "rc_" + str(record.id)
-
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -123,12 +132,11 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            if 'tax_string' in vals and vals.get('tax_string') :
+            if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
 
                 # Use the findall function to extract all matches
                 matches = re.findall(pattern, vals.get('tax_string'))
-
 
                 # Join the matches into a single string (if there are multiple matches)
                 numeric_value = ''.join(matches)
@@ -144,7 +152,6 @@ class Product(models.Model):
                 # Use the findall function to extract all matches
                 matches = re.findall(pattern, rec.tax_string)
 
-
                 # Join the matches into a single string (if there are multiple matches)
                 numeric_value = ''.join(matches)
 
@@ -158,7 +165,6 @@ class Product(models.Model):
 
                 # Use the findall function to extract all matches
                 matches = re.findall(pattern, self.tax_string)
-
 
                 # Join the matches into a single string (if there are multiple matches)
                 numeric_value = ''.join(matches)
@@ -193,7 +199,7 @@ class Product(models.Model):
 
             for record in variantes:
                 if record.product_template_attribute_value_ids:
-                    values =[]
+                    values = []
                     for value in record.product_template_attribute_value_ids:
                         values.append(value.name)
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
@@ -228,7 +234,7 @@ class Product(models.Model):
             _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
             response_cpa = requests.post(str(domain_cpa) + str(url_product), data=json.dumps(product_json),
-                                     headers=self.headers)
+                                         headers=self.headers)
             _logger.info('\n\n\n(CREATE product) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
                          response_cpa.content)
 
@@ -295,7 +301,6 @@ class Product(models.Model):
             if "list_price" in vals and not vals["list_price"]:
                 vals.pop('list_price')
 
-
             if 'category' in vals and vals['category']:
                 # Get the category record
                 category = self.env['product.category'].search([('name', '=', vals['category'])])
@@ -324,8 +329,8 @@ class Product(models.Model):
             rec = super(Product, self).write(vals)
             brand_name = self.brand_id.name if self.brand_id else ''
             if "brand_id" in vals:
-               brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
-               brand_name = brand.name if brand else self.brand_id.name
+                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
+                brand_name = brand.name if brand else self.brand_id.name
 
             categ_name = self.categ_id.name
             if "categ_id" in vals:
@@ -334,18 +339,19 @@ class Product(models.Model):
 
             # sending update to ekiclik
             data = {
-                "name": vals.get("name","") if vals.get("name") else self.name ,
+                "name": vals.get("name", "") if vals.get("name") else self.name,
                 "description": vals.get("description", "") if vals.get("description") else "",
                 "categoryName": categ_name,
                 "brand": {
                     "name": brand_name,
                     "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
                 },
-                "refConstructor": vals.get("constructor_ref", "") if vals.get("constructor_ref") else self.constructor_ref,
+                "refConstructor": vals.get("constructor_ref", "") if vals.get(
+                    "constructor_ref") else self.constructor_ref,
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
                     "manufacture_name") else self.manufacture_name,
                 "activate": True,
-                #"oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
+                # "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
                 "ref_odoo": vals.get("ref_odoo", "") if vals.get(
                     "ref_odoo") else self.ref_odoo,
             }
@@ -356,7 +362,7 @@ class Product(models.Model):
             _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
             response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
-                                    headers=self.headers)
+                                        headers=self.headers)
             _logger.info('\n\n\n(update product) response from eki  CPA\n\n\n\n--->  %s\n\n\n\n',
                          response_cpa.content)
 
@@ -369,7 +375,7 @@ class Product(models.Model):
                 _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
                 response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(self.ref_odoo),
-                                          headers=self.headers)
+                                              headers=self.headers)
 
                 _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
                              response_cpa.content)
@@ -382,7 +388,7 @@ class Product(models.Model):
                 _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
                 response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + "rc_" + str(self.id),
-                                          headers=self.headers)
+                                              headers=self.headers)
 
                 _logger.info('\n\n\n(activate product) response from eki cpa\n\n\n\n--->  %s\n\n\n\n',
                              response_cpa.content)
@@ -462,11 +468,11 @@ class EkiProduct(models.Model):
     def generate_name(self, vals):
         """Generating name for ek products"""
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
-        #_logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
-        #_logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
+        # _logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
+        # _logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
         name = ''
         if "name" in vals and vals['name'] or self.name:
-           name = vals['name'] if "name" in vals and vals['name'] else self.name
+            name = vals['name'] if "name" in vals and vals['name'] else self.name
 
         # Iterate through each record in the Many2Many field
         for variant_value in self.product_template_variant_value_ids:
@@ -474,14 +480,14 @@ class EkiProduct(models.Model):
             _logger.info('\n\n\n  NAME with variantes\n\n\n\n--->  %s\n\n\n\n', name)
 
         # Add brand name if exists
-        #name += ' ' + str(self.brand_id.name) if self.brand_id else ''
+        # name += ' ' + str(self.brand_id.name) if self.brand_id else ''
 
         # Add default code if exists
         if "reference" in vals and vals["reference"]:
-           name += ' ' + vals["reference"]
-           _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+            name += ' ' + vals["reference"]
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
-        elif self.reference :
+        elif self.reference:
             name += ' ' + str(self.reference)
             _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
@@ -523,9 +529,9 @@ class EkiProduct(models.Model):
 
         for rec in self:
             origin_product = rec.product_tmpl_id
-            #if not name :
-                #name = origin_product.name
-                #_logger.info('N A M E from product %s', name)
+            # if not name :
+            # name = origin_product.name
+            # _logger.info('N A M E from product %s', name)
             numeric_value = 0
             if rec.tax_string:
                 pattern = r'(\d[\d\s,.]+)'
@@ -614,17 +620,17 @@ class EkiProduct(models.Model):
             no_certificate_url = rec.certificate_url if rec.certificate_url else ""
             data = {
                 "name": name,
-                "reference":  vals["reference"] if "reference" in vals else rec.reference,
+                "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
-                "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price ,
-                "buyingPrice":  vals["standard_price"] if "standard_price" in vals else rec.standard_price,
+                "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
+                "buyingPrice": vals["standard_price"] if "standard_price" in vals else rec.standard_price,
                 "state": '',
                 "productCharacteristics": [],
                 "active": True,
-                "description":  vals["description"] if "description" in vals else rec.description,
+                "description": vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": vals['certificate_url'] if 'certificate_url' in vals else no_certificate_url,
                 "images": vals['image_url'] if 'image_url' in vals else no_image_image,
-                #"oldRef": vals["reference"] if "reference" in vals else "",
+                # "oldRef": vals["reference"] if "reference" in vals else "",
                 "ref_odoo": rec.ref_odoo
             }
             for value in rec.product_template_attribute_value_ids:
@@ -641,7 +647,7 @@ class EkiProduct(models.Model):
             _logger.info('\n\n\n(update variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
             response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
-                                    headers=self.headers)
+                                        headers=self.headers)
 
             _logger.info('\n\n\n(update variante) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
                          response_cpa.content)
@@ -654,7 +660,7 @@ class EkiProduct(models.Model):
                 _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
                 response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.ref_odoo),
-                                          headers=self.headers)
+                                              headers=self.headers)
 
                 _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
                              response_cpa.content)
@@ -667,10 +673,9 @@ class EkiProduct(models.Model):
                 _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
                 response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.ref_odoo),
-                                          headers=self.headers)
+                                              headers=self.headers)
 
                 _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
                              response_cpa.content)
 
         return super(EkiProduct, self).write(vals)
-
