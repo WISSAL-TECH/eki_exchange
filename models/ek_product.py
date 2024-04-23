@@ -132,6 +132,7 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
+
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
 
@@ -204,8 +205,10 @@ class Product(models.Model):
                         values.append(value.name)
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
+                    record.write({'name': name})
+
                     configuration = {
-                        'name': name,
+                        'name': record.name,
                         "description": '',
                         "reference": record.constructor_ref if record.constructor_ref else '',
                         "price": record.lst_price,
