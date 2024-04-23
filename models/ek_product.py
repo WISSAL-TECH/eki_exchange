@@ -438,7 +438,10 @@ class EkiProduct(models.Model):
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
-            record.ref_odoo = "rc_" + str(record.id)
+            if not record.ref_odoo:
+                letters_and_digits = string.ascii_letters + string.digits
+                ref_odoo = ''.join(random.choice(letters_and_digits) for i in range(7))
+                record.ref_odoo = "rc_" + ref_odoo
 
     def generate_code(self):
         """Generating default code for ek products"""
