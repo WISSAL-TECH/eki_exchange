@@ -498,20 +498,15 @@ class EkiProduct(models.Model):
 
     @api.model
     def create(self, vals):
-        # Generate the name for the product variant
-        values = []
+        # Appeler la méthode de création de la classe parente
         ref = self.generate_code()
         vals['reference'] = self.generate_code()
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
-        for value in vals.get('product_template_attribute_value_ids', []):
-            values.append(value.get('name'))
-        name = self.generate_name_variante(vals.get('name'), vals.get('reference'), values)
-
-        # Update the name field in the values dictionary
-        vals['name'] = name
-
-        # Call the create method of the parent class
         rec = super(EkiProduct, self).create(vals)
+        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
+        rec.write({'reference': ref})
+        name = self.generate_name(vals)
+        rec.write({'name': name})
 
         return rec
 
