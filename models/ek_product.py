@@ -203,8 +203,9 @@ class Product(models.Model):
                     values = []
                     for value in record.product_template_attribute_value_ids:
                         values.append(value.name)
-                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
-                                                         values)
+                    name = record.generate_name_variante(rec.name, rec.constructor_ref, values)
+                    record.write({'name': name})
+
                     configuration = {
                         'name': name,
                         "description": '',
@@ -523,7 +524,7 @@ class EkiProduct(models.Model):
         url_activate_product = "/api/odoo/products/configuration/activate/"
         url_update_product = "/api/odoo/products/configuration"
 
-        _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+        _logger.info('\n\n\n update VARIANTE \n\n\n\n--->>  %s\n\n\n\n', vals)
 
         for rec in self:
             name = rec.generate_name(vals)
