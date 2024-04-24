@@ -205,6 +205,8 @@ class Product(models.Model):
                         values.append(value.name)
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
+                    record.write({'name_store': name})
+
                     configuration = {
                         'name': name,
                         "description": '',
@@ -409,6 +411,7 @@ class EkiProduct(models.Model):
     certificate_url = fields.Char("Certificate URL")
     image_url = fields.Char()
     image_count = fields.Float()
+    name_store = fields.Char("name")
 
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
@@ -433,6 +436,9 @@ class EkiProduct(models.Model):
             # Update the product record with the S3 image URL
             return s3_url
 
+    @api.onchange('name_store')
+    def _onchange_name(self):
+        self.name = self.name_store
     @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
