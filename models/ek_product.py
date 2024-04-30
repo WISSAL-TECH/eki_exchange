@@ -204,7 +204,7 @@ class Product(models.Model):
                         values.append(value.name)
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
-                    record.write({'name_store': name})
+                    #record.write({'name_store': name})
 
                     configuration = {
                         'name': name,
@@ -512,15 +512,9 @@ class EkiProduct(models.Model):
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
-        ref = self.generate_code()
         vals['reference'] = self.generate_code()
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
-        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
-        rec.write({'reference': ref})
-        name = self.generate_name(vals)
-        rec.write({'name': name})
-
         return rec
 
     def write(self, vals):
@@ -539,10 +533,7 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
 
         if 'create_by' in vals and vals['create_by'] != "odoo":
-            if 'name_store' in vals and vals['name_store']:
-                _logger.info('\n\n\n name store (product.product)\n\n\n\n--->>  %s\n\n\n\n', vals['name'])
-                return super(EkiProduct, self).write(vals)
-
+            pass
         else:
             for rec in self:
                 name = rec.generate_name(vals)
