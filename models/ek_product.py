@@ -284,75 +284,75 @@ class Product(models.Model):
 
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+        if 'create_by' in vals and vals['create_by']== "odoo":
+            rec = super(Product, self).write(vals)
+            brand_name = self.brand_id.name if self.brand_id else ''
+            if "brand_id" in vals:
+                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
+                brand_name = brand.name if brand else self.brand_id.name
 
-        rec = super(Product, self).write(vals)
-        brand_name = self.brand_id.name if self.brand_id else ''
-        if "brand_id" in vals:
-            brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
-            brand_name = brand.name if brand else self.brand_id.name
+            categ_name = self.categ_id.name
+            if "categ_id" in vals:
+                categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
+                categ_name = categ.name if categ else self.brand_id.name
 
-        categ_name = self.categ_id.name
-        if "categ_id" in vals:
-            categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
-            categ_name = categ.name if categ else self.brand_id.name
+            # sending update to ekiclik
+            data = {
+                "name": vals.get("name", "") if vals.get("name") else self.name,
+                "description": vals.get("description", "") if vals.get("description") else "",
+                "categoryName": categ_name,
+                "brand": {
+                    "name": brand_name,
+                    "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
+                },
+                "refConstructor": vals.get("constructor_ref", "") if vals.get(
+                    "constructor_ref") else self.constructor_ref,
+                "manufactureName": vals.get("manufacture_name", "") if vals.get(
+                    "manufacture_name") else self.manufacture_name,
+                "activate": True,
+                # "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
+                "ref_odoo": vals.get("ref_odoo", "") if vals.get(
+                    "ref_odoo") else self.ref_odoo,
+            }
 
-        # sending update to ekiclik
-        data = {
-            "name": vals.get("name", "") if vals.get("name") else self.name,
-            "description": vals.get("description", "") if vals.get("description") else "",
-            "categoryName": categ_name,
-            "brand": {
-                "name": brand_name,
-                "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
-            },
-            "refConstructor": vals.get("constructor_ref", "") if vals.get(
-                "constructor_ref") else self.constructor_ref,
-            "manufactureName": vals.get("manufacture_name", "") if vals.get(
-                "manufacture_name") else self.manufacture_name,
-            "activate": True,
-            # "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
-            "ref_odoo": vals.get("ref_odoo", "") if vals.get(
-                "ref_odoo") else self.ref_odoo,
-        }
-
-        _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n', data)
-        response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
-                                headers=self.headers)
-        _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                     response.content)
-        response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+            _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n', data)
+            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
                                     headers=self.headers)
-        _logger.info('\n\n\n(update product) response from eki  CPA\n\n\n\n--->  %s\n\n\n\n',
-                     response_cpa.content)
-
-        if "active" in vals and vals["active"] == False:
-            # send archive product to ekiclik
-            _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
-            response = requests.patch(str(domain) + str(url_archive_product) + str(self.ref_odoo),
-                                      headers=self.headers)
-
-            _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+            _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
                          response.content)
-            response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(self.ref_odoo),
-                                          headers=self.headers)
-
-            _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
-                         response_cpa.content)
-        elif "active" in vals and vals["active"] == True:
-            # send activate product to ekiclik
-            _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
-            response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
-                                      headers=self.headers)
-
-            _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                         response.content)
-            response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + "rc_" + str(self.id),
-                                          headers=self.headers)
-
-            _logger.info('\n\n\n(activate product) response from eki cpa\n\n\n\n--->  %s\n\n\n\n',
+            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                                        headers=self.headers)
+            _logger.info('\n\n\n(update product) response from eki  CPA\n\n\n\n--->  %s\n\n\n\n',
                          response_cpa.content)
 
-        return rec
+            if "active" in vals and vals["active"] == False:
+                # send archive product to ekiclik
+                _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_archive_product) + str(self.ref_odoo),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(self.ref_odoo),
+                                              headers=self.headers)
+
+                _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+            elif "active" in vals and vals["active"] == True:
+                # send activate product to ekiclik
+                _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + "rc_" + str(self.id),
+                                              headers=self.headers)
+
+                _logger.info('\n\n\n(activate product) response from eki cpa\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+
+            return rec
 
 
 class EkiProduct(models.Model):
