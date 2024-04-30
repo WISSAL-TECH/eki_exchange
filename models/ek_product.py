@@ -268,6 +268,8 @@ class Product(models.Model):
     #    attach.write({'url': url})
 
     def write(self, vals):
+        _logger.info(
+            '\n\n\n context\n\n\n\n--->> %s \n\n\n\n', self._context)
         domain = ""
         domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
