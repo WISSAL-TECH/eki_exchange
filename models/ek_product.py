@@ -284,7 +284,7 @@ class Product(models.Model):
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
             _logger.info(
-                '\n\n\ncreate_by\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
+                '\n\n\ncreate_by (product.template)\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
             if 'barcode' in vals and not vals['barcode']:
                 vals.pop('barcode')
 
@@ -533,7 +533,7 @@ class EkiProduct(models.Model):
 
         if 'create_by' in vals and vals['create_by'] != "odoo":
             if 'name' in vals and vals['name']:
-                _logger.info('\n\n\n name\n\n\n\n--->>  %s\n\n\n\n', vals['name'])
+                _logger.info('\n\n\n name (product.product)\n\n\n\n--->>  %s\n\n\n\n', vals['name'])
                 return super(EkiProduct, self).write(vals)
 
         else:
