@@ -533,7 +533,9 @@ class EkiProduct(models.Model):
 
         if 'create_by' in vals and vals['create_by'] != "odoo":
             if 'name' in vals and vals['name']:
+                _logger.info('\n\n\n name\n\n\n\n--->>  %s\n\n\n\n', vals['name'])
                 return super(EkiProduct, self).write(vals)
+
         else:
             for rec in self:
                 name = rec.generate_name(vals)
