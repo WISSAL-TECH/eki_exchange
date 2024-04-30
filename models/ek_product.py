@@ -541,8 +541,8 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
 
         if 'create_by' in vals and vals['create_by'] != "odoo":
-            if 'name' in vals and vals['name']:
-                _logger.info('\n\n\n name (product.product)\n\n\n\n--->>  %s\n\n\n\n', vals['name'])
+            if 'name_store' in vals and vals['name_store']:
+                _logger.info('\n\n\n name store (product.product)\n\n\n\n--->>  %s\n\n\n\n', vals['name'])
                 return super(EkiProduct, self).write(vals)
 
         else:
