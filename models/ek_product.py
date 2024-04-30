@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
+    ref_odoo = fields.Char("ref odoo")
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -131,6 +131,8 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
+            rec.ref_odoo = "rc_" + str(rec.id)
+
 
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
@@ -413,7 +415,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
+    ref_odoo = fields.Char("ref odoo")
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -447,9 +449,6 @@ class EkiProduct(models.Model):
     @api.depends('name_store', 'name')
     def _onchange_name(self):
         self.name = self.name_store
-    def _compute_ref_odoo(self):
-        for record in self:
-            record.ref_odoo = "rc_variante_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -515,6 +514,9 @@ class EkiProduct(models.Model):
         vals['reference'] = self.generate_code()
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
+        rec.ref_odoo = "rc_variante_" + str(rec.id)
+        _logger.info('\n\n\n ref_odoo variante\n\n\n\n--->  %s\n\n\n\n', rec.ref_odoo)
+
         return rec
 
     def write(self, vals):
