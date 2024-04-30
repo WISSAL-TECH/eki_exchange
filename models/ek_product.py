@@ -534,159 +534,159 @@ class EkiProduct(models.Model):
         if 'create_by' in vals and vals['create_by'] != "odoo":
             if 'name' in vals and vals['name']:
                 return super(EkiProduct, self).write(vals)
+        else:
+            for rec in self:
+                name = rec.generate_name(vals)
 
-        for rec in self:
-            name = rec.generate_name(vals)
+            for rec in self:
+                origin_product = rec.product_tmpl_id
+                # if not name :
+                # name = origin_product.name
+                # _logger.info('N A M E from product %s', name)
+                numeric_value = 0
+                if rec.tax_string:
+                    pattern = r'(\d[\d\s,.]+)'
 
-        for rec in self:
-            origin_product = rec.product_tmpl_id
-            # if not name :
-            # name = origin_product.name
-            # _logger.info('N A M E from product %s', name)
-            numeric_value = 0
-            if rec.tax_string:
-                pattern = r'(\d[\d\s,.]+)'
+                    # Use the findall function to extract all matches
+                    matches = re.findall(pattern, rec.tax_string)
 
-                # Use the findall function to extract all matches
-                matches = re.findall(pattern, rec.tax_string)
+                    # Join the matches into a single string (if there are multiple matches)
+                    numeric_value = ''.join(matches)
 
-                # Join the matches into a single string (if there are multiple matches)
-                numeric_value = ''.join(matches)
+                    # Replace commas with dots (if necessary)
+                    numeric_value = numeric_value.replace(',', '.')
 
-                # Replace commas with dots (if necessary)
-                numeric_value = numeric_value.replace(',', '.')
+                    # Remove non-breaking space characters
+                    numeric_value = numeric_value.replace('\xa0', '')
+                elif 'tax_string' in vals and vals['tax_string']:
+                    pattern = r'(\d[\d\s,.]+)'
 
-                # Remove non-breaking space characters
-                numeric_value = numeric_value.replace('\xa0', '')
-            elif 'tax_string' in vals and vals['tax_string']:
-                pattern = r'(\d[\d\s,.]+)'
+                    # Use the findall function to extract all matches
+                    matches = re.findall(pattern, vals['tax_string'])
 
-                # Use the findall function to extract all matches
-                matches = re.findall(pattern, vals['tax_string'])
+                    # Join the matches into a single string (if there are multiple matches)
+                    numeric_value = ''.join(matches)
 
-                # Join the matches into a single string (if there are multiple matches)
-                numeric_value = ''.join(matches)
+                    # Replace commas with dots (if necessary)
+                    numeric_value = numeric_value.replace(',', '.')
 
-                # Replace commas with dots (if necessary)
-                numeric_value = numeric_value.replace(',', '.')
+                    # Remove non-breaking space characters
+                    numeric_value = numeric_value.replace('\xa0', '')
+                else:
+                    numeric_value = vals['lst_price']
+                if 'certificate' in vals:
+                    # Extract the binary data from the 'certificate' field
+                    certificate_data = vals.pop('certificate')
 
-                # Remove non-breaking space characters
-                numeric_value = numeric_value.replace('\xa0', '')
-            else:
-                numeric_value = vals['lst_price']
-            if 'certificate' in vals:
-                # Extract the binary data from the 'certificate' field
-                certificate_data = vals.pop('certificate')
+                    # Create an attachment record
+                    attachment = self.env['ir.attachment'].create({
+                        'name': 'Certificate Attachment',  # Set the name of the attachment as desired
+                        'datas': certificate_data,
+                        'res_model': self._name,
+                        'res_id': rec.id,
+                    })
 
-                # Create an attachment record
-                attachment = self.env['ir.attachment'].create({
-                    'name': 'Certificate Attachment',  # Set the name of the attachment as desired
-                    'datas': certificate_data,
-                    'res_model': self._name,
-                    'res_id': rec.id,
-                })
+                    # Obtain the URL of the attachment
+                    certificate_url = rec.create_doc_url(attachment)
 
-                # Obtain the URL of the attachment
-                certificate_url = rec.create_doc_url(attachment)
+                    # Update the 'certificate_url' field with the URL
+                    vals['certificate_url'] = certificate_url
 
-                # Update the 'certificate_url' field with the URL
-                vals['certificate_url'] = certificate_url
+                if 'image_1920' in vals:
+                    if vals['image_1920']:
+                        s3 = boto3.client('s3',
+                                          aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
+                                          aws_secret_access_key='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',
+                                          region_name='eu-west-2'
+                                          )
+                        bucket = "imtech-product"
+                        # Get the binary data from the binary field
+                        image_data = vals['image_1920']
 
-            if 'image_1920' in vals:
-                if vals['image_1920']:
-                    s3 = boto3.client('s3',
-                                      aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
-                                      aws_secret_access_key='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',
-                                      region_name='eu-west-2'
-                                      )
-                    bucket = "imtech-product"
-                    # Get the binary data from the binary field
-                    image_data = vals['image_1920']
+                        # Ensure image_data is in bytes format
+                        if isinstance(image_data, str):
+                            image_data = image_data.encode()
 
-                    # Ensure image_data is in bytes format
-                    if isinstance(image_data, str):
-                        image_data = image_data.encode()
+                        # Convert the image binary data to a BytesIO object
+                        image_fileobj = BytesIO(image_data)
 
-                    # Convert the image binary data to a BytesIO object
-                    image_fileobj = BytesIO(image_data)
+                        # Continue with the rest of the code
+                        logging.warning('self')
 
-                    # Continue with the rest of the code
-                    logging.warning('self')
+                        # Generate a unique S3 key for the image
+                        s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
+                        s3_key_encoded = quote(s3_key)
 
-                    # Generate a unique S3 key for the image
-                    s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
-                    s3_key_encoded = quote(s3_key)
+                        # Upload the image to S3
+                        s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
 
-                    # Upload the image to S3
-                    s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
+                        # Construct the S3 image URL
+                        s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
 
-                    # Construct the S3 image URL
-                    s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+                        # Update the product record with the S3 image URL
+                        self.with_context(no_send_data=True).write({'image_url': s3_url})
+                        self.image_count += 1
 
-                    # Update the product record with the S3 image URL
-                    self.with_context(no_send_data=True).write({'image_url': s3_url})
-                    self.image_count += 1
-
-            no_image_image = rec.image_url if rec.image_url else ""
-            no_certificate_url = rec.certificate_url if rec.certificate_url else ""
-            data = {
-                "name": name,
-                "reference": vals["reference"] if "reference" in vals else rec.reference,
-                "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
-                "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
-                "buyingPrice": vals["standard_price"] if "standard_price" in vals else rec.standard_price,
-                "state": '',
-                "productCharacteristics": [],
-                "active": True,
-                "description": vals["description"] if "description" in vals else rec.description,
-                "certificateUrl": vals['certificate_url'] if 'certificate_url' in vals else no_certificate_url,
-                "images": vals['image_url'] if 'image_url' in vals else no_image_image,
-                # "oldRef": vals["reference"] if "reference" in vals else "",
-                "ref_odoo": rec.ref_odoo
-            }
-            for value in rec.product_template_attribute_value_ids:
-                product_characteristic = {
-                    "name": value.attribute_id.name if value.attribute_id else '',
-                    "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                no_image_image = rec.image_url if rec.image_url else ""
+                no_certificate_url = rec.certificate_url if rec.certificate_url else ""
+                data = {
+                    "name": name,
+                    "reference": vals["reference"] if "reference" in vals else rec.reference,
+                    "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
+                    "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
+                    "buyingPrice": vals["standard_price"] if "standard_price" in vals else rec.standard_price,
+                    "state": '',
+                    "productCharacteristics": [],
+                    "active": True,
+                    "description": vals["description"] if "description" in vals else rec.description,
+                    "certificateUrl": vals['certificate_url'] if 'certificate_url' in vals else no_certificate_url,
+                    "images": vals['image_url'] if 'image_url' in vals else no_image_image,
+                    # "oldRef": vals["reference"] if "reference" in vals else "",
+                    "ref_odoo": rec.ref_odoo
                 }
-                data["productCharacteristics"].append(product_characteristic)
+                for value in rec.product_template_attribute_value_ids:
+                    product_characteristic = {
+                        "name": value.attribute_id.name if value.attribute_id else '',
+                        "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                    }
+                    data["productCharacteristics"].append(product_characteristic)
 
-            _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
-            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
-                                    headers=self.headers)
-
-            _logger.info('\n\n\n(update variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                         response.content)
-            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
+                response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
                                         headers=self.headers)
 
-            _logger.info('\n\n\n(update variante) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
-                         response_cpa.content)
-            if "active" in vals and vals["active"] == False:
-                # send archive product to ekiclik
-                _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.ref_odoo),
-                                          headers=self.headers)
-
-                _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                _logger.info('\n\n\n(update variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
                              response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.ref_odoo),
+                response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                                            headers=self.headers)
+
+                _logger.info('\n\n\n(update variante) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+                if "active" in vals and vals["active"] == False:
+                    # send archive product to ekiclik
+                    _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
+                    response = requests.patch(str(domain) + str(url_archive_product) + str(rec.ref_odoo),
                                               headers=self.headers)
 
-                _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
-                             response_cpa.content)
-            if "active" in vals and vals["active"] == True:
-                # send activate product to ekiclik
-                _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.ref_odoo),
-                                          headers=self.headers)
+                    _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                                 response.content)
+                    response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.ref_odoo),
+                                                  headers=self.headers)
 
-                _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                             response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.ref_odoo),
+                    _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
+                                 response_cpa.content)
+                if "active" in vals and vals["active"] == True:
+                    # send activate product to ekiclik
+                    _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
+                    response = requests.patch(str(domain) + str(url_activate_product) + str(rec.ref_odoo),
                                               headers=self.headers)
 
-                _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
-                             response_cpa.content)
+                    _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                                 response.content)
+                    response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.ref_odoo),
+                                                  headers=self.headers)
 
-        return super(EkiProduct, self).write(vals)
+                    _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                                 response_cpa.content)
+
+            return super(EkiProduct, self).write(vals)
