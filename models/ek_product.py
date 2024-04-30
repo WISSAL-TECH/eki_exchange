@@ -496,7 +496,7 @@ class EkiProduct(models.Model):
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
         random_number = random.randint(100000, 999999)
-        vals["ref_odoo"] = "rc_" + str(random_number)
+        vals["ref_odoo"] = "rc_variante" + str(random_number)
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
         return rec
