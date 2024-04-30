@@ -211,7 +211,7 @@ class Product(models.Model):
                     configuration = {
                         'name': name,
                         "description": '',
-                        "reference": rec.reference if rec.reference else record.constructor_ref,
+                        "reference": record.reference if record.reference else rec.constructor_ref,
                         "price": record.lst_price,
                         "buyingPrice": rec.standard_price,
                         "productCharacteristics": [],
