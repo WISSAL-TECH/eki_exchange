@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo")
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -59,6 +59,7 @@ class Product(models.Model):
         for record in self:
             record.certificate_url = ''
 
+    @api.depends('ref_odoo')
     def _compute_ref_odoo(self):
         for record in self:
             record.ref_odoo = "rc_" + str(record.id)
@@ -131,8 +132,6 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            rec.ref_odoo = "rc_" + str(rec.id)
-
 
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
@@ -206,12 +205,12 @@ class Product(models.Model):
                         values.append(value.name)
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
-                    #record.write({'name_store': name})
+                    record.write({'name_store': name})
 
                     configuration = {
                         'name': name,
                         "description": '',
-                        "reference": record.reference if record.reference else rec.constructor_ref,
+                        "reference": record.constructor_ref if record.constructor_ref else '',
                         "price": record.lst_price,
                         "buyingPrice": rec.standard_price,
                         "productCharacteristics": [],
@@ -269,8 +268,6 @@ class Product(models.Model):
     #    attach.write({'url': url})
 
     def write(self, vals):
-        _logger.info(
-            '\n\n\n context\n\n\n\n--->> %s \n\n\n\n', self._context)
         domain = ""
         domain_cpa = ""
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
@@ -287,11 +284,11 @@ class Product(models.Model):
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
             _logger.info(
-                '\n\n\ncreate_by (product.template)\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
+                '\n\n\ncreate_by\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
             if 'barcode' in vals and not vals['barcode']:
                 vals.pop('barcode')
-            _logger.info(
-                '\n\n\n update 1\n\n\n\n--->> \n\n\n\n')
+
+            vals['create_by'] = "Ekiclik"
             if "brand" in vals and vals["brand"]:
                 brand = self.env['product.brand'].search([('name', '=', vals['brand'])])
                 if brand:
@@ -301,15 +298,12 @@ class Product(models.Model):
                         'name': vals['brand']
                     })
                     vals['brand_id'] = brand.id
-                vals.pop('brand')
-            _logger.info(
-                '\n\n\n update 2\n\n\n\n--->> \n\n\n\n')
+            vals.pop('brand')
             pattern = r'(\d[\d\s,.]+)'
 
             if "list_price" in vals and not vals["list_price"]:
                 vals.pop('list_price')
-            _logger.info(
-                '\n\n\n update 3\n\n\n\n--->> \n\n\n\n')
+
             if 'category' in vals and vals['category']:
                 # Get the category record
                 category = self.env['product.category'].search([('name', '=', vals['category'])])
@@ -320,16 +314,12 @@ class Product(models.Model):
                         'name': vals['category']
                     })
                     vals['categ_id'] = category.id
-                vals.pop('category')
-            _logger.info(
-                '\n\n\n update 4\n\n\n\n--->> \n\n\n\n')
+            vals.pop('category')
             # GET IMAGE URL AND AUTOMATICALLY DISPLAY IT ON ODOO
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
                 vals.pop("image_url")
-            _logger.info(
-                '\n\n\n update 5\n\n\n\n--->> \n\n\n\n')
             _logger.info(
                 '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
             rec = super(Product, self).write(vals)
@@ -415,7 +405,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo")
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -446,9 +436,13 @@ class EkiProduct(models.Model):
             # Update the product record with the S3 image URL
             return s3_url
 
-    @api.onchange('name_store')
+    @api.depends('name_store', 'name')
     def _onchange_name(self):
         self.name = self.name_store
+    @api.depends('ref_odoo')
+    def _compute_ref_odoo(self):
+        for record in self:
+            record.ref_odoo = "rc_variante_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -468,19 +462,57 @@ class EkiProduct(models.Model):
 
         if ref:
             name += ' ' + ref
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
         if variante:
             for v in variante:
                 name += ' ' + str(v)
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        return name
+
+    def generate_name(self, vals):
+        """Generating name for ek products"""
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
+        # _logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
+        # _logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
+        name = ''
+        if "name" in vals and vals['name'] or self.name:
+            name = vals['name'] if "name" in vals and vals['name'] else self.name
+
+        # Iterate through each record in the Many2Many field
+        for variant_value in self.product_template_variant_value_ids:
+            name += ' ' + str(variant_value.name)
+            _logger.info('\n\n\n  NAME with variantes\n\n\n\n--->  %s\n\n\n\n', name)
+
+        # Add brand name if exists
+        # name += ' ' + str(self.brand_id.name) if self.brand_id else ''
+
+        # Add default code if exists
+        if "reference" in vals and vals["reference"]:
+            name += ' ' + vals["reference"]
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        elif self.reference:
+            name += ' ' + str(self.reference)
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
         return name
 
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
+        ref = self.generate_code()
+        vals['reference'] = self.generate_code()
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
-        rec.reference = rec.generate_code()
-        rec.ref_odoo = "rc_variante_" + str(rec.id)
-        _logger.info('\n\n\n ref_odoo variante\n\n\n\n--->  %s\n\n\n\n', rec.ref_odoo)
+        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
+        rec.write({'reference': ref})
+        name = self.generate_name(vals)
+        rec.write({'name': name})
 
         return rec
 
@@ -498,6 +530,9 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+
+        for rec in self:
+            name = rec.generate_name(vals)
 
         for rec in self:
             origin_product = rec.product_tmpl_id
@@ -591,7 +626,7 @@ class EkiProduct(models.Model):
             no_image_image = rec.image_url if rec.image_url else ""
             no_certificate_url = rec.certificate_url if rec.certificate_url else ""
             data = {
-                "name": vals["name"] if "name" in vals else rec.name,
+                "name": name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                 "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
