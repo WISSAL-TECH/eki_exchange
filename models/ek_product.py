@@ -595,7 +595,7 @@ class EkiProduct(models.Model):
                 no_image_image = rec.image_url if rec.image_url else ""
                 no_certificate_url = rec.certificate_url if rec.certificate_url else ""
                 data = {
-                    "name": name,
+                    "name": vals["name"] if "name" in vals else rec.name,
                     "reference": vals["reference"] if "reference" in vals else rec.reference,
                     "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                     "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
