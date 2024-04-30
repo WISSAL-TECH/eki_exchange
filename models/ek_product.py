@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo")
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -58,11 +58,6 @@ class Product(models.Model):
     def _compute_certificate_url(self):
         for record in self:
             record.certificate_url = ''
-
-    @api.depends('ref_odoo')
-    def _compute_ref_odoo(self):
-        for record in self:
-            record.ref_odoo = "rc_" + str(record.id)
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -132,6 +127,7 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
+            rec.ref_odoo = "rc_" + str(rec.id)
 
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
@@ -210,7 +206,7 @@ class Product(models.Model):
                     configuration = {
                         'name': name,
                         "description": '',
-                        "reference": record.constructor_ref if record.constructor_ref else '',
+                        "reference": record.reference if record.reference else rec.constructor_ref,
                         "price": record.lst_price,
                         "buyingPrice": rec.standard_price,
                         "productCharacteristics": [],
@@ -405,7 +401,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo")
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -439,10 +435,6 @@ class EkiProduct(models.Model):
     @api.onchange('name_store')
     def _onchange_name(self):
         self.name = self.name_store
-    @api.depends('ref_odoo')
-    def _compute_ref_odoo(self):
-        for record in self:
-            record.ref_odoo = "rc_variante_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -505,14 +497,10 @@ class EkiProduct(models.Model):
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
-        ref = self.generate_code()
-        vals['reference'] = self.generate_code()
-        _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
         _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
-        rec.write({'reference': ref})
-        name = self.generate_name(vals)
-        rec.write({'name': name})
+        rec.ref_odoo = "rc_variante_" + str(rec.id)
+        rec.reference = rec.generate_code()
 
         return rec
 
