@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo")
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -59,10 +59,6 @@ class Product(models.Model):
         for record in self:
             record.certificate_url = ''
 
-    @api.depends('ref_odoo')
-    def _compute_ref_odoo(self):
-        for record in self:
-            record.ref_odoo = "rc_" + str(record.id)
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -130,6 +126,8 @@ class Product(models.Model):
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
                 vals.pop("image_url")
+            random_number = random.randint(100000, 999999)
+            vals["ref_odoo"] = "rc_" + random_number
 
             rec = super(Product, self).create(vals)
 
