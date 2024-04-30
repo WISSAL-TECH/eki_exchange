@@ -468,44 +468,9 @@ class EkiProduct(models.Model):
 
         if ref:
             name += ' ' + ref
-            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
         if variante:
             for v in variante:
                 name += ' ' + str(v)
-            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
-
-        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
-
-        return name
-
-    def generate_name(self, vals):
-        """Generating name for ek products"""
-        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n')
-        # _logger.info('\n\n\n vals NAME\n\n\n\n--->  %s\n\n\n\n',vals["name"])
-        # _logger.info('\n\n\n self NAME\n\n\n\n--->  %s\n\n\n\n',self.name)
-        name = ''
-        if "name" in vals and vals['name'] or self.name:
-            name = vals['name'] if "name" in vals and vals['name'] else self.name
-
-        # Iterate through each record in the Many2Many field
-        for variant_value in self.product_template_variant_value_ids:
-            name += ' ' + str(variant_value.name)
-            _logger.info('\n\n\n  NAME with variantes\n\n\n\n--->  %s\n\n\n\n', name)
-
-        # Add brand name if exists
-        # name += ' ' + str(self.brand_id.name) if self.brand_id else ''
-
-        # Add default code if exists
-        if "reference" in vals and vals["reference"]:
-            name += ' ' + vals["reference"]
-            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
-
-        elif self.reference:
-            name += ' ' + str(self.reference)
-            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
-
-        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
-
         return name
 
     @api.model
@@ -537,8 +502,6 @@ class EkiProduct(models.Model):
         if 'create_by' in vals and vals['create_by'] != "odoo":
             pass
         else:
-            for rec in self:
-                name = rec.generate_name(vals)
 
             for rec in self:
                 origin_product = rec.product_tmpl_id
