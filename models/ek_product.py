@@ -318,7 +318,7 @@ class Product(models.Model):
                         'name': vals['category']
                     })
                     vals['categ_id'] = category.id
-            vals.pop('category')
+                vals.pop('category')
             _logger.info(
                 '\n\n\n update 4\n\n\n\n--->> \n\n\n\n')
             # GET IMAGE URL AND AUTOMATICALLY DISPLAY IT ON ODOO
