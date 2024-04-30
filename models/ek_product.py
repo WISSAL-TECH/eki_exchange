@@ -287,7 +287,8 @@ class Product(models.Model):
                 '\n\n\ncreate_by (product.template)\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
             if 'barcode' in vals and not vals['barcode']:
                 vals.pop('barcode')
-
+            _logger.info(
+                '\n\n\n update 1\n\n\n\n--->> \n\n\n\n')
             vals['create_by'] = "Ekiclik"
             if "brand" in vals and vals["brand"]:
                 brand = self.env['product.brand'].search([('name', '=', vals['brand'])])
@@ -299,11 +300,14 @@ class Product(models.Model):
                     })
                     vals['brand_id'] = brand.id
             vals.pop('brand')
+            _logger.info(
+                '\n\n\n update 2\n\n\n\n--->> \n\n\n\n')
             pattern = r'(\d[\d\s,.]+)'
 
             if "list_price" in vals and not vals["list_price"]:
                 vals.pop('list_price')
-
+            _logger.info(
+                '\n\n\n update 3\n\n\n\n--->> \n\n\n\n')
             if 'category' in vals and vals['category']:
                 # Get the category record
                 category = self.env['product.category'].search([('name', '=', vals['category'])])
@@ -315,11 +319,15 @@ class Product(models.Model):
                     })
                     vals['categ_id'] = category.id
             vals.pop('category')
+            _logger.info(
+                '\n\n\n update 4\n\n\n\n--->> \n\n\n\n')
             # GET IMAGE URL AND AUTOMATICALLY DISPLAY IT ON ODOO
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
                 vals.pop("image_url")
+            _logger.info(
+                '\n\n\n update 5\n\n\n\n--->> \n\n\n\n')
             _logger.info(
                 '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
             rec = super(Product, self).write(vals)
