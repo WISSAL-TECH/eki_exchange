@@ -436,7 +436,7 @@ class EkiProduct(models.Model):
             # Update the product record with the S3 image URL
             return s3_url
 
-    @api.depends('name_store', 'name')
+    @api.onchange('name_store')
     def _onchange_name(self):
         self.name = self.name_store
     @api.depends('ref_odoo')
