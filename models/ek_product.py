@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo")
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -58,6 +58,11 @@ class Product(models.Model):
     def _compute_certificate_url(self):
         for record in self:
             record.certificate_url = ''
+
+    @api.depends('ref_odoo')
+    def _compute_ref_odoo(self):
+        for record in self:
+            record.ref_odoo = "rc_" + str(record.id)
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -127,7 +132,6 @@ class Product(models.Model):
                 vals.pop("image_url")
 
             rec = super(Product, self).create(vals)
-            rec.ref_odoo = "rc_" + str(rec.id)
 
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
@@ -401,7 +405,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo")
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -435,6 +439,10 @@ class EkiProduct(models.Model):
     @api.onchange('name_store')
     def _onchange_name(self):
         self.name = self.name_store
+    @api.depends('ref_odoo')
+    def _compute_ref_odoo(self):
+        for record in self:
+            record.ref_odoo = "rc_variante_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -497,11 +505,9 @@ class EkiProduct(models.Model):
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
-        rec = super(EkiProduct, self).create(vals)
-        _logger.info('\n\n\n product created\n\n\n\n--->  %s\n\n\n\n', vals)
-        rec.ref_odoo = "rc_variante_" + str(rec.id)
-        rec.reference = rec.generate_code()
 
+        _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
+        rec = super(EkiProduct, self).create(vals)
         return rec
 
     def write(self, vals):
@@ -518,9 +524,6 @@ class EkiProduct(models.Model):
         url_update_product = "/api/odoo/products/configuration"
 
         _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-
-        for rec in self:
-            name = rec.generate_name(vals)
 
         for rec in self:
             origin_product = rec.product_tmpl_id
@@ -614,7 +617,7 @@ class EkiProduct(models.Model):
             no_image_image = rec.image_url if rec.image_url else ""
             no_certificate_url = rec.certificate_url if rec.certificate_url else ""
             data = {
-                "name": name,
+                "name": vals['name'] if name in vals else rec.name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                 "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
