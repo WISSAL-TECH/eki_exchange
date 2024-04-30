@@ -403,7 +403,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo")
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -433,14 +433,6 @@ class EkiProduct(models.Model):
 
             # Update the product record with the S3 image URL
             return s3_url
-
-    @api.onchange('name_store')
-    def _onchange_name(self):
-        self.name = self.name_store
-    @api.depends('ref_odoo')
-    def _compute_ref_odoo(self):
-        for record in self:
-            record.ref_odoo = "rc_variante_" + str(record.id)
 
     def generate_code(self):
         """Generating default code for ek products"""
@@ -503,7 +495,8 @@ class EkiProduct(models.Model):
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
-
+        random_number = random.randint(100000, 999999)
+        vals["ref_odoo"] = "rc_" + random_number
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
         return rec
