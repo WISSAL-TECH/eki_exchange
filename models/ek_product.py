@@ -59,7 +59,6 @@ class Product(models.Model):
         for record in self:
             record.certificate_url = ''
 
-    @api.depends('id')
     def _compute_ref_odoo(self):
         for record in self:
             record.ref_odoo = "rc_" + str(record.id)
@@ -448,7 +447,6 @@ class EkiProduct(models.Model):
     @api.depends('name_store', 'name')
     def _onchange_name(self):
         self.name = self.name_store
-    @api.depends('id')
     def _compute_ref_odoo(self):
         for record in self:
             record.ref_odoo = "rc_variante_" + str(record.id)
