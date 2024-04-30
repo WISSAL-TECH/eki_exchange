@@ -299,7 +299,7 @@ class Product(models.Model):
                         'name': vals['brand']
                     })
                     vals['brand_id'] = brand.id
-            vals.pop('brand')
+                vals.pop('brand')
             _logger.info(
                 '\n\n\n update 2\n\n\n\n--->> \n\n\n\n')
             pattern = r'(\d[\d\s,.]+)'
