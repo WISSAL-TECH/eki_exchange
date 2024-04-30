@@ -30,7 +30,7 @@ class Product(models.Model):
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
     constructor_ref = fields.Char("Réference constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
@@ -59,7 +59,7 @@ class Product(models.Model):
         for record in self:
             record.certificate_url = ''
 
-    @api.depends('ref_odoo')
+    @api.depends('id')
     def _compute_ref_odoo(self):
         for record in self:
             record.ref_odoo = "rc_" + str(record.id)
@@ -414,7 +414,7 @@ class EkiProduct(models.Model):
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
     reference = fields.Char(string='Réference', required=True)
-    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo')
+    ref_odoo = fields.Char("ref odoo", compute='_compute_ref_odoo', store=True)
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL")
@@ -448,7 +448,7 @@ class EkiProduct(models.Model):
     @api.depends('name_store', 'name')
     def _onchange_name(self):
         self.name = self.name_store
-    @api.depends('ref_odoo')
+    @api.depends('id')
     def _compute_ref_odoo(self):
         for record in self:
             record.ref_odoo = "rc_variante_" + str(record.id)
