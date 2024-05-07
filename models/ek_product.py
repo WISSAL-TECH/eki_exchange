@@ -552,6 +552,11 @@ class EkiProduct(models.Model):
                 numeric_value = numeric_value.replace('\xa0', '')
             else:
                 numeric_value = vals['lst_price']
+            if 'certificate_url' in vals:
+                url_base64 = base64.b64encode(vals['certificate_url']('utf-8'))
+
+                # Store Base64 in Binary Field
+                rec.certificate = url_base64
             if 'certificate' in vals:
                 # Extract the binary data from the 'certificate' field
                 certificate_data = vals.pop('certificate')
