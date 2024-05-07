@@ -553,10 +553,11 @@ class EkiProduct(models.Model):
             else:
                 numeric_value = vals['lst_price']
             if 'certificate_url' in vals:
-                url_base64 = base64.b64encode(vals['certificate_url'].encode('utf-8'))
-
-                # Store Base64 in Binary Field
-                vals['certificate'] = url_base64
+                url = vals['certificate_url']
+                response = requests.get(url)
+                if response.status_code == 200:
+                    # Store PDF binary content in the binary field
+                    vals['certificate'] = base64.b64encode(response.content)
                 _logger.info('\n\n\n giving value to certificate from certificate_url\n\n\n\n')
 
             if 'certificate' in vals and 'certificate_url' not in vals:
