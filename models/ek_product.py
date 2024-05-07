@@ -556,12 +556,12 @@ class EkiProduct(models.Model):
                 url_base64 = base64.b64encode(vals['certificate_url'].encode('utf-8'))
 
                 # Store Base64 in Binary Field
-                rec.certificate = url_base64
+                vals['certificate'] = url_base64
                 _logger.info('\n\n\n giving value to certificate from certificate_url\n\n\n\n')
 
-            if 'certificate' in vals:
+            if 'certificate' in vals and 'certificate_url' not in vals:
                 # Extract the binary data from the 'certificate' field
-                certificate_data = vals.pop('certificate')
+                certificate_data = vals['certificate']
 
                 # Create an attachment record
                 attachment = self.env['ir.attachment'].create({
