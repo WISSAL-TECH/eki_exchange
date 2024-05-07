@@ -47,6 +47,23 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
+    @api.model
+    def generate_unique_reference(self):
+        # Generate 5 random letters
+        letters = ''.join(random.choices(string.ascii_uppercase, k=5))
+
+        # Generate 5 random numbers
+        numbers = ''.join(random.choices(string.digits, k=5))
+
+        # Combine letters and numbers to create the reference
+        new_reference = letters + numbers
+
+        return new_reference
+
+    def action_generate_reference(self):
+        for record in self:
+            new_reference = self.generate_unique_reference()
+            record.constructor_ref = new_reference
     @api.constrains('attribute_line_ids')
     def _check_attribute_line_ids(self):
         for record in self:
