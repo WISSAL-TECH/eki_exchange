@@ -13,11 +13,9 @@
                         <field name="image_url" class="oe_edit_only" invisible="1"/>
                         <field name="create_by" invisible="1"/>
                         <field name="manufacture_name"/>
-                        <div class="oe_inline">
-                            <field name="constructor_ref"/>
-                            <button name="action_generate_reference" icon="fa-files-o" class="oe_highlight"
-                                    type="object"/>
-                        </div>
+                        <field name="constructor_ref" style="display:inline-block; margin-right:10px;"/>
+                        <button name="action_generate_reference" icon="fa-files-o" class="oe_highlight"
+                                type="object" style="display:inline-block;"/>
                     </group>
                 </group>
             </div>
