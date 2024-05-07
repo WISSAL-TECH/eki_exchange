@@ -14,7 +14,7 @@
                         <field name="create_by" invisible="1"/>
                         <field name="manufacture_name"/>
                         <field name="constructor_ref"/>
-                        <button name="action_generate_reference" icon="fa-files-o"
+                        <button name="action_generate_reference" string="Générer une reference"
                                 type="object" style="display:inline-block;"/>
                     </group>
                 </group>
