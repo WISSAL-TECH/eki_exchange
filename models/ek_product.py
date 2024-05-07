@@ -59,10 +59,9 @@ class Product(models.Model):
 
         return new_reference
 
-    def action_generate_reference(self):
-        for record in self:
+    def action_generate_reference(self, vals):
             new_reference = self.generate_unique_reference()
-            record.constructor_ref = new_reference
+            vals['constructor_ref'] = new_reference
     @api.constrains('attribute_line_ids')
     def _check_attribute_line_ids(self):
         for record in self:
@@ -138,8 +137,6 @@ class Product(models.Model):
 
         # 2- CREATE A PRODUCT FROM ODOO (Send a product to ekiclik)
         else:
-            if 'constructor_ref' in vals and not vals['constructor_ref']:
-                vals['constructor_ref'] = self.generate_unique_reference()
             if "image_url" in vals and vals["image_url"]:
                 image = base64.b64encode(requests.get(vals["image_url"]).content)
                 vals["image_1920"] = image
