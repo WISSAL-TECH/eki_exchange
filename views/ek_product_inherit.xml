@@ -13,7 +13,11 @@
                         <field name="image_url" class="oe_edit_only" invisible="1"/>
                         <field name="create_by" invisible="1"/>
                         <field name="manufacture_name"/>
-                        <field name="constructor_ref"/>
+                        <group>
+                            <field name="constructor_ref"/>
+                            <button name="action_generate_reference" icon="fa-lightbulb-o" class="oe_highlight"
+                                    type="object"/>
+                        </group>
                     </group>
                 </group>
             </div>
