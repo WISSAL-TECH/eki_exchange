@@ -47,7 +47,6 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
-    @api.model
     def generate_unique_reference(self):
         # Generate 5 random letters
         letters = ''.join(random.choices(string.ascii_uppercase, k=5))
