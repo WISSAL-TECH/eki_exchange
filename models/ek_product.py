@@ -557,7 +557,8 @@ class EkiProduct(models.Model):
 
                 # Store Base64 in Binary Field
                 rec.certificate = url_base64
-                print('giving value to certificate from certificate_url')
+                _logger.info('\n\n\n giving value to certificate from certificate_url\n\n\n\n')
+
             if 'certificate' in vals:
                 # Extract the binary data from the 'certificate' field
                 certificate_data = vals.pop('certificate')
