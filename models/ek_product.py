@@ -221,6 +221,7 @@ class Product(models.Model):
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
                     record.write({'name_store': name})
+                    record.generate_code()
 
                     configuration = {
                         'name': name,
