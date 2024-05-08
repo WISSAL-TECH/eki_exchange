@@ -419,7 +419,7 @@ class EkiProduct(models.Model):
 
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
     manufacture_name = fields.Char(string='Fabricant')
-    reference = fields.Char(string='Réference', required=True)
+    reference = fields.Char(string='Réference')
     ref_odoo = fields.Char("ref odoo")
     barcode = fields.Char("Code-barres", readonly=True)
     certificate = fields.Binary("Certificat")
