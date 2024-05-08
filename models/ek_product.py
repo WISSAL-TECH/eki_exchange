@@ -218,10 +218,17 @@ class Product(models.Model):
                     values = []
                     for value in record.product_template_attribute_value_ids:
                         values.append(value.name)
-                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
-                                                         values)
+                    #generate reference for variante
                     reference = record.generate_code()
                     record.write({'reference': reference})
+                    #take reference value
+                    reference = record.reference if record.reference else rec.constructor_ref
+
+                    #generate name for variante
+
+                    name = record.generate_name_variante(rec.name, reference,
+                                                         values)
+
 
                     configuration = {
                         'name': name,
@@ -633,8 +640,20 @@ class EkiProduct(models.Model):
 
             no_image_image = rec.image_url if rec.image_url else ""
             no_certificate_url = rec.certificate_url if rec.certificate_url else ""
+            values = []
+            for value in rec.product_template_attribute_value_ids:
+                values.append(value.name)
+
+            # Check if 'name' key exists in vals, if not, use rec.name
+            name = vals.get('name', rec.name)
+
+            # Check if 'reference' key exists in vals, if not, use rec.reference
+            reference = vals.get('reference', rec.reference)
+
+            # Generate name for product variant using rec.name, rec.reference, and values
+            name = rec.generate_name_variante(name, reference, values)
             data = {
-                "name": vals['name'] if "name" in vals else rec.name,
+                "name": name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                 "price": vals["lst_price"] if "lst_price" in vals else rec.lst_price,
