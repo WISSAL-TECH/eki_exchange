@@ -205,7 +205,7 @@ class Product(models.Model):
                     "reference": "br_" + str(rec.brand_id.id)
                 },
                 "refConstructor": rec.constructor_ref if rec.constructor_ref else "null",
-                "manufactureName": rec.manufacture_name,
+                "manufactureName": rec.manufacture_name if rec.constructor_ref else '',
                 "activate": True,
                 "ref_odoo": rec.ref_odoo,
 
@@ -354,7 +354,7 @@ class Product(models.Model):
             if "categ_id" in vals:
                 categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
                 categ_name = categ.name if categ else self.brand_id.name
-
+            fab = self.manufacture_name if self.manufacture_name else ''
             # sending update to ekiclik
             data = {
                 "name": vals.get("name", "") if vals.get("name") else self.name,
@@ -367,7 +367,7 @@ class Product(models.Model):
                 "refConstructor": vals.get("constructor_ref", "") if vals.get(
                     "constructor_ref") else self.constructor_ref,
                 "manufactureName": vals.get("manufacture_name", "") if vals.get(
-                    "manufacture_name") else self.manufacture_name,
+                    "manufacture_name") else fab,
                 "activate": True,
                 # "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
                 "ref_odoo": vals.get("ref_odoo", "") if vals.get(
