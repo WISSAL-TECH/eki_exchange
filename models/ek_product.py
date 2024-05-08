@@ -220,8 +220,8 @@ class Product(models.Model):
                         values.append(value.name)
                     name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
-                    record.write({'name_store': name})
-                    record.generate_code()
+                    reference = record.generate_code()
+                    record.write({'reference': reference})
 
                     configuration = {
                         'name': name,
