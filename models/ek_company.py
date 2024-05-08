@@ -30,7 +30,7 @@ class ResCompany(models.Model):
 
     create_by = fields.Char()
     source = fields.Char()
-    pos_commune = fields.Many2one("ek.commune", "Commune", domain="[('state_id', '=', wilaya)]")
+    pos_commune = fields.Many2one("ek.commune", "Commune", domain="[('wilaya', '=', state_id)]")
     pos_wilaya = fields.Many2one("ek.wilaya", "Wilaya")
     country_id = fields.Many2one('res.country', string='Country', required=True, default=lambda self: self._default_country())
 
