@@ -23,13 +23,14 @@ class EkCommune(models.Model):
     _rec_name = 'name'
 
     name = fields.Char("Commune")
+    wilaya = fields.Many2one('res.country.state')
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
     create_by = fields.Char()
     source = fields.Char()
-    pos_commune = fields.Many2one("ek.commune", "Commune")
+    pos_commune = fields.Many2one("ek.commune", "Commune", domain="[('state_id', '=', wilaya)]")
     pos_wilaya = fields.Many2one("ek.wilaya", "Wilaya")
     country_id = fields.Many2one('res.country', string='Country', required=True, default=lambda self: self._default_country())
 
