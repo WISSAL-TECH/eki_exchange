@@ -31,7 +31,8 @@ class Product(models.Model):
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     ref_odoo = fields.Char("ref odoo")
-    constructor_ref = fields.Char("Réference constructeur", default="Merci de Générer/entrer une référence constructeur", required=True)
+    constructor_ref = fields.Char("Réference constructeur",
+                                  default="Merci de Générer/entrer une référence constructeur", required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
     company_id = fields.Many2one("res.company", string="Société", invisible=True)
@@ -75,7 +76,6 @@ class Product(models.Model):
     def _compute_certificate_url(self):
         for record in self:
             record.certificate_url = ''
-
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -145,10 +145,17 @@ class Product(models.Model):
                 vals.pop("image_url")
             random_number = random.randint(100000, 999999)
             vals["ref_odoo"] = "rc_" + str(random_number)
+            if ("constructor_ref" not in vals or vals[
+                'constructor_ref'] == "Merci de Générer/entrer une référence constructeur"
+                    or self.constructor_ref == "Merci de Générer/entrer une référence constructeur"):
+                vals['constructor_ref'] = self.action_generate_reference()
 
             rec = super(Product, self).create(vals)
-            if "constructor_ref" in vals and vals['constructor_ref'] == "Merci de Générer/entrer une référence constructeur" or rec.constructor_ref == "Merci de Générer/entrer une référence constructeur" or "constructor_ref" not in vals:
-                vals['constructor_ref'] = rec.action_generate_reference
+            if ("constructor_ref" not in vals or vals['constructor_ref'] == "Merci de Générer/entrer une référence constructeur"
+                    or rec.constructor_ref == "Merci de Générer/entrer une référence constructeur"):
+                vals['constructor_ref'] = rec.action_generate_reference()
+                rec.constructor_ref = rec.action_generate_reference()
+
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
 
@@ -219,17 +226,16 @@ class Product(models.Model):
                     values = []
                     for value in record.product_template_attribute_value_ids:
                         values.append(value.name)
-                    #generate reference for variante
+                    # generate reference for variante
                     reference = record.generate_code()
                     record.write({'reference': reference})
-                    #take reference value
+                    # take reference value
                     reference = record.reference if record.reference else rec.constructor_ref
 
-                    #generate name for variante
+                    # generate name for variante
 
                     name = record.generate_name_variante(rec.name, reference,
                                                          values)
-
 
                     configuration = {
                         'name': name,
