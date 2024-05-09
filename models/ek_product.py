@@ -32,7 +32,8 @@ class Product(models.Model):
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     ref_odoo = fields.Char("ref odoo")
     constructor_ref = fields.Char("Réference constructeur",
-                                  default="Merci de Générer/entrer une référence constructeur", required=True)
+                                  #default="Merci de Générer/entrer une référence constructeur",
+                                  required=True)
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
     company_id = fields.Many2one("res.company", string="Société", invisible=True)
