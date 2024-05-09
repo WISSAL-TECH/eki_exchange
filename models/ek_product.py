@@ -147,7 +147,8 @@ class Product(models.Model):
             vals["ref_odoo"] = "rc_" + str(random_number)
 
             rec = super(Product, self).create(vals)
-
+            if "constructor_ref" in vals and vals['constructor_ref'] == "Merci de Générer/entrer une référence constructeur":
+                vals['constructor_ref'] = rec.action_generate_reference
             if 'tax_string' in vals and vals.get('tax_string'):
                 pattern = r'(\d[\d\s,.]+)'
 
