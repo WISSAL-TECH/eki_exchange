@@ -147,7 +147,8 @@ class Product(models.Model):
             vals["ref_odoo"] = "rc_" + str(random_number)
             if ("constructor_ref" not in vals or vals['constructor_ref'] == "Merci de Générer/entrer une référence constructeur"
                     or self.constructor_ref == "Merci de Générer/entrer une référence constructeur"):
-                vals['constructor_ref'] = self.action_generate_reference()
+                ref = self.action_generate_reference()
+                vals['constructor_ref'] = ref
             rec = super(Product, self).create(vals)
 
 
