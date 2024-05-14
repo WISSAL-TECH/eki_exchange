@@ -440,27 +440,36 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
     name_store = fields.Char("name")
-    prix_central = fields.Float("Prix centrale des achats")
-    prix_ek = fields.Float("Prix ekiclik")
+    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prix_central')
+    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prix_ek')
 
-    @api.onchange('standard_price', 'taxes_id')
-    def _onchange_cout_tva(self):
-        """ function to calculate prices """
-        price = 0
-        if self.taxes_id:
-            taxe = 0
-            for tax in self.taxes_id:
-              taxe += (self.standard_price * self.taxes_id.amount ) / 100
-            price = self.standard_price + taxe
+    @api.depends('standard_price', 'taxes_id')
+    def _compute_prix_central(self):
+        """ Compute the value of prix_central """
+        for record in self:
+            price = 0
+            if record.taxes_id:
+                taxe = 0
+                for tax in record.taxes_id:
+                    taxe += (record.standard_price * tax.amount) / 100
+                price = record.standard_price + taxe
 
-        #centrale marge 11.1
-        marge1 = (self.standard_price * 11.1) /100
-        self.prix_central == price + marge1
-        #ek marge 50
-        marge2 = (self.standard_price * 50) / 100
-        self.prix_ek == price + marge2
-        return self.prix_ek, self.prix_central
+            marge1 = (record.standard_price * 11.1) / 100
+            record.prix_central = price + marge1
 
+    @api.depends('standard_price', 'taxes_id')
+    def _compute_prix_ek(self):
+        """ Compute the value of prix_ek """
+        for record in self:
+            price = 0
+            if record.taxes_id:
+                taxe = 0
+                for tax in record.taxes_id:
+                    taxe += (record.standard_price * tax.amount) / 100
+                price = record.standard_price + taxe
+
+            marge2 = (record.standard_price * 50) / 100
+            record.prix_ek = price + marge2
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
