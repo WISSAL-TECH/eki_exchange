@@ -475,8 +475,8 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
     name_store = fields.Char("name")
-    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prix_central')
-    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prix_ek')
+    prix_central = fields.Float("Prix centrale des achats")
+    prix_ek = fields.Float("Prix ekiclik")
 
     @api.depends('standard_price', 'taxes_id')
     def _compute_prix_central(self):
