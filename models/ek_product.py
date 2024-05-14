@@ -456,6 +456,7 @@ class EkiProduct(models.Model):
 
             marge1 = (record.standard_price * 11.1) / 100
             record.prix_central = price + marge1
+            return record.prix_central
 
     @api.depends('standard_price', 'taxes_id')
     def _compute_prix_ek(self):
@@ -470,6 +471,9 @@ class EkiProduct(models.Model):
 
             marge2 = (record.standard_price * 50) / 100
             record.prix_ek = price + marge2
+            return record.prix_ek
+
+
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
