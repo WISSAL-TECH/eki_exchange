@@ -508,7 +508,7 @@ class EkiProduct(models.Model):
     @api.onchange('standard_price')
     def _onchange_cout(self):
         """ Compute the value of prix_ek prix_centrale  """
-
+        _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
         for record in self:
             price = 0
             if record.taxes_id:
