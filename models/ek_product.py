@@ -248,6 +248,8 @@ class Product(models.Model):
             configurations = []
 
             for record in variantes:
+                _logger.info(
+                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', rec.standard_price)
                 record.write({'standard_price': rec.standard_price})
 
                 if record.product_template_attribute_value_ids:
