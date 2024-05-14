@@ -246,11 +246,12 @@ class Product(models.Model):
             }
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
             configurations = []
+            cout = rec.standard_price
 
             for record in variantes:
                 _logger.info(
-                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', rec.standard_price)
-                record.write({'standard_price': rec.standard_price})
+                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', cout)
+                record.write({'standard_price': cout})
 
                 if record.product_template_attribute_value_ids:
                     values = []
