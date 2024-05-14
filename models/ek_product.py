@@ -228,7 +228,7 @@ class Product(models.Model):
 
                     # generate name for variante
 
-                    name = record.generate_name_variante(rec.name, reference,
+                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
                                                          values)
 
                     configuration = {
@@ -650,9 +650,10 @@ class EkiProduct(models.Model):
 
             # Check if 'reference' key exists in vals, if not, use rec.reference
             reference = vals.get('reference', rec.reference)
+            product = self.env['product.template'].search([('name', '=', name)])
 
             # Generate name for product variant using rec.name, rec.reference, and values
-            name = rec.generate_name_variante(name, reference, values)
+            name = rec.generate_name_variante(name, product.constructor_ref, values)
             data = {
                 "name": name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
