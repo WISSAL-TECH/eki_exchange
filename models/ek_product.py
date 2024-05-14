@@ -393,7 +393,7 @@ class Product(models.Model):
             rec = super(Product, self).write(vals)
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
             if "standard_price" in vals:
-                cout = rec.standard_price
+                cout = vals["standard_price"]
 
             for record in variantes:
                 _logger.info(
