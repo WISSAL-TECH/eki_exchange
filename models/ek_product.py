@@ -737,13 +737,13 @@ class EkiProduct(models.Model):
                 if rec.taxes_id:
                     taxe = 0
                     for tax in rec.taxes_id:
-                        taxe += (rec.standard_price * tax.amount) / 100
-                    price = rec.standard_price + taxe
+                        taxe += (vals["standard_price"] * tax.amount) / 100
+                    price = vals["standard_price"] + taxe
 
-                marge2 = (rec.standard_price * 61) / 100
+                marge2 = (vals["standard_price"] * 61) / 100
                 vals['prix_ek'] = price + marge2
                 _logger.info('\n\n\n prix_ek \n\n\n\n--->>  %s\n\n\n\n', vals["prix_ek"])
-                marge1 = (rec.standard_price * 11.1) / 100
+                marge1 = (vals["standard_price"] * 11.1) / 100
                 vals['prix_central'] = price + marge1
                 _logger.info('\n\n\n prix central \n\n\n\n--->>  %s\n\n\n\n', vals['prix_central'])
 
