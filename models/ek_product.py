@@ -742,8 +742,10 @@ class EkiProduct(models.Model):
 
                 marge2 = (rec.standard_price * 61) / 100
                 vals['prix_ek'] = price + marge2
+                _logger.info('\n\n\n prix_ek \n\n\n\n--->>  %s\n\n\n\n', vals["prix_ek"])
                 marge1 = (rec.standard_price * 11.1) / 100
                 vals['prix_central'] = price + marge1
+                _logger.info('\n\n\n prix central \n\n\n\n--->>  %s\n\n\n\n', vals['prix_central'])
 
             # Check if 'reference' key exists in vals, if not, use rec.reference
             reference = vals.get('reference', rec.reference)
