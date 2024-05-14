@@ -77,7 +77,7 @@ class Product(models.Model):
                     taxe += (record.standard_price * tax.amount) / 100
                 price = record.standard_price + taxe
 
-            marge2 = (record.standard_price * 50) / 100
+            marge2 = (record.standard_price * 61) / 100
             record.prix_ek = price + marge2
 
 
