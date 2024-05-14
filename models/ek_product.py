@@ -49,26 +49,12 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
-    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prix_central')
-    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prix_ek')
+    prix_central = fields.Float("Prix centrale des achats")
+    prix_ek = fields.Float("Prix ekiclik")
 
-    @api.depends('standard_price', 'taxes_id')
-    def _compute_prix_central(self):
-        """ Compute the value of prix_central """
-        for record in self:
-            price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
 
-            marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = price + marge1
-
-    @api.depends('standard_price', 'taxes_id')
-    def _compute_prix_ek(self):
-        """ Compute the value of prix_ek """
+    @api.onchange('standard_price', 'taxes_id')
+    def change_tva_cout(self):
         for record in self:
             price = 0
             if record.taxes_id:
@@ -469,38 +455,8 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
     name_store = fields.Char("name")
-    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prix_central')
-    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prix_ek')
-
-    @api.depends('standard_price', 'taxes_id')
-    def _compute_prix_central(self):
-        """ Compute the value of prix_central """
-        for record in self:
-            price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
-
-            marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = price + marge1
-
-    @api.depends('standard_price', 'taxes_id')
-    def _compute_prix_ek(self):
-        """ Compute the value of prix_ek """
-        for record in self:
-            price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
-
-            marge2 = (record.standard_price * 50) / 100
-            record.prix_ek = price + marge2
-            marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = price + marge1
+    prix_central = fields.Float("Prix centrale des achats")
+    prix_ek = fields.Float("Prix ekiclik")
 
     @api.onchange('standard_price', 'taxes_id')
     def change_tva_cout(self):
@@ -514,6 +470,8 @@ class EkiProduct(models.Model):
 
             marge2 = (record.standard_price * 50) / 100
             record.prix_ek = price + marge2
+            marge1 = (record.standard_price * 11.1) / 100
+            record.prix_central = price + marge1
 
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
