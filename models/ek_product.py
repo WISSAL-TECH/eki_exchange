@@ -471,9 +471,22 @@ class EkiProduct(models.Model):
 
             marge2 = (record.standard_price * 50) / 100
             record.prix_ek = price + marge2
+            marge1 = (record.standard_price * 11.1) / 100
+            record.prix_central = price + marge1
+
+    @api.onchange('standard_price', 'taxes_id')
+    def change_tva_cout(self):
+        for record in self:
+            price = 0
+            if record.taxes_id:
+                taxe = 0
+                for tax in record.taxes_id:
+                    taxe += (record.standard_price * tax.amount) / 100
+                price = record.standard_price + taxe
+
+            marge2 = (record.standard_price * 50) / 100
+            record.prix_ek = price + marge2
             return record.prix_ek
-
-
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
