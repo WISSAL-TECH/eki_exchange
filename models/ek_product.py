@@ -248,6 +248,8 @@ class Product(models.Model):
             configurations = []
 
             for record in variantes:
+                record.write({'standard_price': rec.standard_price})
+
                 if record.product_template_attribute_value_ids:
                     values = []
                     for value in record.product_template_attribute_value_ids:
@@ -255,7 +257,6 @@ class Product(models.Model):
                     # generate reference for variante
                     reference = record.generate_code()
                     record.write({'reference': reference})
-                    record.write({'standard_price': rec.standard_price})
                     # take reference value
                     reference = record.reference if record.reference else rec.constructor_ref
 
