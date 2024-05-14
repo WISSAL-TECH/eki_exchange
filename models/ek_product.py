@@ -732,7 +732,7 @@ class EkiProduct(models.Model):
 
             # Check if 'name' key exists in vals, if not, use rec.name
             name = vals.get('name', rec.name)
-            if 'standard_price':
+            if 'standard_price' in vals:
                 price = 0
                 if rec.taxes_id:
                     taxe = 0
