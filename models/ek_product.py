@@ -391,14 +391,7 @@ class Product(models.Model):
             return rec
         else:
             rec = super(Product, self).write(vals)
-            variantes = self.env['product.product'].search([('name', '=', rec.name)])
-            if "standard_price" in vals:
-                cout = vals["standard_price"]
 
-            for record in variantes:
-                _logger.info(
-                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', cout)
-                record.write({'standard_price': cout})
 
             brand_name = self.brand_id.name if self.brand_id else ''
             if "brand_id" in vals:
