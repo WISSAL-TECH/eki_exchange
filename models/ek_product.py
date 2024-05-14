@@ -443,6 +443,24 @@ class EkiProduct(models.Model):
     prix_central = fields.Float("Prix centrale des achats")
     prix_ek = fields.Float("Prix ekiclik")
 
+    @api.onchange('standard_price', 'taxes_id')
+    def _onchange_cout_tva(self):
+        """ function to calculate prices """
+        price = 0
+        if self.taxes_id:
+            taxe = 0
+            for tax in self.taxes_id:
+              taxe += (self.standard_price * self.taxes_id.amount ) / 100
+            price = self.standard_price + taxe
+
+        #centrale marge 11.1
+        marge1 = (self.standard_price * 11.1) /100
+        self.prix_central == price + marge1
+        #ek marge 50
+        marge2 = (self.standard_price * 50) / 100
+        self.prix_ek == price + marge2
+        return self.prix_ek, self.prix_central
+
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
