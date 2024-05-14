@@ -23,8 +23,8 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='list_price']" position="after">
-                <field name="prix_central"/>
-                <field name="prix_ek"/>
+                <field name="prix_central" string="Prix centrale des achats"/>
+                <field name="prix_ek" string="Prix ekiclik"/>
             </xpath>
 
             <xpath expr="//field[@name='default_code']" position="attributes">
@@ -48,8 +48,8 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='lst_price']" position="after">
-                <field name="prix_central"/>
-                <field name="prix_ek"/>
+                <field name="prix_central" string="Prix centrale des achats"/>
+                <field name="prix_ek" string="Prix ekiclik"/>
             </xpath>
 
         </field>
