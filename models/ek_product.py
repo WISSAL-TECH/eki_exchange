@@ -49,6 +49,10 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
+    prix_central = fields.Float("Prix centrale des achats")
+    prix_ek = fields.Float("Prix ekiclik")
+
+
     def generate_unique_reference(self):
         # Generate 5 random letters
         letters = ''.join(random.choices(string.ascii_uppercase, k=5))
@@ -436,6 +440,8 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
     name_store = fields.Char("name")
+    prix_central = fields.Float("Prix centrale des achats")
+    prix_ek = fields.Float("Prix ekiclik")
 
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
