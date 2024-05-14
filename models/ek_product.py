@@ -732,6 +732,20 @@ class EkiProduct(models.Model):
 
             # Check if 'name' key exists in vals, if not, use rec.name
             name = vals.get('name', rec.name)
+            if 'standard_price':
+                price = 0
+                if rec.taxes_id:
+                    taxe = 0
+                    for tax in rec.taxes_id:
+                        taxe += (rec.standard_price * tax.amount) / 100
+                    price = rec.standard_price + taxe
+
+                marge2 = (rec.standard_price * 61) / 100
+                rec.prix_ek = price + marge2
+                vals['prix_ek'] = price + marge2
+                marge1 = (rec.standard_price * 11.1) / 100
+                rec.prix_central = price + marge1
+                vals['prix_central'] = price + marge1
 
             # Check if 'reference' key exists in vals, if not, use rec.reference
             reference = vals.get('reference', rec.reference)
