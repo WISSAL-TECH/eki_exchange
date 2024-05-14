@@ -272,8 +272,8 @@ class Product(models.Model):
                         'name': name,
                         "description": '',
                         "reference": record.reference if record.reference else rec.constructor_ref,
-                        "price": record.prix_central,
-                        "buyingPrice": record.prix_ek,
+                        "price": record.prix_ek,
+                        "buyingPrice": record.prix_central,
                         "productCharacteristics": [],
                         "images": rec.image_url if rec.image_url else 'image_url',
                         "active": True,
@@ -505,6 +505,22 @@ class EkiProduct(models.Model):
 
             marge2 = (record.standard_price * 50) / 100
             record.prix_ek = price + marge2
+    @api.onchange('standard_price')
+    def _onchange_cout(self):
+        """ Compute the value of prix_ek prix_centrale  """
+
+        for record in self:
+            price = 0
+            if record.taxes_id:
+                taxe = 0
+                for tax in record.taxes_id:
+                    taxe += (record.standard_price * tax.amount) / 100
+                price = record.standard_price + taxe
+
+            marge2 = (record.standard_price * 61) / 100
+            record.prix_ek = price + marge2
+            marge1 = (record.standard_price * 11.1) / 100
+            record.prix_central = price + marge1
 
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
@@ -727,8 +743,8 @@ class EkiProduct(models.Model):
                 "name": name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
-                "price": vals["prix_central"] if "prix_central" in vals else rec.prix_central,
-                "buyingPrice": vals["prix_ek"] if "prix_ek" in vals else rec.prix_ek,
+                "price": vals["prix_ek"] if "prix_ek" in vals else rec.prix_ek,
+                "buyingPrice": vals["prix_central"] if "prix_central" in vals else rec.prix_central,
                 "state": '',
                 "productCharacteristics": [],
                 "active": True,
