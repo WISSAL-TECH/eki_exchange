@@ -518,9 +518,9 @@ class EkiProduct(models.Model):
                 price = record.standard_price + taxe
 
             marge2 = (record.standard_price * 61) / 100
-            record.prix_ek = price + marge2
+            record.prix_ek = round(price + marge2, 2)
             marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = price + marge1
+            record.prix_central = round(price + marge1,2)
 
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
@@ -741,10 +741,10 @@ class EkiProduct(models.Model):
                     price = vals["standard_price"] + taxe
 
                 marge2 = (vals["standard_price"] * 61) / 100
-                vals['prix_ek'] = price + marge2
+                vals['prix_ek'] = round(price + marge2, 2)
                 _logger.info('\n\n\n prix_ek \n\n\n\n--->>  %s\n\n\n\n', vals["prix_ek"])
                 marge1 = (vals["standard_price"] * 11.1) / 100
-                vals['prix_central'] = price + marge1
+                vals['prix_central'] = round(price + marge1, 2)
                 _logger.info('\n\n\n prix central \n\n\n\n--->>  %s\n\n\n\n', vals['prix_central'])
 
             # Check if 'reference' key exists in vals, if not, use rec.reference
