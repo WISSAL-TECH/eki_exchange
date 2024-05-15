@@ -54,7 +54,7 @@ class Product(models.Model):
     list_price = fields.Float(
         'Sales Price', default=1.0,
         digits='Product Price',
-        invisible="True",
+        invisible=True,
         help="Price at which the product is sold to customers.",
     )
     @api.depends('standard_price', 'taxes_id')
@@ -485,7 +485,7 @@ class EkiProduct(models.Model):
     lst_price = fields.Float(
         'Sales Price', compute='_compute_product_lst_price',
         digits='Product Price', inverse='_set_product_lst_price',
-        invisible='True',
+        invisible=True,
         help="The sale price is managed from the product template. Click on the 'Configure Variants' button to set the extra attribute prices.")
 
     @api.depends('standard_price', 'taxes_id')
