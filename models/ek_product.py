@@ -112,6 +112,9 @@ class Product(models.Model):
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
 
+    def _generate_reference(self):
+        # Generate a default reference
+        return 'ref_' + str(random.randint(100000, 999999))
     @api.model
     def create(self, vals):
         logging.warning("create product ======")
@@ -119,6 +122,8 @@ class Product(models.Model):
         random_number = random.randint(100000, 999999)
 
         vals["ref_odoo"] = "rc_" + str(random_number)
+        if 'reference' not in vals or not vals['reference']:
+            vals['reference'] = self._generate_reference()
 
         rec = super(Product, self).create(vals)
 
