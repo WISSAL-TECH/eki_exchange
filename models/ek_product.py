@@ -201,64 +201,11 @@ class Product(models.Model):
     #    attach.write({'url': url})
 
     def write(self, vals):
-        domain = ""
-        domain_cpa = ""
-        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
-        _logger.info(
-            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
-        url_archive_product = "/api/odoo/products/archive/"
-        url_activate_product = "/api/odoo/products/activate/"
-        url_update_product = "/api/odoo/products/update"
 
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-        if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
-            _logger.info(
-                '\n\n\ncreate_by\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
-            if 'barcode' in vals and not vals['barcode']:
-                vals.pop('barcode')
 
-            vals['create_by'] = "Ekiclik"
-            if "brand" in vals and vals["brand"]:
-                brand = self.env['product.brand'].search([('name', '=', vals['brand'])])
-                if brand:
-                    vals['brand_id'] = brand.id
-                else:
-                    brand = self.env['product.brand'].create({
-                        'name': vals['brand']
-                    })
-                    vals['brand_id'] = brand.id
-            vals.pop('brand')
-            pattern = r'(\d[\d\s,.]+)'
-
-            if "list_price" in vals and not vals["list_price"]:
-                vals.pop('list_price')
-
-            if 'category' in vals and vals['category']:
-                # Get the category record
-                category = self.env['product.category'].search([('name', '=', vals['category'])])
-                if category:
-                    vals['categ_id'] = category.id
-                else:
-                    category = self.env['product.category'].create({
-                        'name': vals['category']
-                    })
-                    vals['categ_id'] = category.id
-            vals.pop('category')
-            # GET IMAGE URL AND AUTOMATICALLY DISPLAY IT ON ODOO
-            if "image_url" in vals and vals["image_url"]:
-                image = base64.b64encode(requests.get(vals["image_url"]).content)
-                vals["image_1920"] = image
-                vals.pop("image_url")
-            _logger.info(
-                '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
         rec = super(Product, self).write(vals)
-
-        _logger.info(
-                '\n\n\nwriting on product with vals\n\n\n\n--->>  %s\n\n\n\n', vals)
 
         return rec
 
@@ -419,20 +366,6 @@ class EkiProduct(models.Model):
         return rec
 
     def write(self, vals):
-        domain = ""
-        domain_cpa = ""
-        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
-        _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
-        _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain_cpa)
-        url_archive_product = "/api/odoo/products/configuration/archive/"
-        url_activate_product = "/api/odoo/products/configuration/activate/"
-        url_update_product = "/api/odoo/products/configuration"
-
-        _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-
-
-
-        return super(EkiProduct, self).write(vals)
+        result = super(EkiProduct, self).write(vals)
+        _logger.info('Write operation successful with vals: %s', vals)
+        return result
