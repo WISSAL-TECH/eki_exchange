@@ -122,8 +122,6 @@ class Product(models.Model):
         
         rec = super(Product, self).create(vals)
 
-        _logger.info('\n\n\n(CREATE product) LIST PRICE IN VALS \n\n\n\n--->  %s\n\n\n\n',
-                     vals['list_price'])
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = ""
         domain_cpa = ""
