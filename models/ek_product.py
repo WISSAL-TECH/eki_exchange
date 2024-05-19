@@ -116,6 +116,12 @@ class Product(models.Model):
     def create(self, vals):
         logging.warning("create product ======")
         logging.warning(vals)
+        random_number = random.randint(100000, 999999)
+
+        vals["ref_odoo"] = "rc_" + str(random_number)
+
+        rec = super(Product, self).create(vals)
+
         _logger.info('\n\n\n(CREATE product) LIST PRICE IN VALS \n\n\n\n--->  %s\n\n\n\n',
                      vals['list_price'])
         # 1- CREATE A PRODUCT FROM ekiclik
@@ -167,141 +173,10 @@ class Product(models.Model):
 
             rec = super(Product, self).create(vals)
 
-            return rec
+        return rec
 
         # 2- CREATE A PRODUCT FROM ODOO (Send a product to ekiclik)
-        else:
-            if "image_url" in vals and vals["image_url"]:
-                image = base64.b64encode(requests.get(vals["image_url"]).content)
-                vals["image_1920"] = image
-                vals.pop("image_url")
-            random_number = random.randint(100000, 999999)
-            vals["ref_odoo"] = "rc_" + str(random_number)
 
-            rec = super(Product, self).create(vals)
-
-
-            if 'tax_string' in vals and vals.get('tax_string'):
-                pattern = r'(\d[\d\s,.]+)'
-
-                # Use the findall function to extract all matches
-                matches = re.findall(pattern, vals.get('tax_string'))
-
-                # Join the matches into a single string (if there are multiple matches)
-                numeric_value = ''.join(matches)
-
-                # Replace commas with dots (if necessary)
-                numeric_value = numeric_value.replace(',', '.')
-
-                # Remove non-breaking space characters
-                numeric_value = numeric_value.replace('\xa0', '')
-            elif rec.tax_string:
-                pattern = r'(\d[\d\s,.]+)'
-
-                # Use the findall function to extract all matches
-                matches = re.findall(pattern, rec.tax_string)
-
-                # Join the matches into a single string (if there are multiple matches)
-                numeric_value = ''.join(matches)
-
-                # Replace commas with dots (if necessary)
-                numeric_value = numeric_value.replace(',', '.')
-
-                # Remove non-breaking space characters
-                numeric_value = numeric_value.replace('\xa0', '')
-            elif self.tax_string:
-                pattern = r'(\d[\d\s,.]+)'
-
-                # Use the findall function to extract all matches
-                matches = re.findall(pattern, self.tax_string)
-
-                # Join the matches into a single string (if there are multiple matches)
-                numeric_value = ''.join(matches)
-
-                # Replace commas with dots (if necessary)
-                numeric_value = numeric_value.replace(',', '.')
-
-                # Remove non-breaking space characters
-                numeric_value = numeric_value.replace('\xa0', '')
-
-            else:
-                numeric_value = vals['list_price'] if vals['list_price'] else rec.list_price
-
-            _logger.info('\n\n\n(CREATE product) numeric_value \n\n\n\n--->  %s\n\n\n\n',
-                         numeric_value)
-            product_json = {
-                "name": rec.name,
-                "description": rec.description,
-                "categoryName": rec.categ_id.name,
-                "brand": {
-                    "name": rec.brand_id.name,
-                    "reference": "br_" + str(rec.brand_id.id)
-                },
-                "refConstructor": rec.constructor_ref if rec.constructor_ref else "null",
-                "manufactureName": rec.manufacture_name if rec.constructor_ref else '',
-                "activate": True,
-                "ref_odoo": rec.ref_odoo,
-
-            }
-            variantes = self.env['product.product'].search([('name', '=', rec.name)])
-            configurations = []
-            cout = rec.standard_price
-
-            for record in variantes:
-                _logger.info(
-                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', cout)
-                record.write({'standard_price': cout})
-
-                if record.product_template_attribute_value_ids:
-                    values = []
-                    for value in record.product_template_attribute_value_ids:
-                        values.append(value.name)
-                    # generate reference for variante
-                    reference = record.generate_code()
-                    record.write({'reference': reference})
-                    # take reference value
-                    reference = record.reference if record.reference else rec.constructor_ref
-
-                    # generate name for variante
-
-                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
-                                                         values)
-
-                    configuration = {
-                        'name': name,
-                        "description": '',
-                        "reference": record.reference if record.reference else rec.constructor_ref,
-                        "price": record.prix_ek,
-                        "buyingPrice": record.prix_central,
-                        "productCharacteristics": [],
-                        "images": rec.image_url if rec.image_url else 'image_url',
-                        "active": True,
-                        "certificateUrl": record.certificate_url,
-                        "ref_odoo": record.ref_odoo,
-                    }
-
-                    for value in record.product_template_attribute_value_ids:
-                        product_characteristic = {
-                            "name": value.attribute_id.name if value.attribute_id else '',
-                            "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
-                        }
-                        configuration["productCharacteristics"].append(product_characteristic)
-                    configurations.append(configuration)
-
-            product_json["configurations"] = configurations
-
-            _logger.info(
-                '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
-            response = requests.post(str(domain) + str(url_product), data=json.dumps(product_json),
-                                     headers=self.headers)
-            _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                         response.content)
-            response_cpa = requests.post(str(domain_cpa) + str(url_product), data=json.dumps(product_json),
-                                         headers=self.headers)
-            _logger.info('\n\n\n(CREATE product) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
-                         response_cpa.content)
-
-            return rec
 
     # def create_doc_url(self, attach):
     # client = Minio("play.min.io",
@@ -382,83 +257,13 @@ class Product(models.Model):
                 vals.pop("image_url")
             _logger.info(
                 '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
-            rec = super(Product, self).write(vals)
+        rec = super(Product, self).write(vals)
 
-            _logger.info(
+        _logger.info(
                 '\n\n\nwriting on product with vals\n\n\n\n--->>  %s\n\n\n\n', vals)
 
-            return rec
-        else:
-            rec = super(Product, self).write(vals)
+        return rec
 
-
-            brand_name = self.brand_id.name if self.brand_id else ''
-            if "brand_id" in vals:
-                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
-                brand_name = brand.name if brand else self.brand_id.name
-
-            categ_name = self.categ_id.name
-            if "categ_id" in vals:
-                categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
-                categ_name = categ.name if categ else self.brand_id.name
-            fab = self.manufacture_name if self.manufacture_name else ''
-            # sending update to ekiclik
-            data = {
-                "name": vals.get("name", "") if vals.get("name") else self.name,
-                "description": vals.get("description", "") if vals.get("description") else "",
-                "categoryName": categ_name,
-                "brand": {
-                    "name": brand_name,
-                    "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
-                },
-                "refConstructor": vals.get("constructor_ref", "") if vals.get(
-                    "constructor_ref") else self.constructor_ref,
-                "manufactureName": vals.get("manufacture_name", "") if vals.get(
-                    "manufacture_name") else fab,
-                "activate": True,
-                # "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
-                "ref_odoo": vals.get("ref_odoo", "") if vals.get(
-                    "ref_odoo") else self.ref_odoo,
-            }
-
-            _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n', data)
-            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
-                                    headers=self.headers)
-            _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                         response.content)
-            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
-                                        headers=self.headers)
-            _logger.info('\n\n\n(update product) response from eki  CPA\n\n\n\n--->  %s\n\n\n\n',
-                         response_cpa.content)
-
-            if "active" in vals and vals["active"] == False:
-                # send archive product to ekiclik
-                _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_archive_product) + str(self.ref_odoo),
-                                          headers=self.headers)
-
-                _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                             response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(self.ref_odoo),
-                                              headers=self.headers)
-
-                _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
-                             response_cpa.content)
-            elif "active" in vals and vals["active"] == True:
-                # send activate product to ekiclik
-                _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
-                response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
-                                          headers=self.headers)
-
-                _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
-                             response.content)
-                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + "rc_" + str(self.id),
-                                              headers=self.headers)
-
-                _logger.info('\n\n\n(activate product) response from eki cpa\n\n\n\n--->  %s\n\n\n\n',
-                             response_cpa.content)
-
-            return rec
 
 
 class EkiProduct(models.Model):
