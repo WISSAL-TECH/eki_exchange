@@ -116,11 +116,6 @@ class Product(models.Model):
     def create(self, vals):
         logging.warning("create product ======")
         logging.warning(vals)
-        random_number = random.randint(100000, 999999)
-
-        vals["ref_odoo"] = "rc_" + str(random_number)
-        
-        rec = super(Product, self).create(vals)
 
         # 1- CREATE A PRODUCT FROM ekiclik
         domain = ""
@@ -171,10 +166,141 @@ class Product(models.Model):
 
             rec = super(Product, self).create(vals)
 
-        return rec
+            return rec
 
         # 2- CREATE A PRODUCT FROM ODOO (Send a product to ekiclik)
+        else:
+            if "image_url" in vals and vals["image_url"]:
+                image = base64.b64encode(requests.get(vals["image_url"]).content)
+                vals["image_1920"] = image
+                vals.pop("image_url")
+            random_number = random.randint(100000, 999999)
+            vals["ref_odoo"] = "rc_" + str(random_number)
 
+            rec = super(Product, self).create(vals)
+
+
+            if 'tax_string' in vals and vals.get('tax_string'):
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, vals.get('tax_string'))
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+            elif rec.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, rec.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+            elif self.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, self.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+
+            else:
+                numeric_value = vals['list_price'] if vals['list_price'] else rec.list_price
+
+            _logger.info('\n\n\n(CREATE product) numeric_value \n\n\n\n--->  %s\n\n\n\n',
+                         numeric_value)
+            product_json = {
+                "name": rec.name,
+                "description": rec.description,
+                "categoryName": rec.categ_id.name,
+                "brand": {
+                    "name": rec.brand_id.name,
+                    "reference": "br_" + str(rec.brand_id.id)
+                },
+                "refConstructor": rec.constructor_ref if rec.constructor_ref else "null",
+                "manufactureName": rec.manufacture_name if rec.constructor_ref else '',
+                "activate": True,
+                "ref_odoo": rec.ref_odoo,
+
+            }
+            variantes = self.env['product.product'].search([('name', '=', rec.name)])
+            configurations = []
+            cout = rec.standard_price
+
+            for record in variantes:
+                _logger.info(
+                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', cout)
+                record.write({'standard_price': cout})
+
+                if record.product_template_attribute_value_ids:
+                    values = []
+                    for value in record.product_template_attribute_value_ids:
+                        values.append(value.name)
+                    # generate reference for variante
+                    reference = record.generate_code()
+                    record.write({'reference': reference})
+                    # take reference value
+                    reference = record.reference if record.reference else rec.constructor_ref
+
+                    # generate name for variante
+
+                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
+                                                         values)
+
+                    configuration = {
+                        'name': name,
+                        "description": '',
+                        "reference": record.reference if record.reference else rec.constructor_ref,
+                        "price": record.prix_ek,
+                        "buyingPrice": record.prix_central,
+                        "productCharacteristics": [],
+                        "images": rec.image_url if rec.image_url else 'image_url',
+                        "active": True,
+                        "certificateUrl": record.certificate_url,
+                        "ref_odoo": record.ref_odoo,
+                    }
+
+                    for value in record.product_template_attribute_value_ids:
+                        product_characteristic = {
+                            "name": value.attribute_id.name if value.attribute_id else '',
+                            "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                        }
+                        configuration["productCharacteristics"].append(product_characteristic)
+                    configurations.append(configuration)
+
+            product_json["configurations"] = configurations
+
+            _logger.info(
+                '\n\n\n PRODUCT BODY JSON\n\n\n\n--->>  %s\n\n\n\n', product_json)
+            response = requests.post(str(domain) + str(url_product), data=json.dumps(product_json),
+                                     headers=self.headers)
+            _logger.info('\n\n\n(CREATE product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                         response.content)
+            response_cpa = requests.post(str(domain_cpa) + str(url_product), data=json.dumps(product_json),
+                                         headers=self.headers)
+            _logger.info('\n\n\n(CREATE product) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                         response_cpa.content)
+
+            return rec
 
     # def create_doc_url(self, attach):
     # client = Minio("play.min.io",
@@ -201,14 +327,137 @@ class Product(models.Model):
     #    attach.write({'url': url})
 
     def write(self, vals):
+        domain = ""
+        domain_cpa = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
+        _logger.info(
+            '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
+        url_archive_product = "/api/odoo/products/archive/"
+        url_activate_product = "/api/odoo/products/activate/"
+        url_update_product = "/api/odoo/products/update"
 
         _logger.info(
             '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+        if 'create_by' in vals.keys() and vals['create_by'] != 'Odoo':
+            _logger.info(
+                '\n\n\ncreate_by\n\n\n\n--->>  %s\n\n\n\n', vals["create_by"])
+            if 'barcode' in vals and not vals['barcode']:
+                vals.pop('barcode')
 
-        rec = super(Product, self).write(vals)
+            vals['create_by'] = "Ekiclik"
+            if "brand" in vals and vals["brand"]:
+                brand = self.env['product.brand'].search([('name', '=', vals['brand'])])
+                if brand:
+                    vals['brand_id'] = brand.id
+                else:
+                    brand = self.env['product.brand'].create({
+                        'name': vals['brand']
+                    })
+                    vals['brand_id'] = brand.id
+            vals.pop('brand')
+            pattern = r'(\d[\d\s,.]+)'
 
-        return rec
+            if "list_price" in vals and not vals["list_price"]:
+                vals.pop('list_price')
 
+            if 'category' in vals and vals['category']:
+                # Get the category record
+                category = self.env['product.category'].search([('name', '=', vals['category'])])
+                if category:
+                    vals['categ_id'] = category.id
+                else:
+                    category = self.env['product.category'].create({
+                        'name': vals['category']
+                    })
+                    vals['categ_id'] = category.id
+            vals.pop('category')
+            # GET IMAGE URL AND AUTOMATICALLY DISPLAY IT ON ODOO
+            if "image_url" in vals and vals["image_url"]:
+                image = base64.b64encode(requests.get(vals["image_url"]).content)
+                vals["image_1920"] = image
+                vals.pop("image_url")
+            _logger.info(
+                '\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+            rec = super(Product, self).write(vals)
+
+            _logger.info(
+                '\n\n\nwriting on product with vals\n\n\n\n--->>  %s\n\n\n\n', vals)
+
+            return rec
+        else:
+            rec = super(Product, self).write(vals)
+
+
+            brand_name = self.brand_id.name if self.brand_id else ''
+            if "brand_id" in vals:
+                brand = self.env['product.brand'].search([('id', '=', vals['brand_id'])])
+                brand_name = brand.name if brand else self.brand_id.name
+
+            categ_name = self.categ_id.name
+            if "categ_id" in vals:
+                categ = self.env['product.category'].search([('id', '=', vals['categ_id'])])
+                categ_name = categ.name if categ else self.brand_id.name
+            fab = self.manufacture_name if self.manufacture_name else ''
+            # sending update to ekiclik
+            data = {
+                "name": vals.get("name", "") if vals.get("name") else self.name,
+                "description": vals.get("description", "") if vals.get("description") else "",
+                "categoryName": categ_name,
+                "brand": {
+                    "name": brand_name,
+                    "reference": vals.get("brand_id", "") if vals.get("brand_id") else ""
+                },
+                "refConstructor": vals.get("constructor_ref", "") if vals.get(
+                    "constructor_ref") else self.constructor_ref,
+                "manufactureName": vals.get("manufacture_name", "") if vals.get(
+                    "manufacture_name") else fab,
+                "activate": True,
+                # "oldRef": vals.get("constructor_ref", "") if vals.get("constructor_ref") else "",
+                "ref_odoo": vals.get("ref_odoo", "") if vals.get(
+                    "ref_odoo") else self.ref_odoo,
+            }
+
+            _logger.info('\n\n\n UPDATE PRODUCT \n\n\n\n--->>  %s\n\n\n\n', data)
+            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
+                                    headers=self.headers)
+            _logger.info('\n\n\n(update product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                         response.content)
+            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                                        headers=self.headers)
+            _logger.info('\n\n\n(update product) response from eki  CPA\n\n\n\n--->  %s\n\n\n\n',
+                         response_cpa.content)
+
+            if "active" in vals and vals["active"] == False:
+                # send archive product to ekiclik
+                _logger.info('\n\n\n Archive PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_archive_product) + str(self.ref_odoo),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(archive product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(self.ref_odoo),
+                                              headers=self.headers)
+
+                _logger.info('\n\n\n(archive product) response from eki CPA\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+            elif "active" in vals and vals["active"] == True:
+                # send activate product to ekiclik
+                _logger.info('\n\n\n Activate PRODUCT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_activate_product) + "rc_" + str(self.id),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate product) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + "rc_" + str(self.id),
+                                              headers=self.headers)
+
+                _logger.info('\n\n\n(activate product) response from eki cpa\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+
+            return rec
 
 
 class EkiProduct(models.Model):
@@ -350,22 +599,215 @@ class EkiProduct(models.Model):
         _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
 
         return name
-    def _generate_reference(self):
-        # Generate a default reference
-        return 'ref_' + str(random.randint(100000, 999999))
+
     @api.model
     def create(self, vals):
         # Appeler la méthode de création de la classe parente
         random_number = random.randint(100000, 999999)
         vals["ref_odoo"] = "rc_variante" + str(random_number)
-        if 'reference' not in vals or not vals['reference']:
-            vals['reference'] = self._generate_reference()
-
         _logger.info('\n\n\n creating variante vals\n\n\n\n--->  %s\n\n\n\n', vals)
         rec = super(EkiProduct, self).create(vals)
         return rec
 
     def write(self, vals):
-        result = super(EkiProduct, self).write(vals)
-        _logger.info('Write operation successful with vals: %s', vals)
-        return result
+        domain = ""
+        domain_cpa = ""
+        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        if config_settings:
+            domain = config_settings.domain
+            domain_cpa = config_settings.domain_cpa
+        _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
+        _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain_cpa)
+        url_archive_product = "/api/odoo/products/configuration/archive/"
+        url_activate_product = "/api/odoo/products/configuration/activate/"
+        url_update_product = "/api/odoo/products/configuration"
+
+        _logger.info('\n\n\n update\n\n\n\n--->>  %s\n\n\n\n', vals)
+
+        for rec in self:
+            origin_product = rec.product_tmpl_id
+            # if not name :
+            # name = origin_product.name
+            # _logger.info('N A M E from product %s', name)
+            numeric_value = 0
+            if rec.tax_string:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, rec.tax_string)
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+            elif 'tax_string' in vals and vals['tax_string']:
+                pattern = r'(\d[\d\s,.]+)'
+
+                # Use the findall function to extract all matches
+                matches = re.findall(pattern, vals['tax_string'])
+
+                # Join the matches into a single string (if there are multiple matches)
+                numeric_value = ''.join(matches)
+
+                # Replace commas with dots (if necessary)
+                numeric_value = numeric_value.replace(',', '.')
+
+                # Remove non-breaking space characters
+                numeric_value = numeric_value.replace('\xa0', '')
+            else:
+                numeric_value = vals['lst_price']
+            if 'certificate_url' in vals:
+                url = vals['certificate_url']
+                response = requests.get(url)
+                if response.status_code == 200:
+                    # Store PDF binary content in the binary field
+                    vals['certificate'] = base64.b64encode(response.content)
+                _logger.info('\n\n\n giving value to certificate from certificate_url\n\n\n\n')
+
+            if 'certificate' in vals and 'certificate_url' not in vals:
+                # Extract the binary data from the 'certificate' field
+                certificate_data = vals['certificate']
+
+                # Create an attachment record
+                attachment = self.env['ir.attachment'].create({
+                    'name': 'Certificate Attachment',  # Set the name of the attachment as desired
+                    'datas': certificate_data,
+                    'res_model': self._name,
+                    'res_id': rec.id,
+                })
+
+                # Obtain the URL of the attachment
+                certificate_url = rec.create_doc_url(attachment)
+
+                # Update the 'certificate_url' field with the URL
+                vals['certificate_url'] = certificate_url
+
+            if 'image_1920' in vals:
+                if vals['image_1920']:
+                    s3 = boto3.client('s3',
+                                      aws_access_key_id='AKIAXOFYUBQFZJ5ZKR6B',
+                                      aws_secret_access_key='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',
+                                      region_name='eu-west-2'
+                                      )
+                    bucket = "imtech-product"
+                    # Get the binary data from the binary field
+                    image_data = vals['image_1920']
+
+                    # Ensure image_data is in bytes format
+                    if isinstance(image_data, str):
+                        image_data = image_data.encode()
+
+                    # Convert the image binary data to a BytesIO object
+                    image_fileobj = BytesIO(image_data)
+
+                    # Continue with the rest of the code
+                    logging.warning('self')
+
+                    # Generate a unique S3 key for the image
+                    s3_key = f'product_images/{self.id}_{hash(self.name)}{self.image_count}.jpg'[:1024]
+                    s3_key_encoded = quote(s3_key)
+
+                    # Upload the image to S3
+                    s3.put_object(Bucket=bucket, Key=s3_key, Body=image_fileobj, ContentType="image/jpg")
+
+                    # Construct the S3 image URL
+                    s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+                    # Update the product record with the S3 image URL
+                    self.with_context(no_send_data=True).write({'image_url': s3_url})
+                    self.image_count += 1
+
+            no_image_image = rec.image_url if rec.image_url else ""
+            no_certificate_url = rec.certificate_url if rec.certificate_url else ""
+            values = []
+            for value in rec.product_template_attribute_value_ids:
+                values.append(value.name)
+
+            # Check if 'name' key exists in vals, if not, use rec.name
+            name = vals.get('name', rec.name)
+            if 'standard_price' in vals:
+                price = 0
+                if rec.taxes_id:
+                    taxe = 0
+                    for tax in rec.taxes_id:
+                        taxe += (vals["standard_price"] * tax.amount) / 100
+                    price = vals["standard_price"] + taxe
+
+                marge2 = (vals["standard_price"] * 61) / 100
+                vals['prix_ek'] = round(price + marge2, 2)
+                _logger.info('\n\n\n prix_ek \n\n\n\n--->>  %s\n\n\n\n', vals["prix_ek"])
+                marge1 = (vals["standard_price"] * 11.1) / 100
+                vals['prix_central'] = round(price + marge1, 2)
+                _logger.info('\n\n\n prix central \n\n\n\n--->>  %s\n\n\n\n', vals['prix_central'])
+
+            # Check if 'reference' key exists in vals, if not, use rec.reference
+            reference = vals.get('reference', rec.reference)
+            product = self.env['product.template'].search([('name', '=', name)])
+
+            # Generate name for product variant using rec.name, rec.reference, and values
+            name = rec.generate_name_variante(name, product.constructor_ref, values)
+            data = {
+                "name": name,
+                "reference": vals["reference"] if "reference" in vals else rec.reference,
+                "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
+                "price": vals["prix_ek"] if "prix_ek" in vals else rec.prix_ek,
+                "buyingPrice": vals["prix_central"] if "prix_central" in vals else rec.prix_central,
+                "state": '',
+                "productCharacteristics": [],
+                "active": True,
+                "description": vals["description"] if "description" in vals else rec.description,
+                "certificateUrl": vals['certificate_url'] if 'certificate_url' in vals else no_certificate_url,
+                "images": vals['image_url'] if 'image_url' in vals else no_image_image,
+                # "oldRef": vals["reference"] if "reference" in vals else "",
+                "ref_odoo": rec.ref_odoo
+            }
+            for value in rec.product_template_attribute_value_ids:
+                product_characteristic = {
+                    "name": value.attribute_id.name if value.attribute_id else '',
+                    "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                }
+                data["productCharacteristics"].append(product_characteristic)
+
+            _logger.info('\n\n\n UPDATE VARIANTE \n\n\n\n--->>  %s\n\n\n\n', data)
+            response = requests.put(str(domain) + str(url_update_product), data=json.dumps(data),
+                                    headers=self.headers)
+
+            _logger.info('\n\n\n(update variante) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                         response.content)
+            response_cpa = requests.put(str(domain_cpa) + str(url_update_product), data=json.dumps(data),
+                                        headers=self.headers)
+
+            _logger.info('\n\n\n(update variante) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                         response_cpa.content)
+            if "active" in vals and vals["active"] == False:
+                # send archive product to ekiclik
+                _logger.info('\n\n\n Archive VARIANT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_archive_product) + str(rec.ref_odoo),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(archive variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_archive_product) + str(rec.ref_odoo),
+                                              headers=self.headers)
+
+                _logger.info('\n\n\n(archive variant) response from eki  cpa\n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+            if "active" in vals and vals["active"] == True:
+                # send activate product to ekiclik
+                _logger.info('\n\n\n Activate VARIANT \n\n\n\n--->>  %s\n\n\n\n')
+                response = requests.patch(str(domain) + str(url_activate_product) + str(rec.ref_odoo),
+                                          headers=self.headers)
+
+                _logger.info('\n\n\n(activate variant) response from eki \n\n\n\n--->  %s\n\n\n\n',
+                             response.content)
+                response_cpa = requests.patch(str(domain_cpa) + str(url_activate_product) + str(rec.ref_odoo),
+                                              headers=self.headers)
+
+                _logger.info('\n\n\n(activate variant) response from eki cpa \n\n\n\n--->  %s\n\n\n\n',
+                             response_cpa.content)
+
+        return super(EkiProduct, self).write(vals)
