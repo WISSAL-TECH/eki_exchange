@@ -31,9 +31,9 @@ class Product(models.Model):
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     ref_odoo = fields.Char("ref odoo")
-    constructor_ref = fields.Char("Réference constructeur",
+    constructor_ref = fields.Char("Réference constructeur"
                                   #default="Merci de Générer/entrer une référence constructeur",
-                                  required=True)
+                                  )
     brand_id = fields.Many2one("product.brand", string="Marque", required=True)
     default_code = fields.Char(string="Reference interne", invisible=True)
     company_id = fields.Many2one("res.company", string="Société", invisible=True)
@@ -101,8 +101,15 @@ class Product(models.Model):
     def _check_attribute_line_ids(self):
         for record in self:
             if not record.attribute_line_ids:
-                raise ValidationError(
+                raise (ValidationError(
                     _("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
+
+    @api.constrains('constructor_ref'))
+    def _check_constructor_ref(self):
+        for record in self:
+            if not record.constructor_ref:
+                raise ValidationError(
+                    _("Merci d'entrer une référence constructeur"))
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
