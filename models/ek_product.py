@@ -34,7 +34,7 @@ class Product(models.Model):
     constructor_ref = fields.Char("Réference constructeur"
                                   #default="Merci de Générer/entrer une référence constructeur",
                                   )
-    brand_id = fields.Many2one("product.brand", string="Marque", required=True)
+    brand_id = fields.Many2one("product.brand", string="Marque")
     default_code = fields.Char(string="Reference interne", invisible=True)
     company_id = fields.Many2one("res.company", string="Société", invisible=True)
     categ_id = fields.Many2one("product.category", string="Catégorie d'article", required=True)
