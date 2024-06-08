@@ -101,15 +101,8 @@ class Product(models.Model):
     def _check_attribute_line_ids(self):
         for record in self:
             if not record.attribute_line_ids:
-                raise (ValidationError(
-                    _("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
-
-    @api.constrains('constructor_ref'))
-    def _check_constructor_ref(self):
-        for record in self:
-            if not record.constructor_ref:
                 raise ValidationError(
-                    _("Merci d'entrer une référence constructeur"))
+                    _("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
 
     @api.depends('certificate')
     def _compute_certificate_url(self):
