@@ -67,7 +67,7 @@ class EkQuant(models.Model):
         self._apply_inventory()
         self.inventory_quantity_set = False
 
-        line_product = self.env['product.product'].search([('id', '=', self.product_id.product_variant_id.id)])
+        #line_product = self.env['product.product'].search([('id', '=', self.product_id.product_variant_id.id)])
         if self.location_id.company_id.name == "Centrale des Achats":
             numeric_value = ""
             if self.product_id.tax_string:
