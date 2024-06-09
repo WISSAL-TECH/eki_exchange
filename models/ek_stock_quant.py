@@ -68,44 +68,41 @@ class EkQuant(models.Model):
         self.inventory_quantity_set = False
 
         #line_product = self.env['product.product'].search([('id', '=', self.product_id.product_variant_id.id)])
-        for rec in self :
+        response = []  # Initialize response list outside the loop
+
+        for rec in self:
             if rec.location_id.company_id.name == "Centrale des Achats":
-
                 json_obj = [{
-                            "pos": "EKIWH",
-                            "configuration_ref_odoo": rec.product_id.ref_odoo,
-                            "realQuantity": rec.quantity,
-                            "price": rec.product_id.standard_price}]
-                _logger.info(
-                    '\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
-                response1 = requests.put(str(domain) + rec.url_stock, data=json.dumps(json_obj),
-                                         headers=rec.headers)
-                _logger.info(
-                    '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
+                    "pos": "EKIWH",
+                    "configuration_ref_odoo": rec.product_id.ref_odoo,
+                    "realQuantity": rec.quantity,
+                    "price": rec.product_id.standard_price
+                }]
+                _logger.info('\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
+                response1 = requests.put(str(domain) + rec.url_stock, data=json.dumps(json_obj), headers=rec.headers)
+                _logger.info('\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response1)
                 response_cpa = requests.put(str(domain_cpa) + rec.url_stock, data=json.dumps(json_obj),
-                                         headers=rec.headers)
-                _logger.info(
-                    '\n\n\n response cpa \n\n\n\n--->>  %s\n\n\n\n', response_cpa)
-                return response1, response_cpa
+                                            headers=rec.headers)
+                _logger.info('\n\n\n response cpa \n\n\n\n--->>  %s\n\n\n\n', response_cpa)
+                response.extend([response1, response_cpa])
             else:
-
                 json_obj_pdv = [{
-                            "pos": rec.location_id.company_id.codification,
-                            "configuration_ref_odoo": rec.product_id.ref_odoo,
-                            "realQuantity": rec.quantity,
-                            "price": rec.product_id.prix_central}]
-
-                _logger.info(
-                        '\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
+                    "pos": rec.location_id.company_id.codification,
+                    "configuration_ref_odoo": rec.product_id.ref_odoo,
+                    "realQuantity": rec.quantity,
+                    "price": rec.product_id.prix_central
+                }]
+                _logger.info('\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
                 response2 = requests.put(str(domain) + rec.url_stock, data=json.dumps(json_obj_pdv),
-                                             headers=rec.headers)
-                _logger.info(
-                    '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
+                                         headers=rec.headers)
+                _logger.info('\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2)
                 response2_cpa = requests.put(str(domain_cpa) + rec.url_stock, data=json.dumps(json_obj_pdv),
                                              headers=rec.headers)
-                _logger.info(
-                    '\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2_cpa)
-                return response2, response2_cpa
+                _logger.info('\n\n\n response \n\n\n\n--->>  %s\n\n\n\n', response2_cpa)
+                response.extend([response2, response2_cpa])
+
+        return response
+
 
 
 
