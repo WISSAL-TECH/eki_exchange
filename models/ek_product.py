@@ -476,6 +476,15 @@ class EkiProduct(models.Model):
     name_store = fields.Char("name")
     prix_central = fields.Float("Prix centrale des achats")
     prix_ek = fields.Float("Prix ekiclik")
+    constructor_ref = fields.Char(
+        string='Réference constructeur produit',
+        compute='_compute_constructor_ref',
+        store=True
+    )
+
+    def _compute_constructor_ref(self):
+        for product in self:
+            product.constructor_ref = product.product_tmpl_id.constructor_ref
     @api.depends('standard_price', 'taxes_id')
     def _compute_prix_central(self):
         """ Compute the value of prix_central """
