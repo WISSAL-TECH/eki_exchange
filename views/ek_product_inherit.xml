@@ -53,9 +53,6 @@
             <xpath expr="//field[@name='taxes_id']" position="before">
                 <field name="prix_central" string="Prix centrale des achats"/>
                 <field name="prix_ek" string="Prix ekiclik"/>
-                <field name="prix_ek" string="Prix ekiclik"/>
-            </xpath>
-            <xpath expr="//group[@name='description']" position="inside">
                 <field name="constructor_ref"/>
             </xpath>
 
