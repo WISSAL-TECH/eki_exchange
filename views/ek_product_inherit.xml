@@ -14,7 +14,6 @@
                         <field name="create_by" invisible="1"/>
                         <field name="manufacture_name"/>
                         <field name="constructor_ref"/>
-                        <field name="price"/>
                         <!--<button name="action_generate_reference" string="Générer une reference"
                                 type="object" style="display:inline-block;"/>-->
                     </group>
@@ -54,7 +53,10 @@
             <xpath expr="//field[@name='taxes_id']" position="before">
                 <field name="prix_central" string="Prix centrale des achats"/>
                 <field name="prix_ek" string="Prix ekiclik"/>
+                <field name="price" string="Prix PDVA"/>
+
                 <field name="constructor_ref"/>
+
             </xpath>
 
 

@@ -31,7 +31,6 @@ class Product(models.Model):
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     ref_odoo = fields.Char("ref odoo")
-    price = fields.Float(string='Prix pdva', company_dependent=True)
 
     constructor_ref = fields.Char("Réference constructeur",
                                   required=True
@@ -483,6 +482,8 @@ class EkiProduct(models.Model):
         compute='_compute_constructor_ref',
         store=True
     )
+    price = fields.Float(string='Prix pdva', company_dependent=True)
+
 
     def _compute_constructor_ref(self):
         for product in self:
