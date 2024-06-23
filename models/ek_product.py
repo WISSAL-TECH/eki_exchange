@@ -31,6 +31,8 @@ class Product(models.Model):
     certificate = fields.Binary("Certificat")
     certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
     ref_odoo = fields.Char("ref odoo")
+    price = fields.Float(string='Prix pdva', company_dependent=True)
+
     constructor_ref = fields.Char("Réference constructeur",
                                   required=True
                                   #default="Merci de Générer/entrer une référence constructeur",
