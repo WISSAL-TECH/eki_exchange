@@ -302,7 +302,7 @@ class Product(models.Model):
                 "ref_odoo": rec.ref_odoo,
 
             }
-            variantes = self.env['product.product'].search([('name', '=', rec.name)])
+            variantes = self.env['product.product'].search([('product_tmpl_id', '=', rec.id)])
             configurations = []
             cout = rec.standard_price
             if variantes:
@@ -350,26 +350,27 @@ class Product(models.Model):
                             }
                             configuration["productCharacteristics"].append(product_characteristic)
                         configurations.append(configuration)
-            else:
-                name = rec.generate_name_variante(rec.name, rec.constructor_ref)
+                    else:
+                        name = rec.generate_name_variante(rec.name, rec.constructor_ref)
+
+                        configuration = {
+                            'name': name,
+                            "description": '',
+                            "reference": rec.constructor_ref,
+                            "price": 0.0,
+                            "buyingPrice": rec.standard_price,
+                            "productCharacteristics": [],
+                            "images": rec.image_url if rec.image_url else 'image_url',
+                            "active": True,
+                            "certificateUrl": rec.certificate_url,
+                            "ref_odoo": rec.ref_odoo,
+                        }
+
+                        product_characteristic = {}
+                        configuration["productCharacteristics"].append(product_characteristic)
+                        configurations.append(configuration)
 
 
-                configuration = {
-                    'name': name,
-                    "description": '',
-                    "reference":rec.constructor_ref,
-                    "price": 0.0,
-                    "buyingPrice": rec.standard_price,
-                    "productCharacteristics": [],
-                    "images": rec.image_url if rec.image_url else 'image_url',
-                    "active": True,
-                    "certificateUrl": rec.certificate_url,
-                    "ref_odoo": rec.ref_odoo,
-                }
-
-                product_characteristic = {}
-                configuration["productCharacteristics"].append(product_characteristic)
-                configurations.append(configuration)
 
             product_json["configurations"] = configurations
 
