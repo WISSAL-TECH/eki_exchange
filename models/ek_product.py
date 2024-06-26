@@ -366,11 +366,9 @@ class Product(models.Model):
                             "ref_odoo": record.ref_odoo,
                         }
 
-                        product_characteristic = {}
-                        configuration["productCharacteristics"].append(product_characteristic)
+                        configuration["productCharacteristics"].append({"name": "couleur", "value": None})
+
                         configurations.append(configuration)
-
-
 
             product_json["configurations"] = configurations
 
