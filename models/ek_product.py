@@ -354,7 +354,7 @@ class Product(models.Model):
                         name = rec.generate_name_variante(rec.name, rec.constructor_ref)
 
                         configuration = {
-                            'name': name,
+                            'name': rec.name,
                             "description": '',
                             "reference": rec.constructor_ref,
                             "price": 0.0,
@@ -851,7 +851,7 @@ class EkiProduct(models.Model):
                 price =vals["price"] if "price" in vals else rec.price
 
             data = {
-                "name": name,
+                "name": vals["name"] if "name" in vals else rec.name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
                 "price": vals["prix_ek"] if "prix_ek" in vals else rec.prix_ek,
