@@ -29,7 +29,7 @@ class Product(models.Model):
     image_url = fields.Char(string='Image URL')
     manufacture_name = fields.Char(string='Fabricant')
     certificate = fields.Binary("Certificat")
-    certificate_url = fields.Char("Certificate URL", compute='_compute_certificate_url')
+    certificate_url = fields.Char("Certificate URL")
     ref_odoo = fields.Char("ref odoo")
 
     constructor_ref = fields.Char("Réference constructeur",
@@ -106,10 +106,68 @@ class Product(models.Model):
                 raise ValidationError(
                     _("Dans l'onglet Attributs et variantes veuillez sélectionner au moins une variante."))
 
-    @api.depends('certificate')
-    def _compute_certificate_url(self):
+    def generate_name_variante(self, name, ref):
+        """Generating name for ek products"""
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+        # Add default code if exists
+
+        if ref:
+            name += ' ' + ref
+            _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        _logger.info('\n\n\n GENERATING NAME\n\n\n\n--->  %s\n\n\n\n', name)
+
+        return name
+
+    def create_doc_url(self, attach):
+        s3 = boto3.client('s3',
+                          aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
+                          aws_secret_access_key='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',
+                          region_name='eu-west-2'
+                          )
+        bucket = "wicommerce-storage"
+        if attach.datas:
+            # Generate a unique S3 key for the image
+            s3_key = f'attachments/{attach.res_id}{attach.name}'
+            s3_key_encoded = quote(s3_key)
+            # Convert the image binary data to a BytesIO object
+            data_fileobj = BytesIO(base64.standard_b64decode(attach.datas))
+
+            # Upload the image to S3
+            s3.put_object(Bucket=bucket, Key=s3_key, Body=data_fileobj, ContentType=attach.mimetype)
+
+            # Construct the S3 image URL
+            s3_url = f'https://{bucket}.s3.eu-west-2.amazonaws.com/{s3_key_encoded}'
+
+            # Update the product record with the S3 image URL
+            return s3_url
+
+    def _compute_certificate_url(self, certificat):
         for record in self:
-            record.certificate_url = ''
+                # Extract the binary data from the 'certificate' field
+                certificate_data = record.certificate
+
+                # Create an attachment record
+                attachment = self.env['ir.attachment'].create({
+                    'name': 'Certificate Attachment',  # Set the name of the attachment as desired
+                    'datas': certificate_data,
+                    'res_model': self._name,
+                    'res_id': record.id,
+                })
+
+                # Obtain the URL of the attachment
+                certificate_url = record.create_doc_url(attachment)
+
+                # Update the 'certificate_url' field with the URL
+                record.certificate_url = certificate_url
+
+    def _compute_certificate(self):
+        for record in self:
+            url = record.certificate_url
+            response = requests.get(url)
+            if response.status_code == 200:
+                # Store PDF binary content in the binary field
+                record.certificate = base64.b64encode(response.content)
 
     # set the url and headers
     headers = {"Content-Type": "application/json", "Accept": "application/json", "Catch-Control": "no-cache"}
@@ -247,51 +305,71 @@ class Product(models.Model):
             variantes = self.env['product.product'].search([('name', '=', rec.name)])
             configurations = []
             cout = rec.standard_price
+            if variantes:
+                for record in variantes:
+                    _logger.info(
+                        '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', cout)
+                    record.write({'standard_price': cout})
 
-            for record in variantes:
-                _logger.info(
-                    '\n\n\n update cout on variante\n\n\n\n--->>  %s\n\n\n\n', cout)
-                record.write({'standard_price': cout})
+                    if record.product_template_attribute_value_ids:
+                        values = []
+                        for value in record.product_template_attribute_value_ids:
+                            values.append(value.name)
+                        # generate reference for variante
+                        reference = record.generate_code()
+                        record.write({'reference': reference})
+                        # take reference value
+                        reference = record.reference if record.reference else rec.constructor_ref
 
-                if record.product_template_attribute_value_ids:
-                    values = []
-                    for value in record.product_template_attribute_value_ids:
-                        values.append(value.name)
-                    # generate reference for variante
-                    reference = record.generate_code()
-                    record.write({'reference': reference})
-                    # take reference value
-                    reference = record.reference if record.reference else rec.constructor_ref
+                        # generate name for variante
 
-                    # generate name for variante
+                        name = record.generate_name_variante(rec.name, rec.constructor_ref,
+                                                             values)
+                        if self.company_id.name == "Centrale des Achats":
+                            price = record.prix_central
+                        else:
+                            price = record.price
 
-                    name = record.generate_name_variante(rec.name, rec.constructor_ref,
-                                                         values)
-                    if self.company_id.name == "Centrale des Achats":
-                        price = record.prix_central
-                    else:
-                        price = record.price
-
-                    configuration = {
-                        'name': name,
-                        "description": '',
-                        "reference": record.reference if record.reference else rec.constructor_ref,
-                        "price": record.prix_ek,
-                        "buyingPrice": price,
-                        "productCharacteristics": [],
-                        "images": rec.image_url if rec.image_url else 'image_url',
-                        "active": True,
-                        "certificateUrl": record.certificate_url,
-                        "ref_odoo": record.ref_odoo,
-                    }
-
-                    for value in record.product_template_attribute_value_ids:
-                        product_characteristic = {
-                            "name": value.attribute_id.name if value.attribute_id else '',
-                            "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                        configuration = {
+                            'name': name,
+                            "description": '',
+                            "reference": record.reference if record.reference else rec.constructor_ref,
+                            "price": record.prix_ek,
+                            "buyingPrice": price,
+                            "productCharacteristics": [],
+                            "images": rec.image_url if rec.image_url else 'image_url',
+                            "active": True,
+                            "certificateUrl": record.certificate_url,
+                            "ref_odoo": record.ref_odoo,
                         }
-                        configuration["productCharacteristics"].append(product_characteristic)
-                    configurations.append(configuration)
+
+                        for value in record.product_template_attribute_value_ids:
+                            product_characteristic = {
+                                "name": value.attribute_id.name if value.attribute_id else '',
+                                "value": value.product_attribute_value_id.name if value.product_attribute_value_id else ''
+                            }
+                            configuration["productCharacteristics"].append(product_characteristic)
+                        configurations.append(configuration)
+            else:
+                name = rec.generate_name_variante(rec.name, rec.constructor_ref)
+
+
+                configuration = {
+                    'name': name,
+                    "description": '',
+                    "reference":rec.constructor_ref,
+                    "price": 0.0,
+                    "buyingPrice": rec.standard_price,
+                    "productCharacteristics": [],
+                    "images": rec.image_url if rec.image_url else 'image_url',
+                    "active": True,
+                    "certificateUrl": rec.certificate_url,
+                    "ref_odoo": rec.ref_odoo,
+                }
+
+                product_characteristic = {}
+                configuration["productCharacteristics"].append(product_characteristic)
+                configurations.append(configuration)
 
             product_json["configurations"] = configurations
 
