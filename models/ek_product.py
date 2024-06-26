@@ -840,7 +840,8 @@ class EkiProduct(models.Model):
 
             # Check if 'reference' key exists in vals, if not, use rec.reference
             reference = vals.get('reference', rec.reference)
-            product = self.env['product.template'].search([('name', '=', name)])
+
+            product = self.env['product.template'].search([('name', '=', name)], limit=1)
 
             # Generate name for product variant using rec.name, rec.reference, and values
             name = rec.generate_name_variante(name, product.constructor_ref, values)
