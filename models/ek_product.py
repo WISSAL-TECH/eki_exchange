@@ -363,7 +363,7 @@ class Product(models.Model):
                             "images": rec.image_url if rec.image_url else 'image_url',
                             "active": True,
                             "certificateUrl": rec.certificate_url,
-                            "ref_odoo": rec.ref_odoo,
+                            "ref_odoo": record.ref_odoo,
                         }
 
                         product_characteristic = {}
