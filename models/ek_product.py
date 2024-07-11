@@ -610,7 +610,11 @@ class EkiProduct(models.Model):
             marge2 = 0.5  # default margin is 50%
 
             # Check if the product category is 'MEUBLE'
-            if record.categ_id and 'MEUBLES' in record.categ_id.name:
+            if (record.categ_id and ('MEUBLES' in record.categ_id.name or
+                                     (record.categ_id.parent_id and 'MEUBLES' in record.categ_id.parent_id.name) or
+                                     (record.categ_id.parent_id and record.categ_id.parent_id.parent_id and
+                                      'MEUBLES' in record.categ_id.parent_id.parent_id.name))):
+
                 marge2 = 0.6
             marge_2 = prix_central * marge2
             record.prix_ek = round(prix_central + marge_2, 2)
