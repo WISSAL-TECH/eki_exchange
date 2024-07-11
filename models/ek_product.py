@@ -602,7 +602,7 @@ class EkiProduct(models.Model):
         for record in self:
             price = record.standard_price
 
-            marge1 = (record.standard_price * 11.1) / 100
+            marge1 = (record.standard_price * 11.11) / 100
             prix_central = round(price + marge1,2)
             record.prix_central = prix_central
             marge2 = 0.5  # default margin is 50%
