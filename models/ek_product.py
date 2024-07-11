@@ -592,6 +592,8 @@ class EkiProduct(models.Model):
 
             # Check if the product category is 'MEUBLE'
             if record.categ_id and 'MEUBLES' in record.categ_id.name:
+                _logger.info('\n\n\n onchange cout PRODUCT  MEEEEUUUUBLLE\n\n\n\n--->> \n\n\n\n')
+
                 margin = 0.6  # change to 60% margin if category is 'MEUBLE'
 
             record.prix_ek = price + (price * margin)
