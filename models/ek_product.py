@@ -569,50 +569,54 @@ class EkiProduct(models.Model):
     def _compute_constructor_ref(self):
         for product in self:
             product.constructor_ref = product.product_tmpl_id.constructor_ref
-    @api.depends('standard_price', 'taxes_id')
+    @api.depends('standard_price')
     def _compute_prix_central(self):
         """ Compute the value of prix_central """
         for record in self:
             price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
+
+            price = record.standard_price
 
             marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = price + marge1
+            marge_pdv = (record.standard_price * 0.5) / 100
 
-    @api.depends('standard_price', 'taxes_id')
+            record.prix_central = price + marge1
+            record.price = price + marge_pdv
+
+    @api.depends('standard_price', 'taxes_id', 'categ_id')
     def _compute_prix_ek(self):
         """ Compute the value of prix_ek """
         for record in self:
             price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
+            if self.company_id.name == "Centrale des Achats":
+                price = record.prix_central
+            else:
+                price = record.price
 
-            marge2 = (record.standard_price * 50) / 100
-            record.prix_ek = price + marge2
+            margin = 0.5  # default margin is 50%
+
+            # Check if the product category is 'MEUBLE'
+            if record.categ_id and 'MEUBLES' in record.categ_id.name:
+                margin = 0.6  # change to 60% margin if category is 'MEUBLE'
+
+            record.prix_ek = price + (price * margin)
     @api.onchange('standard_price')
     def _onchange_cout(self):
         """ Compute the value of prix_ek prix_centrale  """
         _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
         for record in self:
-            price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
+            price = record.standard_price
 
-            marge2 = (record.standard_price * 61) / 100
-            record.prix_ek = round(price + marge2, 2)
             marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = round(price + marge1,2)
+            prix_central = round(price + marge1,2)
+            record.prix_central = prix_central
+            marge2 = 0.5  # default margin is 50%
 
+            # Check if the product category is 'MEUBLE'
+            if record.categ_id and 'MEUBLES' in record.categ_id.name:
+                marge2 = 0.6
+            marge_2 = prix_central * marge2
+            record.prix_ek = round(price + marge_2, 2)
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
