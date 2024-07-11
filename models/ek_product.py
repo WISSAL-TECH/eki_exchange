@@ -573,8 +573,6 @@ class EkiProduct(models.Model):
     def _compute_prix_central(self):
         """ Compute the value of prix_central """
         for record in self:
-            price = 0
-
             price = record.standard_price
 
             marge1 = (record.standard_price * 11.1) / 100
@@ -587,11 +585,8 @@ class EkiProduct(models.Model):
     def _compute_prix_ek(self):
         """ Compute the value of prix_ek """
         for record in self:
-            price = 0
-            if self.company_id.name == "Centrale des Achats":
-                price = record.prix_central
-            else:
-                price = record.price
+            price = record.prix_central
+
 
             margin = 0.5  # default margin is 50%
 
@@ -616,7 +611,7 @@ class EkiProduct(models.Model):
             if record.categ_id and 'MEUBLES' in record.categ_id.name:
                 marge2 = 0.6
             marge_2 = prix_central * marge2
-            record.prix_ek = round(price + marge_2, 2)
+            record.prix_ek = round(prix_central + marge_2, 2)
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
