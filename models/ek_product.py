@@ -51,35 +51,57 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
-    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prix_central')
-    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prix_ek')
-    @api.depends('standard_price', 'taxes_id')
+    prix_central = fields.Float("Prix centrale des achats")
+    prix_ek = fields.Float("Prix ekiclik")
+
+    @api.depends('standard_price')
     def _compute_prix_central(self):
         """ Compute the value of prix_central """
         for record in self:
-            price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
+            price = record.standard_price
 
             marge1 = (record.standard_price * 11.1) / 100
-            record.prix_central = price + marge1
+            marge_pdv = (record.standard_price * 0.5) / 100
 
-    @api.depends('standard_price', 'taxes_id')
+            record.prix_central = price + marge1
+            record.price = price + marge_pdv
+
+    @api.depends('standard_price', 'categ_id')
     def _compute_prix_ek(self):
         """ Compute the value of prix_ek """
         for record in self:
-            price = 0
-            if record.taxes_id:
-                taxe = 0
-                for tax in record.taxes_id:
-                    taxe += (record.standard_price * tax.amount) / 100
-                price = record.standard_price + taxe
+            price = record.prix_central
 
-            marge2 = (record.standard_price * 61) / 100
-            record.prix_ek = price + marge2
+            margin = 0.5  # default margin is 50%
+
+            # Check if the product category is 'MEUBLE'
+            if record.categ_id and 'MEUBLES' in record.categ_id.name:
+                _logger.info('\n\n\n onchange cout PRODUCT  MEEEEUUUUBLLE\n\n\n\n--->> \n\n\n\n')
+
+                margin = 0.6  # change to 60% margin if category is 'MEUBLE'
+
+            record.prix_ek = price + (price * margin)
+
+    @api.onchange('standard_price')
+    def _onchange_cout(self):
+        """ Compute the value of prix_ek prix_centrale  """
+        _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
+        for record in self:
+            price = record.standard_price
+
+            marge1 = (record.standard_price * 11.11) / 100
+            prix_central = round(price + marge1, 2)
+            record.prix_central = prix_central
+            marge2 = 0.5  # default margin is 50%
+
+            # Check if the product category is 'MEUBLE'
+            if (record.categ_id and ('MEUBLES' in record.categ_id.name or
+                                     (record.categ_id.parent_id and 'MEUBLES' in record.categ_id.parent_id.name) or
+                                     (record.categ_id.parent_id and record.categ_id.parent_id.parent_id and
+                                      'MEUBLES' in record.categ_id.parent_id.parent_id.name))):
+                marge2 = 0.6
+            marge_2 = prix_central * marge2
+            record.prix_ek = round(prix_central + marge_2, 2)
 
 
     def generate_unique_reference(self):
@@ -581,7 +603,7 @@ class EkiProduct(models.Model):
             record.prix_central = price + marge1
             record.price = price + marge_pdv
 
-    @api.depends('standard_price', 'taxes_id', 'categ_id')
+    @api.depends('standard_price', 'categ_id')
     def _compute_prix_ek(self):
         """ Compute the value of prix_ek """
         for record in self:
@@ -854,6 +876,7 @@ class EkiProduct(models.Model):
                 vals["prix_central"] if "prix_central" in vals else rec.prix_central
             else:
                 price =vals["price"] if "price" in vals else rec.price
+
 
             data = {
                 "name": vals["name"] if "name" in vals else rec.name,
