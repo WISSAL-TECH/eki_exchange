@@ -51,11 +51,11 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
-    prix_central = fields.Float("Prix centrale des achats")
-    prix_ek = fields.Float("Prix ekiclik")
+    prix_central = fields.Float("Prix centrale des achats", compute='__compute_prices', readonly=False)
+    prix_ek = fields.Float("Prix ekiclik", compute='__compute_prices', readonly=False)
 
-    @api.onchange('standard_price')
-    def _onchange_cout(self):
+    @api.depends('standard_price', 'categ_id')
+    def __compute_prices(self):
         """ Compute the value of prix_ek prix_centrale  """
         _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
         for record in self:
@@ -550,8 +550,8 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
     name_store = fields.Char("name")
-    prix_central = fields.Float("Prix centrale des achats")
-    prix_ek = fields.Float("Prix ekiclik")
+    prix_central = fields.Float("Prix centrale des achats", compute='__compute_prices', readonly=False)
+    prix_ek = fields.Float("Prix ekiclik", compute='__compute_prices', readonly=False)
     constructor_ref = fields.Char(
         string='Réference constructeur produit',
         compute='_compute_constructor_ref',
@@ -564,8 +564,8 @@ class EkiProduct(models.Model):
         for product in self:
             product.constructor_ref = product.product_tmpl_id.constructor_ref
 
-    @api.onchange('standard_price')
-    def _onchange_cout(self):
+    @api.depends('standard_price', 'categ_id')
+    def __compute_prices(self):
         """ Compute the value of prix_ek prix_centrale  """
         _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
         for record in self:
