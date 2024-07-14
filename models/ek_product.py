@@ -329,7 +329,7 @@ class Product(models.Model):
                             "description": '',
                             "reference": record.reference if record.reference else rec.constructor_ref,
                             "price": record.prix_ek,
-                            "buyingPrice": price,
+                            "buyingPrice": record.prix_central,
                             "productCharacteristics": [],
                             "images": rec.image_url if rec.image_url else 'image_url',
                             "active": True,
@@ -819,7 +819,7 @@ class EkiProduct(models.Model):
             # Generate name for product variant using rec.name, rec.reference, and values
             name = rec.generate_name_variante(name, product.constructor_ref, values)
             if self.company_id.name == "Centrale des Achats":
-                vals["prix_central"] if "prix_central" in vals else rec.prix_central
+                price = vals["prix_central"] if "prix_central" in vals else rec.prix_central
             else:
                 price =vals["price"] if "price" in vals else rec.price
 
