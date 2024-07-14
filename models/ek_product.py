@@ -54,34 +54,6 @@ class Product(models.Model):
     prix_central = fields.Float("Prix centrale des achats")
     prix_ek = fields.Float("Prix ekiclik")
 
-    @api.depends('standard_price')
-    def _compute_prix_central(self):
-        """ Compute the value of prix_central """
-        for record in self:
-            price = record.standard_price
-
-            marge1 = (record.standard_price * 11.1) / 100
-            marge_pdv = (record.standard_price * 0.5) / 100
-
-            record.prix_central = price + marge1
-            record.price = price + marge_pdv
-
-    @api.depends('standard_price', 'categ_id')
-    def _compute_prix_ek(self):
-        """ Compute the value of prix_ek """
-        for record in self:
-            price = record.prix_central
-
-            margin = 0.5  # default margin is 50%
-
-            # Check if the product category is 'MEUBLE'
-            if record.categ_id and 'MEUBLES' in record.categ_id.name:
-                _logger.info('\n\n\n onchange cout PRODUCT  MEEEEUUUUBLLE\n\n\n\n--->> \n\n\n\n')
-
-                margin = 0.6  # change to 60% margin if category is 'MEUBLE'
-
-            record.prix_ek = price + (price * margin)
-
     @api.onchange('standard_price')
     def _onchange_cout(self):
         """ Compute the value of prix_ek prix_centrale  """
@@ -591,34 +563,7 @@ class EkiProduct(models.Model):
     def _compute_constructor_ref(self):
         for product in self:
             product.constructor_ref = product.product_tmpl_id.constructor_ref
-    @api.depends('standard_price')
-    def _compute_prix_central(self):
-        """ Compute the value of prix_central """
-        for record in self:
-            price = record.standard_price
 
-            marge1 = (record.standard_price * 11.1) / 100
-            marge_pdv = (record.standard_price * 0.5) / 100
-
-            record.prix_central = price + marge1
-            record.price = price + marge_pdv
-
-    @api.depends('standard_price', 'categ_id')
-    def _compute_prix_ek(self):
-        """ Compute the value of prix_ek """
-        for record in self:
-            price = record.prix_central
-
-
-            margin = 0.5  # default margin is 50%
-
-            # Check if the product category is 'MEUBLE'
-            if record.categ_id and 'MEUBLES' in record.categ_id.name:
-                _logger.info('\n\n\n onchange cout PRODUCT  MEEEEUUUUBLLE\n\n\n\n--->> \n\n\n\n')
-
-                margin = 0.6  # change to 60% margin if category is 'MEUBLE'
-
-            record.prix_ek = price + (price * margin)
     @api.onchange('standard_price')
     def _onchange_cout(self):
         """ Compute the value of prix_ek prix_centrale  """
@@ -640,6 +585,7 @@ class EkiProduct(models.Model):
                 marge2 = 0.6
             marge_2 = prix_central * marge2
             record.prix_ek = round(prix_central + marge_2, 2)
+
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
                           aws_access_key_id='AKIAXOFYUBQFSP2WOT5R',
