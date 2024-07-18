@@ -50,12 +50,12 @@ class ResCompany(models.Model):
         self._check_codification_length(vals)
         logging.warning("create pos ======")
         logging.warning(vals)
-        domain = ""
-        domain_cpa = ""
-        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
+        domain = "https://apiadmin-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        #config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
+        #if config_settings:
+         #   domain = config_settings.domain
+          #  domain_cpa = config_settings.domain_cpa
         url_pos = "/api/odoo/pos"
         logging.warning("update pos from odoo ======")
         logging.warning(vals)
@@ -170,12 +170,9 @@ class ResCompany(models.Model):
 
         logging.warning("create pos ======")
         logging.warning(vals)
-        domain = ""
-        domain_cpa = ""
-        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
+        domain = "https://apiadmin-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+
         url_pos = "/api/odoo/pos"
 
         if 'create_by' in vals and vals.get('create_by') != 'odoo':
