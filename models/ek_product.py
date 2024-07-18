@@ -51,8 +51,8 @@ class Product(models.Model):
         "Un produit consommable, d'un autre côté, est un produit pour lequel le stock n'est pas géré.\n"
         "Un service est un produit immatériel que vous fournissez.")
 
-    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prices', readonly=False)
-    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prices', readonly=False)
+    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prices', readonly=False, store=True)
+    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prices', readonly=False, store=True)
 
     @api.depends('standard_price', 'categ_id')
     def _compute_prices(self):
