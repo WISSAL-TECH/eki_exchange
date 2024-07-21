@@ -172,12 +172,8 @@ class Product(models.Model):
         logging.warning(vals)
 
         # 1- CREATE A PRODUCT FROM ekiclik
-        domain = ""
-        domain_cpa = ""
-        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
+        domain = "https://apiadmin-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_product = "/api/odoo/products"
@@ -404,12 +400,10 @@ class Product(models.Model):
     #    attach.write({'url': url})
 
     def write(self, vals):
-        domain = ""
-        domain_cpa = ""
+        domain = "https://apiadmin-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
+
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_archive_product = "/api/odoo/products/archive/"
@@ -684,12 +678,10 @@ class EkiProduct(models.Model):
         return rec
 
     def write(self, vals):
-        domain = ""
-        domain_cpa = ""
+        domain = "https://apiadmin-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
+
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain_cpa)
         url_archive_product = "/api/odoo/products/configuration/archive/"
