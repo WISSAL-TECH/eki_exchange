@@ -550,14 +550,14 @@ class EkiProduct(models.Model):
     image_url = fields.Char()
     image_count = fields.Float()
     name_store = fields.Char("name")
-    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prices', readonly=False)
-    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prices', readonly=False)
+    prix_central = fields.Float("Prix centrale des achats", compute='_compute_prices', readonly=False, store=True)
+    prix_ek = fields.Float("Prix ekiclik", compute='_compute_prices', readonly=False, store=True)
     constructor_ref = fields.Char(
         string='Réference constructeur produit',
         compute='_compute_constructor_ref',
         store=True
     )
-    price = fields.Float(string='Prix pdva', company_dependent=True, compute='_compute_prices')
+    price = fields.Float(string='Prix pdva', company_dependent=True, compute='_compute_prices', store=True)
 
 
     def _compute_constructor_ref(self):
