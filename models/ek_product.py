@@ -329,7 +329,7 @@ class Product(models.Model):
                             "description": '',
                             "reference": record.reference if record.reference else rec.constructor_ref,
                             "price": record.prix_ek,
-                            "buyingPrice": record.prix_central,
+                            "buyingPrice": price,
                             "productCharacteristics": [],
                             "images": rec.image_url if rec.image_url else 'image_url',
                             "active": True,
@@ -557,7 +557,7 @@ class EkiProduct(models.Model):
         compute='_compute_constructor_ref',
         store=True
     )
-    price = fields.Float(string='Prix pdva', company_dependent=True)
+    price = fields.Float(string='Prix pdva', company_dependent=True, compute='_compute_prices')
 
 
     def _compute_constructor_ref(self):
@@ -572,7 +572,10 @@ class EkiProduct(models.Model):
             price = record.standard_price
 
             marge1 = (record.standard_price * 11.11) / 100
+            marge_pdv = (record.standard_price * 0.6) / 100
             prix_central = round(price + marge1,2)
+            price_pdv = round(price + marge_pdv,2)
+            record.price = price_pdv
             record.prix_central = prix_central
             marge2 = 0.5  # default margin is 50%
 
@@ -584,7 +587,11 @@ class EkiProduct(models.Model):
 
                 marge2 = 0.6
             marge_2 = prix_central * marge2
-            record.prix_ek = round(prix_central + marge_2, 2)
+            if self.company_id.name == "Centrale des Achats":
+                record.prix_ek = round(prix_central + marge_2, 2)
+            else:
+                record.prix_ek = round(price_pdv + marge_2, 2)
+
 
     def create_doc_url(self, attach):
         s3 = boto3.client('s3',
