@@ -60,6 +60,7 @@ class Product(models.Model):
         _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
         for record in self:
             price = record.standard_price
+            price_pdv = price
 
             marge1 = (record.standard_price * 11.11) / 100
             prix_central = round(price + marge1, 2)
@@ -72,8 +73,13 @@ class Product(models.Model):
                                      (record.categ_id.parent_id and record.categ_id.parent_id.parent_id and
                                       'MEUBLES' in record.categ_id.parent_id.parent_id.name))):
                 marge2 = 0.6
-            marge_2 = prix_central * marge2
-            record.prix_ek = round(prix_central + marge_2, 2)
+            if self.company_id.name == "Centrale des Achats" or self.env.company.name == "Centrale des Achats":
+                _logger.info('\n\n\n onchange cout PRODUCT CENTRALE DEES ACHATS \n\n\n\n--->> \n\n\n\n')
+
+                record.prix_ek = round(prix_central + marge_2, 2)
+            else:
+                record.prix_ek = round(price_pdv + marge_2, 2)
+
 
 
     def generate_unique_reference(self):
