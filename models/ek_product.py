@@ -61,14 +61,14 @@ class Product(models.Model):
         _logger.info('\n\n\n onchange cout PRODUCT \n\n\n\n--->> \n\n\n\n')
         for record in self:
             price = record.standard_price
-            marge2 = 0.5  # default margin is 50%
+            marge2 = 1.5  # default margin is 50%
 
             # Check if the product category is 'MEUBLE'
             if (record.categ_id and ('MEUBLES' in record.categ_id.name or
                                      (record.categ_id.parent_id and 'MEUBLES' in record.categ_id.parent_id.name) or
                                      (record.categ_id.parent_id and record.categ_id.parent_id.parent_id and
                                       'MEUBLES' in record.categ_id.parent_id.parent_id.name))):
-                marge2 = 0.6
+                marge2 = 1.6
             if record.price:
                 _logger.info('\n\n\n onchange cout PRODUCT priiice \n\n\n\n--->> \n\n\n\n')
 
