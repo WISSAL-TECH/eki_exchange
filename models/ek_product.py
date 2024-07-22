@@ -581,7 +581,7 @@ class EkiProduct(models.Model):
 
                 marge2 = 0.6
             marge_2 = prix_central * marge2
-            if self.company_id.name == "Centrale des Achats":
+            if self.company_id.name == "Centrale des Achats" or self.env.company.name == "Centrale des Achats":
                 record.prix_ek = round(prix_central + marge_2, 2)
             else:
                 record.prix_ek = round(price_pdv + marge_2, 2)
@@ -803,7 +803,7 @@ class EkiProduct(models.Model):
 
             # Generate name for product variant using rec.name, rec.reference, and values
             name = rec.generate_name_variante(name, product.constructor_ref, values)
-            if self.company_id.name == "Centrale des Achats":
+            if self.company_id.name == "Centrale des Achats" or self.env.company.name == "Centrale des Achats":
                 price = vals["prix_central"] if "prix_central" in vals else rec.prix_central
             else:
                 price =vals["price"] if "price" in vals else rec.price
@@ -813,7 +813,7 @@ class EkiProduct(models.Model):
                 "name": vals["name"] if "name" in vals else rec.name,
                 "reference": vals["reference"] if "reference" in vals else rec.reference,
                 "product_ref_odoo": origin_product.ref_odoo if origin_product else "",
-                "price": vals["prix_ek"] if "prix_ek" in vals else rec.prix_ek,
+                "price": price,
                 "buyingPrice": vals["prix_central"] if "prix_central" in vals else rec.prix_central,
                 "state": '',
                 "productCharacteristics": [],
