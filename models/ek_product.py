@@ -582,6 +582,8 @@ class EkiProduct(models.Model):
                 marge2 = 0.6
             marge_2 = prix_central * marge2
             if self.company_id.name == "Centrale des Achats" or self.env.company.name == "Centrale des Achats":
+                _logger.info('\n\n\n onchange cout PRODUCT CENTRALE DEES ACHATS \n\n\n\n--->> \n\n\n\n')
+
                 record.prix_ek = round(prix_central + marge_2, 2)
             else:
                 record.prix_ek = round(price_pdv + marge_2, 2)
