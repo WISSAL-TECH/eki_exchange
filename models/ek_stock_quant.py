@@ -20,12 +20,9 @@ class EkQuant(models.Model):
     url_stock = '/api/odoo/stocks'
 
     def action_apply_inventory(self):
-        domain = ""
-        domain_cpa = ""
-        config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-        if config_settings:
-            domain = config_settings.domain
-            domain_cpa = config_settings.domain_cpa
+        domain = "https://apiadmin-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         products_tracked_without_lot = []
