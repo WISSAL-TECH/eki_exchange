@@ -86,7 +86,7 @@ class EkQuant(models.Model):
                 json_obj_pdv = [{
                     "pos": rec.location_id.company_id.codification,
                     "configuration_ref_odoo": rec.product_id.ref_odoo,
-                    "realQuantity": rec.quantity,
+                    "realQuantity": rec.quantity if rec.quantity else rec.inventory_quantity,
                     "price": rec.product_id.price
                 }]
                 _logger.info('\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
