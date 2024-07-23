@@ -87,7 +87,7 @@ class EkQuant(models.Model):
                     "pos": rec.location_id.company_id.codification,
                     "configuration_ref_odoo": rec.product_id.ref_odoo,
                     "realQuantity": rec.quantity,
-                    "price": rec.product_id.prix_central
+                    "price": rec.product_id.price
                 }]
                 _logger.info('\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
                 response2 = requests.put(str(domain) + rec.url_stock, data=json.dumps(json_obj_pdv),
