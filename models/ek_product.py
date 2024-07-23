@@ -335,7 +335,7 @@ class Product(models.Model):
                             "buyingPrice": record.prix_central,
                             "productCharacteristics": [],
                             "images": rec.image_url if rec.image_url else 'image_url',
-                            "active": True if rec.image_url else False,
+                            "active": True,
                             "certificateUrl": record.certificate_url,
                             "ref_odoo": record.ref_odoo,
                         }
@@ -358,7 +358,7 @@ class Product(models.Model):
                             "buyingPrice": rec.standard_price,
                             "productCharacteristics": [],
                             "images": rec.image_url if rec.image_url else 'image_url',
-                            "active": True if rec.image_url else False,
+                            "active": True,
                             "certificateUrl": rec.certificate_url,
                             "ref_odoo": record.ref_odoo,
                         }
@@ -822,7 +822,7 @@ class EkiProduct(models.Model):
                 "buyingPrice": vals["prix_central"] if "prix_central" in vals else rec.prix_central,
                 "state": '',
                 "productCharacteristics": [],
-                "active": True if 'image_url' in vals else False,
+                "active": True,
                 "description": vals["description"] if "description" in vals else rec.description,
                 "certificateUrl": vals['certificate_url'] if 'certificate_url' in vals else no_certificate_url,
                 "images": vals['image_url'] if 'image_url' in vals else no_image_image,
