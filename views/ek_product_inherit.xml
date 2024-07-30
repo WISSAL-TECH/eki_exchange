@@ -74,6 +74,23 @@
 
         </field>
     </record>
+    <record id="product_product_inherit_tree" model="ir.ui.view">
+        <field name="name">product.product.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header//button[@name='action_open_label_layout']" position="after">
+                <button type="object"
+                        name="create_purchase_order"
+                        class="oe_stat_button"
+                        icon="fa-truck" string="Commander">
+                </button>
+
+            </xpath>
+
+
+        </field>
+    </record>
 
 </odoo>
 
