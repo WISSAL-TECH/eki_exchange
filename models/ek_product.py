@@ -578,9 +578,6 @@ class EkiProduct(models.Model):
             # Use the virtual_quantity as the quantity to order
             product_qty = product.virtual_available  # virtual_available provides the virtual quantity
 
-            if product_qty <= 0:
-                continue  # Skip products with zero or negative virtual quantity
-
             order_line = {
                 'product_id': product.id,
                 'product_qty': product_qty,
@@ -589,9 +586,6 @@ class EkiProduct(models.Model):
                 'name': product.name,
             }
             order_lines.append((0, 0, order_line))
-
-        if not order_lines:
-            raise ValueError("No valid products selected for purchase order creation.")
 
         # Create the purchase order
         purchase_order = self.env['purchase.order'].create({
