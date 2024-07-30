@@ -576,7 +576,7 @@ class EkiProduct(models.Model):
                 raise ValueError("Product does not exist.")
 
             # Use the virtual_quantity as the quantity to order
-            product_qty = product.virtual_available  # virtual_available provides the virtual quantity
+            product_qty = product.virtual_available * -1 # virtual_available provides the virtual quantity
 
             order_line = {
                 'product_id': product.id,
