@@ -560,6 +560,46 @@ class EkiProduct(models.Model):
     )
     price = fields.Float(string='Prix pdva', company_dependent=True, compute='_compute_prices', store=True)
 
+    def create_purchase_order(self, partner_name='Centrale des achats'):
+        # Search for the partner by name
+        partners = self.env['res.partner'].name_search(name=partner_name, limit=1)
+        if not partners:
+            raise ValueError(f"The partner '{partner_name}' does not exist.")
+
+        partner_id = partners[0][0]  # Extract the partner ID from the search result
+
+        order_lines = []
+
+        # Iterate over the selected products
+        for product in self:
+            if not product:
+                raise ValueError("Product does not exist.")
+
+            # Use the virtual_quantity as the quantity to order
+            product_qty = product.virtual_available  # virtual_available provides the virtual quantity
+
+            if product_qty <= 0:
+                continue  # Skip products with zero or negative virtual quantity
+
+            order_line = {
+                'product_id': product.id,
+                'product_qty': product_qty,
+                'product_uom': product.uom_id.id,
+                'price_unit': product.standard_price,
+                'name': product.name,
+            }
+            order_lines.append((0, 0, order_line))
+
+        if not order_lines:
+            raise ValueError("No valid products selected for purchase order creation.")
+
+        # Create the purchase order
+        purchase_order = self.env['purchase.order'].create({
+            'partner_id': partner_id,
+            'order_line': order_lines,
+        })
+
+        return purchase_order
 
     def _compute_constructor_ref(self):
         for product in self:
