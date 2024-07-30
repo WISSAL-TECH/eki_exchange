@@ -44,12 +44,8 @@ class ResUsers(models.Model):
             logging.warning("create user ======")
             logging.warning(vals)
 
-            domain = ""
-            domain_cpa = ""
-            config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
-            if config_settings:
-                domain = config_settings.domain
-                domain_cpa = config_settings.domain_cpa
+            domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+            domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
             url_users = "/api/odoo/users"
 
             data = {

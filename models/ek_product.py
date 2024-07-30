@@ -179,8 +179,8 @@ class Product(models.Model):
         logging.warning(vals)
 
         # 1- CREATE A PRODUCT FROM ekiclik
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
         url_product = "/api/odoo/products"
@@ -407,8 +407,8 @@ class Product(models.Model):
     #    attach.write({'url': url})
 
     def write(self, vals):
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
 
         _logger.info(
@@ -683,8 +683,8 @@ class EkiProduct(models.Model):
         return rec
 
     def write(self, vals):
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
         config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
 
         _logger.info('\n\n\nDOMAIN\n\n\n\n--->>  %s\n\n\n\n', domain)

@@ -29,8 +29,8 @@ class ResPartner(models.Model):
         '\n\n\nvals\n\n\n\n--->>  %s\n\n\n\n', vals)
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
             
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
@@ -113,8 +113,8 @@ class ResPartner(models.Model):
 
         # SET THE ENVIREMENT
         utils = self.env['odoo_utils']
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
 
 
         # THIS CONDITION IS MADE BECAUSE OF

@@ -50,8 +50,8 @@ class ResCompany(models.Model):
         self._check_codification_length(vals)
         logging.warning("create pos ======")
         logging.warning(vals)
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
         #config_settings = self.env['res.config.settings'].search([], order='id desc', limit=1)
         #if config_settings:
          #   domain = config_settings.domain
@@ -170,8 +170,8 @@ class ResCompany(models.Model):
 
         logging.warning("create pos ======")
         logging.warning(vals)
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
 
         url_pos = "/api/odoo/pos"
 

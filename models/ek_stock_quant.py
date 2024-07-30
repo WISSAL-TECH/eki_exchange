@@ -20,8 +20,8 @@ class EkQuant(models.Model):
     url_stock = '/api/odoo/stocks'
 
     def action_apply_inventory(self):
-        domain = "https://apiadmin-alsalam.ekiclik.dz"
-        domain_cpa = "https://apiadmin-cpa.ekiclik.dz"
+        domain = "https://apiadmin-preprod-alsalam.ekiclik.dz"
+        domain_cpa = "https://apiadmin.cpa-preprod.ekiclik.dz"
 
         _logger.info(
             '\n\n\nDOMAAIN\n\n\n\n--->>  %s\n\n\n\n', domain)
