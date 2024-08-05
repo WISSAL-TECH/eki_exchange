@@ -315,6 +315,7 @@ class Product(models.Model):
                         # generate reference for variante
                         reference = record.generate_code()
                         record.write({'reference': reference})
+                        record.write({'price': rec.price})
                         # take reference value
                         reference = record.reference if record.reference else rec.constructor_ref
 
