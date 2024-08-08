@@ -25,7 +25,10 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='categ_id']" position="before">
-                <field name="price" string="Prix pdva"/>
+                <field name="selling_price_pdv" string="Prix de vente pdva"
+                       attrs="{'invisible': [('company_id', '=', 'Centrale des Achats')]}"/>
+                <field name="price" string="Prix pdva"
+                       attrs="{'invisible': [('company_id', '=', 'Centrale des Achats')]}"/>
 
             </xpath>
 
@@ -59,9 +62,10 @@
             <xpath expr="//field[@name='taxes_id']" position="before">
                 <field name="prix_central" string="Prix centrale des achats"/>
                 <field name="prix_ek" string="Prix ekiclik"/>
+                <field name="selling_price_pdv" string="Prix PDVA"
+                       attrs="{'invisible': [('company_id', '=', 'Centrale des Achats')]}"/>
                 <field name="price" string="Prix PDVA"
                        attrs="{'invisible': [('company_id', '=', 'Centrale des Achats')]}"/>
-
                 <field name="constructor_ref"/>
 
             </xpath>

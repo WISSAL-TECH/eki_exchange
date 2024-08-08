@@ -73,7 +73,8 @@ class EkQuant(models.Model):
                     "pos": "EKIWH",
                     "configuration_ref_odoo": rec.product_id.ref_odoo,
                     "realQuantity": rec.quantity,
-                    "price": rec.product_id.standard_price
+                    "price": rec.product_id.standard_price,
+                    "sellingPrice": rec.product_id.prix_ek,
                 }]
                 _logger.info('\n\n\n sending stock.picking to ek \n\n\n\n--->>  %s\n\n\n\n', json_obj)
                 response1 = requests.put(str(domain) + rec.url_stock, data=json.dumps(json_obj), headers=rec.headers)
@@ -83,11 +84,13 @@ class EkQuant(models.Model):
                 _logger.info('\n\n\n response cpa \n\n\n\n--->>  %s\n\n\n\n', response_cpa)
                 response.extend([response1, response_cpa])
             else:
+                selling_price =  rec.product_id.selling_price_pdv if rec.product_id.selling_price_pdv else rec.product_id.prix_ek
                 json_obj_pdv = [{
                     "pos": rec.location_id.company_id.codification,
                     "configuration_ref_odoo": rec.product_id.ref_odoo,
                     "realQuantity": rec.quantity if rec.quantity else rec.inventory_quantity,
-                    "price": rec.product_id.price
+                    "price": rec.product_id.price,
+                    "sellingPrice": selling_price,
                 }]
                 _logger.info('\n\n\n sending stock.picking to PDV \n\n\n\n--->>  %s\n\n\n\n', json_obj_pdv)
                 response2 = requests.put(str(domain) + rec.url_stock, data=json.dumps(json_obj_pdv),

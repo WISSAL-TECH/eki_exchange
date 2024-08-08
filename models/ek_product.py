@@ -53,7 +53,8 @@ class Product(models.Model):
 
     prix_central = fields.Float("Prix centrale des achats", compute='_compute_prices', readonly=False, store=True)
     prix_ek = fields.Float("Prix ekiclik", compute='_compute_prices', readonly=False, store=True)
-    price = fields.Float("Prix PDVA", compute='_compute_prices', readonly=False, store=True)
+    selling_price_pdv = fields.Float("Prix de vente PDVA", compute='_compute_prices', company_dependent=True, readonly=False, store=True)
+    price = fields.Float("Prix PDVA", compute='_compute_prices', company_dependent=True, readonly=False, store=True)
 
     @api.depends('standard_price', 'categ_id', 'price')
     def _compute_prices(self):
@@ -72,7 +73,7 @@ class Product(models.Model):
             if record.price:
                 _logger.info('\n\n\n onchange cout PRODUCT priiice \n\n\n\n--->> \n\n\n\n')
 
-                record.prix_ek = round(record.price * marge2, 2)
+                record.selling_price_pdv = round(record.price * marge2, 2)
             else:
                 marge1 = (record.standard_price * 11.11) / 100
                 prix_central = round(price + marge1, 2)
@@ -554,6 +555,8 @@ class EkiProduct(models.Model):
     name_store = fields.Char("name")
     prix_central = fields.Float("Prix centrale des achats", compute='_compute_prices', readonly=False, store=True)
     prix_ek = fields.Float("Prix ekiclik", compute='_compute_prices', readonly=False, store=True)
+    selling_price_pdv = fields.Float("Prix de vente PDVA", compute='_compute_prices', company_dependent=True
+                                  ,readonly=False, store=True)
     constructor_ref = fields.Char(
         string='Réference constructeur produit',
         compute='_compute_constructor_ref',
@@ -617,7 +620,7 @@ class EkiProduct(models.Model):
             if record.price:
                 _logger.info('\n\n\n onchange cout PRODUCT priiice \n\n\n\n--->> \n\n\n\n')
 
-                record.prix_ek = round(record.price * marge2, 2)
+                record.selling_price_pdv = round(record.price * marge2, 2)
             else:
                 marge1 = (record.standard_price * 11.11) / 100
                 prix_central = round(price + marge1, 2)
